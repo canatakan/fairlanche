@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 contract EtherDistributor {
     struct User {
-        uint256 id;  // ids starting from 1
+        uint256 id; // ids starting from 1
         address payable addr;
         uint256 balance;
         uint256 demandEpoch;
@@ -34,4 +34,13 @@ contract EtherDistributor {
         permissionedUsers.push(currentUser);
         permissionedAddresses[_addr] = currentUser;
     }
+
+    function demand(uint256 volume) public {}
+
+    function claim() public {}
+
+    function _updateState() internal {}
+
+    // only called by _updateState, hence, assumes that the state is updated
+    function _calculateShare() internal {}
 }
