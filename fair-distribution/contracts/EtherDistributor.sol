@@ -49,17 +49,15 @@ contract EtherDistributor {
     }
 
     function demand(uint16 volume) public {
-        require(
-            permissionedAddresses[msg.sender].id != 0,
-            "User does not have the permission."
-        );
+        User memory currentUser = permissionedAddresses[msg.sender];
+        require(currentUser.id != 0, "User does not have the permission.");
         require(volume > 0 && volume <= maxDemandVolume, "Invalid volume.");
-        // TODO: epoch check should be made here
+        _updateState();
+        require(currentUser.demandEpoch < epoch, "Wait for the next epoch.");
         numberOfDemands[volume]++;
         totalDemand++;
-        permissionedAddresses[msg.sender].demandedVolume = volume;
-        // share should be updated here:
-        _updateState();
+        currentUser.demandedVolume = volume;
+        currentUser.demandEpoch = epoch;
     }
 
     function claim() public {
@@ -103,7 +101,7 @@ contract EtherDistributor {
         for (uint16 i = 1; i <= maxDemandVolume; i++) {
             // always point to the previous necessaryCapacity
             sufficientCapacity = necessaryCapacity;
-            
+
             // use the previous values of cumulativeNODSum and cumulativeTDVSum
             necessaryCapacity =
                 cumulativeTDVSum +
