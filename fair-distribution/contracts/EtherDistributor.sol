@@ -70,25 +70,26 @@ contract EtherDistributor {
         uint256 cumulativeTDVSum = 0;
         uint256 necessaryCapacity = 0;
 
-        for (uint16 i = 1; i < maxDemandVolume; i++) {
+        for (uint16 i = 1; i <= maxDemandVolume; i++) {
             uint256 currentNOD = numberOfDemands[i];
             if (currentNOD == 0) {
                 // skip calculations if there is no demand
                 continue;
             }
-
-            uint256 currentTDV = currentNOD * i;
-
+            
+            // use the previous values of cumulativeNODSum and cumulativeTDVSum
             necessaryCapacity =
                 cumulativeTDVSum +
                 i *
                 (totalDemand - cumulativeNODSum);
+            
+            // then calculate the new values
+            cumulativeNODSum += currentNOD;
+            cumulativeTDVSum += currentNOD * i;
+
             if (necessaryCapacity > capacity) {
                 return i - 1;
             }
-
-            cumulativeNODSum += currentNOD;
-            cumulativeTDVSum += currentTDV;
         }
 
         return maxDemandVolume;
