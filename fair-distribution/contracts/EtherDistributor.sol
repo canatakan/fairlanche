@@ -101,17 +101,16 @@ contract EtherDistributor {
         uint256 sufficientCapacity = 0; // the latest necessaryCapacity that can be distributed
 
         for (uint16 i = 1; i <= maxDemandVolume; i++) {
-            uint256 currentNOD = numberOfDemands[i];
-            if (currentNOD == 0) {
-                // skip calculations if there is no demand
-                continue;
-            }
-
+            // always point to the previous necessaryCapacity
+            sufficientCapacity = necessaryCapacity;
+            
             // use the previous values of cumulativeNODSum and cumulativeTDVSum
             necessaryCapacity =
                 cumulativeTDVSum +
                 i *
                 (totalDemand - cumulativeNODSum);
+
+            uint256 currentNOD = numberOfDemands[i];
 
             // then calculate the new values
             cumulativeNODSum += currentNOD;
@@ -121,9 +120,6 @@ contract EtherDistributor {
                 // necessaryCapacity for this volume is larger than the cumulativeCapacity
                 // so, sufficientCapacity stores the maximum amount that can be distributed
                 return (i - 1, sufficientCapacity);
-            } else {
-                // current capacity is sufficient
-                sufficientCapacity = necessaryCapacity;
             }
         }
 
