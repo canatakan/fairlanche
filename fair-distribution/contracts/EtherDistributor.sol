@@ -2,11 +2,18 @@
 pragma solidity ^0.8.13;
 
 contract EtherDistributor {
+    uint16 public constant demandExpirationTime = 100;
+
+    struct demandData {
+        uint256 epochMultiplier;
+        uint16 volume;
+    }
+
     struct User {
         uint256 id; // ids starting from 1
         address payable addr;
-        uint16 demandedVolume; // demand volume of the user
-        uint256 demandEpoch;
+        demandData[demandExpirationTime] demandedVolumes;
+        uint256 lastDemandEpoch;
         uint256 claimEpoch;
     }
 
@@ -19,14 +26,15 @@ contract EtherDistributor {
     uint16 public constant maxDemandVolume = 10;
     uint256 public constant epochCapacity = 5;
     uint256 public cumulativeCapacity;
-    uint16 public share; // calculated with _calculateShare()
+
+    uint16[demandExpirationTime] public shares; // calculated with _calculateShare()
 
     uint256[maxDemandVolume + 1] public numberOfDemands; // demand volume array
     uint256 public totalDemand; // total number of demands, D
 
     uint256 public blockOffset; // block number of the contract creation
     uint256 public constant epochDuration = 2000; // 2000 blocks
-    uint256 public epoch = 1; // epoch counter
+    uint256 public epoch = 0; // epoch counter
 
     constructor() {
         owner = msg.sender;
@@ -53,23 +61,60 @@ contract EtherDistributor {
         require(currentUser.id != 0, "User does not have the permission.");
         require(volume > 0 && volume <= maxDemandVolume, "Invalid volume.");
         _updateState();
-        require(currentUser.demandEpoch < epoch, "Wait for the next epoch.");
+        require(
+            currentUser.lastDemandEpoch < epoch,
+            "Wait for the next epoch."
+        );
         numberOfDemands[volume]++;
         totalDemand++;
-        currentUser.demandedVolume = volume;
-        currentUser.demandEpoch = epoch;
+        currentUser
+            .demandedVolumes[epoch % demandExpirationTime]
+            .epochMultiplier = epoch / demandExpirationTime;
+        currentUser
+            .demandedVolumes[epoch % demandExpirationTime]
+            .volume = volume;
+        currentUser.lastDemandEpoch = epoch;
     }
 
-    function claim() public {
+    function claim(uint256 epochNumber) public {
+        User memory currentUser = permissionedAddresses[msg.sender];
+        require(currentUser.id != 0, "User does not have the permission.");
+        require(epochNumber < epoch, "Invalid epoch number.");
+        require(
+            epochNumber > epoch - demandExpirationTime,
+            "Your share is lost."
+        );
+
         // send min(share, User.demanded) to User.addr
+
+        uint256 share = shares[epochNumber % demandExpirationTime];
+        uint256 demandedVolume = currentUser
+            .demandedVolumes[epochNumber % demandExpirationTime]
+            .volume;
+
+        // first, update the balance of the user
+        currentUser
+            .demandedVolumes[epochNumber % demandExpirationTime]
+            .volume = 0;
+
+        // then, send the ether
+        (bool success, ) = currentUser.addr.call{
+            value: min(share, demandedVolume)
+        }("");
+        require(success, "Transfer failed.");
     }
+
+    function claimAll() public {}
 
     function _updateState() internal {
         if (epoch < (block.number - blockOffset) / epochDuration) {
             // if the current epoch is over
             epoch = (block.number - blockOffset) / epochDuration;
             uint256 distribution;
-            (share, distribution) = _calculateShare();
+            (
+                shares[epoch % demandExpirationTime],
+                distribution
+            ) = _calculateShare();
             cumulativeCapacity -= distribution; // subtract the distributed amount
             cumulativeCapacity += epochCapacity; // add the capacity of the new epoch
         }
