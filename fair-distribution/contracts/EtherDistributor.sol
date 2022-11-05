@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 contract EtherDistributor {
     uint16 public constant demandExpirationTime = 100;
 
-    struct demandData {
+    struct DemandData {
         uint256 epochMultiplier;
         uint16 volume;
     }
@@ -12,9 +12,9 @@ contract EtherDistributor {
     struct User {
         uint256 id; // ids starting from 1
         address payable addr;
-        demandData[demandExpirationTime] demandedVolumes;
+        // list of structs [(epochMultiplier, volume), ...]
+        DemandData[demandExpirationTime] demandedVolumes;
         uint256 lastDemandEpoch;
-        uint256 claimEpoch;
     }
 
     address public owner;
@@ -51,7 +51,16 @@ contract EtherDistributor {
         // if the user does not exist, the id field should return the default value 0
         require(permissionedAddresses[_addr].id == 0, "User already exists.");
         numberOfUsers++; // user ids start from 1
-        User memory currentUser = User(numberOfUsers, _addr, 0, 0, 0);
+
+        DemandData[100] memory _demandedVolumes;
+
+        User memory currentUser = User(
+            numberOfUsers,
+            _addr,
+            _demandedVolumes,
+            0
+        );
+
         permissionedUsers.push(currentUser);
         permissionedAddresses[_addr] = currentUser;
     }
@@ -79,32 +88,71 @@ contract EtherDistributor {
     function claim(uint256 epochNumber) public {
         User memory currentUser = permissionedAddresses[msg.sender];
         require(currentUser.id != 0, "User does not have the permission.");
+
+        _updateState();
         require(epochNumber < epoch, "Invalid epoch number.");
         require(
             epochNumber > epoch - demandExpirationTime,
-            "Your share is lost."
+            "Epoch is too old."
+        );
+
+        uint256 index = epochNumber % demandExpirationTime;
+        uint256 epochMultiplierAtIndex = currentUser
+            .demandedVolumes[index]
+            .epochMultiplier;
+        uint256 volumeAtIndex = currentUser.demandedVolumes[index].volume;
+
+        require(
+            epochMultiplierAtIndex * 100 + index == epochNumber ||
+                volumeAtIndex != 0,
+            "You do not have a demand for this epoch."
         );
 
         // send min(share, User.demanded) to User.addr
 
         uint256 share = shares[epochNumber % demandExpirationTime];
-        uint256 demandedVolume = currentUser
-            .demandedVolumes[epochNumber % demandExpirationTime]
-            .volume;
 
         // first, update the balance of the user
-        currentUser
-            .demandedVolumes[epochNumber % demandExpirationTime]
-            .volume = 0;
+        currentUser.demandedVolumes[index].volume = 0;
 
         // then, send the ether
         (bool success, ) = currentUser.addr.call{
-            value: min(share, demandedVolume)
+            value: min(share, volumeAtIndex)
         }("");
         require(success, "Transfer failed.");
     }
 
-    function claimAll() public {}
+    function claimAll() public {
+        User memory currentUser = permissionedAddresses[msg.sender];
+        require(currentUser.id != 0, "User does not have the permission.");
+
+        _updateState();
+
+        uint256 claimAmount = 0;
+        for (uint256 i = 0; i < demandExpirationTime; i++) {
+            uint16 currentVolume = currentUser.demandedVolumes[i].volume;
+            uint256 currentEpochMultiplier = currentUser
+                .demandedVolumes[i]
+                .epochMultiplier;
+
+            if (currentEpochMultiplier * 100 + i < epoch - demandExpirationTime)
+                continue;
+
+            if (currentVolume == 0) continue;
+
+            claimAmount += min(
+                shares[i],
+                currentUser.demandedVolumes[i].volume
+            );
+
+            currentUser.demandedVolumes[i].volume = 0;
+        }
+
+        require(claimAmount > 0, "You have no claim.");
+
+        (bool success, ) = currentUser.addr.call{value: claimAmount}("");
+        require(success, "Transfer failed.");
+    }
 
     function _updateState() internal {
         if (epoch < (block.number - blockOffset) / epochDuration) {
