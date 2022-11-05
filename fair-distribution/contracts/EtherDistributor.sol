@@ -34,12 +34,14 @@ contract EtherDistributor {
 
     uint256 public blockOffset; // block number of the contract creation
     uint256 public constant epochDuration = 2000; // 2000 blocks
-    uint256 public epoch = 0; // epoch counter
+    uint256 public epoch; // epoch counter
 
     constructor() {
         owner = msg.sender;
         numberOfUsers = 0;
         blockOffset = block.number;
+        cumulativeCapacity = epochCapacity;
+        epoch = 0;
     }
 
     modifier onlyOwner() {
@@ -155,16 +157,19 @@ contract EtherDistributor {
     }
 
     function _updateState() internal {
-        if (epoch < (block.number - blockOffset) / epochDuration) {
+        uint256 currentEpoch = (block.number - blockOffset) / epochDuration;
+        if (epoch < currentEpoch) {
             // if the current epoch is over
+            uint256 epochDifference = currentEpoch - epoch;
             epoch = (block.number - blockOffset) / epochDuration;
+
             uint256 distribution;
             (
                 shares[epoch % demandExpirationTime],
                 distribution
             ) = _calculateShare();
             cumulativeCapacity -= distribution; // subtract the distributed amount
-            cumulativeCapacity += epochCapacity; // add the capacity of the new epoch
+            cumulativeCapacity += (epochCapacity) * epochDifference; // add the capacity of the new epoch
         }
         // TODO: refund the remaining gas to the caller
     }
