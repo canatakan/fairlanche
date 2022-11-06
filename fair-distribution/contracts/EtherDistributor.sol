@@ -4,16 +4,12 @@ pragma solidity ^0.8.13;
 contract EtherDistributor {
     uint16 public constant demandExpirationTime = 100;
 
-    struct DemandData {
-        uint256 epochMultiplier;
-        uint16 volume;
-    }
-
     struct User {
         uint256 id; // ids starting from 1
         address payable addr;
         // list of structs [(epochMultiplier, volume), ...]
-        DemandData[demandExpirationTime] demandedVolumes;
+        uint256[demandExpirationTime] epochMultipliers;
+        uint16[demandExpirationTime] demandedVolumes;
         uint256 lastDemandEpoch;
     }
 
@@ -54,11 +50,13 @@ contract EtherDistributor {
         require(permissionedAddresses[_addr].id == 0, "User already exists.");
         numberOfUsers++; // user ids start from 1
 
-        DemandData[100] memory _demandedVolumes;
+        uint256[100] memory _epochMultipliers;
+        uint16[100] memory _demandedVolumes;
 
         User memory currentUser = User(
             numberOfUsers,
             _addr,
+            _epochMultipliers,
             _demandedVolumes,
             0
         );
@@ -79,11 +77,9 @@ contract EtherDistributor {
         numberOfDemands[volume]++;
         totalDemand++;
         currentUser
-            .demandedVolumes[epoch % demandExpirationTime]
-            .epochMultiplier = epoch / demandExpirationTime;
+            .epochMultipliers[epoch % demandExpirationTime]  = epoch / demandExpirationTime;
         currentUser
-            .demandedVolumes[epoch % demandExpirationTime]
-            .volume = volume;
+            .demandedVolumes[epoch % demandExpirationTime] = volume;
         currentUser.lastDemandEpoch = epoch;
     }
 
@@ -99,10 +95,8 @@ contract EtherDistributor {
         );
 
         uint256 index = epochNumber % demandExpirationTime;
-        uint256 epochMultiplierAtIndex = currentUser
-            .demandedVolumes[index]
-            .epochMultiplier;
-        uint256 volumeAtIndex = currentUser.demandedVolumes[index].volume;
+        uint256 epochMultiplierAtIndex = currentUser.epochMultipliers[index];
+        uint256 volumeAtIndex = currentUser.demandedVolumes[index];
 
         require(
             epochMultiplierAtIndex * 100 + index == epochNumber ||
@@ -115,7 +109,7 @@ contract EtherDistributor {
         uint256 share = shares[epochNumber % demandExpirationTime];
 
         // first, update the balance of the user
-        currentUser.demandedVolumes[index].volume = 0;
+        currentUser.demandedVolumes[index] = 0;
 
         // then, send the ether
         (bool success, ) = currentUser.addr.call{
@@ -132,10 +126,9 @@ contract EtherDistributor {
 
         uint256 claimAmount = 0;
         for (uint256 i = 0; i < demandExpirationTime; i++) {
-            uint16 currentVolume = currentUser.demandedVolumes[i].volume;
+            uint16 currentVolume = currentUser.demandedVolumes[i];
             uint256 currentEpochMultiplier = currentUser
-                .demandedVolumes[i]
-                .epochMultiplier;
+                .epochMultipliers[i];
 
             if (currentEpochMultiplier * 100 + i < epoch - demandExpirationTime)
                 continue;
@@ -144,10 +137,10 @@ contract EtherDistributor {
 
             claimAmount += min(
                 shares[i],
-                currentUser.demandedVolumes[i].volume
+                currentUser.demandedVolumes[i]
             );
 
-            currentUser.demandedVolumes[i].volume = 0;
+            currentUser.demandedVolumes[i] = 0;
         }
 
         require(claimAmount > 0, "You have no claim.");
