@@ -9,21 +9,7 @@ import "remix_tests.sol";
 // Although it may fail compilation in 'Solidity Compiler' plugin
 // But it will work fine in 'Solidity Unit Testing' plugin
 import "remix_accounts.sol";
-import "../contracts/EtherDistributor.sol";
-
-contract TestEtherDistributor is EtherDistributor {
-    function updateState() public {
-        return _updateState();
-    }
-
-    function calculateShare()
-        public
-        view
-        returns (uint16 _share, uint256 _amount)
-    {
-        return super._calculateShare();
-    }
-}
+import "./TestEtherDistributor.sol";
 
 // File name has to end with '_test.sol', this file can contain more than one testSuite contracts
 contract testSuite {
