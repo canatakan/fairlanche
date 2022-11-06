@@ -76,10 +76,10 @@ contract EtherDistributor {
         );
         numberOfDemands[volume]++;
         totalDemand++;
-        currentUser
-            .epochMultipliers[epoch % demandExpirationTime]  = epoch / demandExpirationTime;
-        currentUser
-            .demandedVolumes[epoch % demandExpirationTime] = volume;
+        currentUser.epochMultipliers[epoch % demandExpirationTime] =
+            epoch /
+            demandExpirationTime;
+        currentUser.demandedVolumes[epoch % demandExpirationTime] = volume;
         currentUser.lastDemandEpoch = epoch;
     }
 
@@ -127,18 +127,14 @@ contract EtherDistributor {
         uint256 claimAmount = 0;
         for (uint256 i = 0; i < demandExpirationTime; i++) {
             uint16 currentVolume = currentUser.demandedVolumes[i];
-            uint256 currentEpochMultiplier = currentUser
-                .epochMultipliers[i];
+            uint256 currentEpochMultiplier = currentUser.epochMultipliers[i];
 
             if (currentEpochMultiplier * 100 + i < epoch - demandExpirationTime)
                 continue;
 
             if (currentVolume == 0) continue;
 
-            claimAmount += min(
-                shares[i],
-                currentUser.demandedVolumes[i]
-            );
+            claimAmount += min(shares[i], currentUser.demandedVolumes[i]);
 
             currentUser.demandedVolumes[i] = 0;
         }
