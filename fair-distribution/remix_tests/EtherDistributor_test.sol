@@ -11,10 +11,29 @@ import "remix_tests.sol";
 import "remix_accounts.sol";
 import "../contracts/EtherDistributor.sol";
 
+
+contract TestEtherDistributor is EtherDistributor {
+
+    function updateState() public {
+        return _updateState();
+    }
+
+
+    function calculateShare()
+        public
+        view
+        returns (uint16 _share, uint256 _amount)
+    {
+        return super._calculateShare();
+    }
+    
+}
+
+
 // File name has to end with '_test.sol', this file can contain more than one testSuite contracts
 contract testSuite {
 
-    EtherDistributor etherDistributor;
+    TestEtherDistributor etherDistributor;
     
     // 'beforeAll' runs before all other tests
     function beforeAll() public {
@@ -36,7 +55,7 @@ contract testSuite {
 
     function checkCalculateShare() public {
 
-        (uint16 share, uint256 distribution) =  etherDistributor._calculateShare();
+        (uint16 share, uint256 distribution) =  etherDistributor.calculateShare();
         
         Assert.equal(share, 6, "Invalid share");
         Assert.equal(distribution, 49, "Invalid distribution amount");
