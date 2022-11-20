@@ -32,7 +32,7 @@ contract EtherDistributor {
     uint256 public constant epochDuration = 2000; // 2000 blocks
     uint256 public epoch; // epoch counter
 
-    constructor() {
+    constructor() payable {
         owner = msg.sender;
         numberOfUsers = 0;
         blockOffset = block.number;
