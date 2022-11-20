@@ -2,14 +2,14 @@
 pragma solidity ^0.8.13;
 
 contract EtherDistributor {
-    uint16 public constant demandExpirationTime = 100;
+    uint16 public constant DEMAND_EXPIRATION_TIME = 100; // in epochs
 
     struct User {
         uint256 id; // ids starting from 1
         address payable addr;
         // list of structs [(epochMultiplier, volume), ...]
-        uint256[demandExpirationTime] epochMultipliers;
-        uint16[demandExpirationTime] demandedVolumes;
+        uint256[DEMAND_EXPIRATION_TIME] epochMultipliers;
+        uint16[DEMAND_EXPIRATION_TIME] demandedVolumes;
         uint256 lastDemandEpoch;
     }
 
@@ -23,7 +23,7 @@ contract EtherDistributor {
     uint256 public epochCapacity;
     uint256 public cumulativeCapacity;
 
-    uint16[demandExpirationTime] public shares; // calculated with _calculateShare()
+    uint16[DEMAND_EXPIRATION_TIME] public shares; // calculated with _calculateShare()
 
     uint256[MAX_DEMAND_VOLUME + 1] public numberOfDemands; // demand volume array
     uint256 public totalDemand; // total number of demands, D
@@ -79,10 +79,10 @@ contract EtherDistributor {
         );
         numberOfDemands[volume]++;
         totalDemand++;
-        currentUser.epochMultipliers[epoch % demandExpirationTime] =
+        currentUser.epochMultipliers[epoch % DEMAND_EXPIRATION_TIME] =
             epoch /
-            demandExpirationTime;
-        currentUser.demandedVolumes[epoch % demandExpirationTime] = volume;
+            DEMAND_EXPIRATION_TIME;
+        currentUser.demandedVolumes[epoch % DEMAND_EXPIRATION_TIME] = volume;
         currentUser.lastDemandEpoch = epoch;
     }
 
@@ -93,11 +93,11 @@ contract EtherDistributor {
         _updateState();
         require(epochNumber < epoch, "Invalid epoch number.");
         require(
-            epochNumber > epoch - demandExpirationTime,
+            epochNumber > epoch - DEMAND_EXPIRATION_TIME,
             "Epoch is too old."
         );
 
-        uint256 index = epochNumber % demandExpirationTime;
+        uint256 index = epochNumber % DEMAND_EXPIRATION_TIME;
         uint256 epochMultiplierAtIndex = currentUser.epochMultipliers[index];
         uint256 volumeAtIndex = currentUser.demandedVolumes[index];
 
@@ -109,7 +109,7 @@ contract EtherDistributor {
 
         // send min(share, User.demanded) to User.addr
 
-        uint256 share = shares[epochNumber % demandExpirationTime];
+        uint256 share = shares[epochNumber % DEMAND_EXPIRATION_TIME];
 
         // first, update the balance of the user
         currentUser.demandedVolumes[index] = 0;
@@ -128,11 +128,11 @@ contract EtherDistributor {
         _updateState();
 
         uint256 claimAmount = 0;
-        for (uint256 i = 0; i < demandExpirationTime; i++) {
+        for (uint256 i = 0; i < DEMAND_EXPIRATION_TIME; i++) {
             uint16 currentVolume = currentUser.demandedVolumes[i];
             uint256 currentEpochMultiplier = currentUser.epochMultipliers[i];
 
-            if (currentEpochMultiplier * 100 + i < epoch - demandExpirationTime)
+            if (currentEpochMultiplier * 100 + i < epoch - DEMAND_EXPIRATION_TIME)
                 continue;
 
             if (currentVolume == 0) continue;
@@ -148,7 +148,7 @@ contract EtherDistributor {
         require(success, "Transfer failed.");
     }
 
-    function _updateState() public onlyOwner {
+    function _updateState() public {
         uint256 currentEpoch = ((block.number - blockOffset) / epochDuration) + 1;
         if (epoch < currentEpoch) {
             // if the current epoch is over
@@ -157,7 +157,7 @@ contract EtherDistributor {
 
             uint256 distribution;
             (
-                shares[epoch % demandExpirationTime],
+                shares[epoch % DEMAND_EXPIRATION_TIME],
                 distribution
             ) = _calculateShare();
             cumulativeCapacity -= distribution; // subtract the distributed amount

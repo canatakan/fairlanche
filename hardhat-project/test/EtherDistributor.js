@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 const { time, mine } = require("@nomicfoundation/hardhat-network-helpers");
 
 
-describe("EtherDistributor contract", function () {
+describe("EtherDistributor contract basics", function () {
 
   this.beforeAll(async function () {
     this.EtherDistributor = await ethers.getContractFactory("EtherDistributor");
@@ -67,7 +67,6 @@ describe("EtherDistributor contract", function () {
       await expect(this.etherDistributor.connect(accounts[1]).addPermissionedUser(accounts[9].address)).to.be.revertedWith("Only owner can call this function.");
     });
   });
-
 
   describe("Epochs", function () {
     it("Should start with epoch 1", async function () {
