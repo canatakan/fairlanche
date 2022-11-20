@@ -19,23 +19,25 @@ contract EtherDistributor {
     User[] public permissionedUsers;
     mapping(address => User) public permissionedAddresses;
 
-    uint16 public constant maxDemandVolume = 10;
-    uint256 public constant epochCapacity = 5;
+    uint16 public constant MAX_DEMAND_VOLUME = 10;
+    uint256 public epochCapacity;
     uint256 public cumulativeCapacity;
 
     uint16[demandExpirationTime] public shares; // calculated with _calculateShare()
 
-    uint256[maxDemandVolume + 1] public numberOfDemands; // demand volume array
+    uint256[MAX_DEMAND_VOLUME + 1] public numberOfDemands; // demand volume array
     uint256 public totalDemand; // total number of demands, D
 
     uint256 public blockOffset; // block number of the contract creation
-    uint256 public constant epochDuration = 2000; // 2000 blocks
+    uint256 public epochDuration; // duration of each epoch, in blocks
     uint256 public epoch; // epoch counter
 
-    constructor() payable {
+    constructor(uint256 _epochCapacity, uint256 _epochDuration) payable {
         owner = msg.sender;
         numberOfUsers = 0;
         blockOffset = block.number;
+        epochCapacity = _epochCapacity;
+        epochDuration = _epochDuration;
         cumulativeCapacity = epochCapacity;
         epoch = 0;
     }
@@ -68,7 +70,7 @@ contract EtherDistributor {
     function demand(uint16 volume) public {
         User memory currentUser = permissionedAddresses[msg.sender];
         require(currentUser.id != 0, "User does not have the permission.");
-        require(volume > 0 && volume <= maxDemandVolume, "Invalid volume.");
+        require(volume > 0 && volume <= MAX_DEMAND_VOLUME, "Invalid volume.");
         _updateState();
         require(
             currentUser.lastDemandEpoch < epoch,
@@ -185,7 +187,7 @@ contract EtherDistributor {
         uint256 necessaryCapacity = 0; // necessary capacity to meet demands at ith volume
         uint256 sufficientCapacity = 0; // the latest necessaryCapacity that can be distributed
 
-        for (uint16 i = 1; i <= maxDemandVolume; i++) {
+        for (uint16 i = 1; i <= MAX_DEMAND_VOLUME; i++) {
             // always point to the previous necessaryCapacity
             sufficientCapacity = necessaryCapacity;
 
@@ -209,7 +211,7 @@ contract EtherDistributor {
         }
 
         // cumulative capacity was enough for all demands
-        return (maxDemandVolume, necessaryCapacity);
+        return (MAX_DEMAND_VOLUME, necessaryCapacity);
     }
 
     function min(uint256 a, uint256 b) internal pure returns (uint256) {

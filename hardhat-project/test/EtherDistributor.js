@@ -5,10 +5,11 @@ describe("EtherDistributor contract", function () {
 
   this.beforeAll(async function () {
     this.EtherDistributor = await ethers.getContractFactory("EtherDistributor");
+    this.epochCapacity = 100;
+    this.epochDuration = 2000;
     this.deploymentValue = ethers.utils.parseEther("50.0");
-    this.etherDistributor = await this.EtherDistributor.deploy({ value: this.deploymentValue });
+    this.etherDistributor = await this.EtherDistributor.deploy(this.epochCapacity, this.epochDuration, { value: this.deploymentValue });
     await this.etherDistributor.deployed();
-    console.log("EtherDistributor deployed to:", this.etherDistributor.address);
   });
 
   describe("Deployment", function () {
@@ -21,6 +22,10 @@ describe("EtherDistributor contract", function () {
       expect(await ethers.provider.getBalance(this.etherDistributor.address)).to.equal(this.deploymentValue);
     });
 
+    it("Should deploy with the correct epoch capacity & duration", async function () {
+      expect(await this.etherDistributor.epochCapacity()).to.equal(this.epochCapacity);
+      expect(await this.etherDistributor.epochDuration()).to.equal(this.epochDuration);
+    });
   });
 
 });
