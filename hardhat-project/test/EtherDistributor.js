@@ -113,3 +113,27 @@ describe("EtherDistributor contract basics", function () {
     });
   });
 });
+
+describe("EtherDistributor contract demand and claim functionality", function () {
+
+  this.beforeEach(async function () {
+    // 1. deploy a new contract for each test
+    // either with beforeEach or fixtures
+
+    // 2. check if generating multiple addresses is possible
+
+    // 3. add permissioned users
+  });
+  
+  describe("Demand & claim with single user", function () {
+    // 1. demand non-permissioned
+    // 2. demand twice in single epoch
+    // ...
+  });
+
+  describe("Demand with multiple users", function () {
+  });
+
+  describe("Demand & claim multiple users", function () {
+  });
+});
