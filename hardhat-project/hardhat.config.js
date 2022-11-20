@@ -5,10 +5,10 @@ module.exports = {
   solidity: "0.8.17",
 };
 
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+task("accounts", "Prints the list of accounts with balances", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
-
   for (const account of accounts) {
-    console.log(account.address);
+    const balance = ethers.utils.formatEther(await account.getBalance());
+    console.log(account.address, "(" + balance + " ETH)");
   }
 });
