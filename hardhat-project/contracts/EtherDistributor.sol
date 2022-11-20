@@ -39,7 +39,8 @@ contract EtherDistributor {
         epochCapacity = _epochCapacity;
         epochDuration = _epochDuration;
         cumulativeCapacity = epochCapacity;
-        epoch = 0;
+        // TODO: think about the usages of epoch variable after updating it to 1
+        epoch = 1;
     }
 
     modifier onlyOwner() {
@@ -147,12 +148,12 @@ contract EtherDistributor {
         require(success, "Transfer failed.");
     }
 
-    function _updateState() internal {
-        uint256 currentEpoch = (block.number - blockOffset) / epochDuration;
+    function _updateState() public onlyOwner {
+        uint256 currentEpoch = ((block.number - blockOffset) / epochDuration) + 1;
         if (epoch < currentEpoch) {
             // if the current epoch is over
             uint256 epochDifference = currentEpoch - epoch;
-            epoch = (block.number - blockOffset) / epochDuration;
+            epoch = currentEpoch;
 
             uint256 distribution;
             (
