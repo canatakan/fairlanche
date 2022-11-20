@@ -1,15 +1,15 @@
-const EtherDistributor = artifacts.require("EtherDistributor");
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
-contract("EtherDistributor", (accounts) => {
+describe("Token contract", function () {
+  it("Deployment should assign the total supply of tokens to the owner", async function () {
+    const [owner] = await ethers.getSigners();
 
-    let etherDistributorInstance;
-    
-    before("Setup contract", async () => {
-        etherDistributorInstance = await EtherDistributor.deployed();
-    });
+    const Token = await ethers.getContractFactory("EtherDistributor");
 
-    it("should make the first account owner", async () => {
-        const owner = await etherDistributorInstance.owner();
-        assert.equal(owner, accounts[0]);
-    });
+    const hardhatToken = await Token.deploy();
+
+    const owner_ = await hardhatToken.owner();
+    expect(await hardhatToken.owner()).to.equal(owner_);
+  });
 });
