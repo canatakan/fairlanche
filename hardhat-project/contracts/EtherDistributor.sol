@@ -73,13 +73,20 @@ contract EtherDistributor {
         
         require(permissionedAddresses[msg.sender].id != 0, "User does not have the permission.");
         require(volume > 0 && volume <= MAX_DEMAND_VOLUME, "Invalid volume.");
-        _updateState();
-        require(
-            permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
-            "Wait for the next epoch."
-        );
-        numberOfDemands[volume]++;
-        totalDemand++;
+        unchecked {
+            /* _updateState() sets totalDemand numberOfDemands to 0
+            *   if the epoch is expired. That is why we need to use
+            *   unchecked here.
+            */
+            _updateState();
+            require(
+                permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
+                "Wait for the next epoch."
+            );
+            numberOfDemands[volume]++;
+            totalDemand++;
+        }
+        
         permissionedAddresses[msg.sender].epochMultipliers[epoch % DEMAND_EXPIRATION_TIME] =
             epoch /
             DEMAND_EXPIRATION_TIME;
@@ -164,6 +171,11 @@ contract EtherDistributor {
             ) = _calculateShare();
             cumulativeCapacity -= distribution; // subtract the distributed amount
             cumulativeCapacity += (epochCapacity) * epochDifference; // add the capacity of the new epoch
+
+            totalDemand = 0;
+            for (uint256 i = 0; i < MAX_DEMAND_VOLUME + 1; i++) {
+                numberOfDemands[i] = 0;
+            }
         }
         // TODO: refund the remaining gas to the caller
     }
