@@ -69,7 +69,7 @@ contract EtherDistributor {
         permissionedAddresses[_addr] = currentUser;
     }
 
-    function demand(uint16 volume) public returns (address) {
+    function demand(uint16 volume) public {
         
         require(permissionedAddresses[msg.sender].id != 0, "User does not have the permission.");
         require(volume > 0 && volume <= MAX_DEMAND_VOLUME, "Invalid volume.");
@@ -86,31 +86,7 @@ contract EtherDistributor {
         permissionedAddresses[msg.sender].demandedVolumes[epoch % DEMAND_EXPIRATION_TIME] = volume;
         permissionedAddresses[msg.sender].lastDemandEpoch = epoch;
 
-        return permissionedAddresses[msg.sender].addr;
     }
-
-    // define a view function to see user struct fields
-    function getUser(address _addr)
-        public
-        view
-        returns (
-            uint256,
-            address,
-            uint256[100] memory,
-            uint16[100] memory,
-            uint256
-        )
-    {
-        User memory currentUser = permissionedAddresses[_addr];
-        return (
-            currentUser.id,
-            currentUser.addr,
-            currentUser.epochMultipliers,
-            currentUser.demandedVolumes,
-            currentUser.lastDemandEpoch
-        );
-    }
- 
 
     function claim(uint256 epochNumber) public {
         
@@ -141,7 +117,7 @@ contract EtherDistributor {
         permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
 
         // then, send the ether
-        (bool success, ) = permissionedAddresses[msg.sender].addr.call{
+        (bool success, ) = msg.sender.call{
             value: min(share, volumeAtIndex)
         }("");
         require(success, "Transfer failed.");
@@ -170,7 +146,7 @@ contract EtherDistributor {
 
         require(claimAmount > 0, "You have no claim.");
 
-        (bool success, ) = permissionedAddresses[msg.sender].addr.call{value: claimAmount}("");
+        (bool success, ) = msg.sender.call{value: claimAmount}("");
         require(success, "Transfer failed.");
     }
 
@@ -243,5 +219,27 @@ contract EtherDistributor {
 
     function min(uint256 a, uint256 b) internal pure returns (uint256) {
         return a < b ? a : b;
+    }
+
+    // define a view function to see user struct fields
+    function getUser(address _addr)
+        public
+        view
+        returns (
+            uint256,
+            address,
+            uint256[100] memory,
+            uint16[100] memory,
+            uint256
+        )
+    {
+        User memory currentUser = permissionedAddresses[_addr];
+        return (
+            currentUser.id,
+            currentUser.addr,
+            currentUser.epochMultipliers,
+            currentUser.demandedVolumes,
+            currentUser.lastDemandEpoch
+        );
     }
 }
