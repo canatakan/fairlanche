@@ -339,7 +339,7 @@ describe("EtherDistributor contract demand and claim functionality", async funct
     });
 
     describe("Cumulative with multiple epochs", function () {
-      it("Should apply Test 1 for 2 epochs", async function () {
+      it("Should apply Calculation 1 for 2 epochs", async function () {
         const customEpochCapacity = 50;
         const { etherDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE);
         const accounts = await ethers.getSigners();
@@ -365,11 +365,11 @@ describe("EtherDistributor contract demand and claim functionality", async funct
         // cumulativeCapacity = 51, share = 6, distribution = 49, excess = 2
         var share = await etherDistributor.shares(2);
         expect(share).to.equal(6);
-        // new cumulativeCapacity = 51 + 2 (excess) = 53
-        expect(await etherDistributor.cumulativeCapacity()).to.equal(customEpochCapacity + 3  + 2);
+        // new cumulativeCapacity = 50 + 2 (excess) = 52
+        expect(await etherDistributor.cumulativeCapacity()).to.equal(customEpochCapacity + 2);
       });
 
-      it("Should apply Test 2 for 3 epochs", async function () {
+      it("Should apply Calculation 2 for 5 epochs", async function () {
         const customEpochCapacity = 48;
         const { etherDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE);
         const accounts = await ethers.getSigners();
@@ -378,35 +378,25 @@ describe("EtherDistributor contract demand and claim functionality", async funct
         }
         await mine(1);
 
-        await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
-        await mine(DEFAULT_EPOCH_DURATION);
-        await etherDistributor._updateState();
+        /*
+        * Epoch 1: cumulativeCapacity = 48, share = 5, distribution = 45, excess = 3
+        * Epoch 2: cumulativeCapacity = 51, share = 6, distribution = 49, excess = 2
+        * Epoch 3: cumulativeCapacity = 50, share = 6, distribution = 49, excess = 1
+        * Epoch 4: cumulativeCapacity = 49, share = 6, distribution = 49, excess = 0
+        * Epoch 5: cumulativeCapacity = 48, share = 5, distribution = 45, excess = 3
+        */
+        const expectedShares = [5, 6, 6, 6, 5];
+        const excessAmounts = [3, 2, 1, 0, 3];
+        for (j = 0; j < 5; j++) {
+          await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
+          await mine(DEFAULT_EPOCH_DURATION);
+          await etherDistributor._updateState();
 
-        // cumulativeCapacity = 48, share = 5, distribution = 45, excess = 3
-        var share = await etherDistributor.shares(1);
-        expect(share).to.equal(5);
-        // new cumulativeCapacity = 48 + 3 (excess) = 51
-        expect(await etherDistributor.cumulativeCapacity()).to.equal(customEpochCapacity + 3);
-        
-        await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
-        await mine(DEFAULT_EPOCH_DURATION);
-        await etherDistributor._updateState();
-        
-        // cumulativeCapacity = 51, share = 6, distribution = 49, excess = 2
-        var share = await etherDistributor.shares(2);
-        expect(share).to.equal(6);
-        // new cumulativeCapacity = 51 + 2 (excess) = 53
-        expect(await etherDistributor.cumulativeCapacity()).to.equal(customEpochCapacity + 3  + 2);
-
-        await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
-        await mine(DEFAULT_EPOCH_DURATION);
-        await etherDistributor._updateState();
-
-        // cumulativeCapacity = 53, share = 7, distribution = 53, excess = 0
-        var share = await etherDistributor.shares(3);
-        expect(share).to.equal(7);
-        // excess is 0, so the new cumulativeCapacity is the same
-        expect(await etherDistributor.cumulativeCapacity()).to.equal(customEpochCapacity);
+          var share = await etherDistributor.shares(j + 1);
+          expect(share).to.equal(expectedShares[j]);
+          // new cumulativeCapacity = epochCapacity + excessAmount
+          expect(await etherDistributor.cumulativeCapacity()).to.equal(customEpochCapacity + excessAmounts[j]);
+        }
       });
 
     });
