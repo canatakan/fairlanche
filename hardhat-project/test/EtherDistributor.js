@@ -2,9 +2,9 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { time, mine, loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 
-const EPOCH_CAPACITY = 50;
-const EPOCH_DURATION = 2000;
-const DEPLOYMENT_VALUE = ethers.utils.parseEther("1000.0");
+const DEFAULT_EPOCH_CAPACITY = 50;
+const DEFAULT_EPOCH_DURATION = 2000;
+const DEFAULT_DEPLOYMENT_VALUE = ethers.utils.parseEther("1000.0");
 
 describe("EtherDistributor contract basics", function () {
 
@@ -12,7 +12,7 @@ describe("EtherDistributor contract basics", function () {
   let etherDistributor;
 
   this.beforeAll(async function () {
-    ({ EtherDistributor, etherDistributor } = await deployDistributor());
+    ({ EtherDistributor, etherDistributor } = await deployDistributor(DEFAULT_EPOCH_CAPACITY, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE));
   });
 
   describe("Deployment", function () {
@@ -22,12 +22,12 @@ describe("EtherDistributor contract basics", function () {
     });
 
     it("Should deploy with the correct amount of Ethers", async function () {
-      expect(await ethers.provider.getBalance(etherDistributor.address)).to.equal(DEPLOYMENT_VALUE);
+      expect(await ethers.provider.getBalance(etherDistributor.address)).to.equal(DEFAULT_DEPLOYMENT_VALUE);
     });
 
     it("Should deploy with the correct epoch capacity & duration", async function () {
-      expect(await etherDistributor.epochCapacity()).to.equal(EPOCH_CAPACITY);
-      expect(await etherDistributor.epochDuration()).to.equal(EPOCH_DURATION);
+      expect(await etherDistributor.epochCapacity()).to.equal(DEFAULT_EPOCH_CAPACITY);
+      expect(await etherDistributor.epochDuration()).to.equal(DEFAULT_EPOCH_DURATION);
     });
   });
 
@@ -82,7 +82,7 @@ describe("EtherDistributor contract basics", function () {
       // check if the desired time has actually passed
       const blockOffset = await etherDistributor.blockOffset();
       const latestBlock = await time.latestBlock()
-      const currentEpoch = parseInt((latestBlock - blockOffset) / EPOCH_DURATION) + 1
+      const currentEpoch = parseInt((latestBlock - blockOffset) / DEFAULT_EPOCH_DURATION) + 1
       expect(currentEpoch).to.equal(2);
 
       // check that if the epoch has been updated in the contract storage
@@ -97,7 +97,7 @@ describe("EtherDistributor contract basics", function () {
       // check if the desired time has actually passed
       const blockOffset = await etherDistributor.blockOffset();
       const latestBlock = await time.latestBlock()
-      const currentEpoch = parseInt((latestBlock - blockOffset) / EPOCH_DURATION) + 1
+      const currentEpoch = parseInt((latestBlock - blockOffset) / DEFAULT_EPOCH_DURATION) + 1
       expect(currentEpoch).to.equal(7);
 
       // check that if the epoch has been updated in the contract storage
@@ -123,7 +123,7 @@ describe("EtherDistributor contract demand and claim functionality", async funct
     let etherDistributor;
 
     this.beforeAll(async function () {
-      ({ EtherDistributor, etherDistributor } = await deployDistributor());
+      ({ EtherDistributor, etherDistributor } = await deployDistributor(DEFAULT_EPOCH_CAPACITY, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE));
       const accounts = await ethers.getSigners();
       await etherDistributor.addPermissionedUser(accounts[1].address);
     });
@@ -141,7 +141,27 @@ describe("EtherDistributor contract demand and claim functionality", async funct
     async function permissionedDeploymentFixture() {
       let EtherDistributor;
       let etherDistributor;
-      ({ EtherDistributor, etherDistributor } = await deployDistributor());
+      ({ EtherDistributor, etherDistributor } = await deployDistributor(DEFAULT_EPOCH_CAPACITY, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE));
+      const accounts = await ethers.getSigners();
+      for (i = 1; i < 20; i++) {
+        etherDistributor.addPermissionedUser(accounts[i].address);
+      }
+      await mine(1);
+      return { EtherDistributor, etherDistributor };
+    }
+
+
+    /*
+    * Before loading customPermissionedDeploymentFixture, set the custom variables below.
+    * This apporach is used since the fixtures cannot take arguments.
+    */
+    var customEpochCapacity = DEFAULT_EPOCH_CAPACITY;
+    var customEpochDuration = DEFAULT_EPOCH_DURATION;
+    var customDeploymentValue = DEFAULT_DEPLOYMENT_VALUE;
+    async function customPermissionedDeploymentFixture() {
+      let EtherDistributor;
+      let etherDistributor;
+      ({ EtherDistributor, etherDistributor } = await deployDistributor(customEpochCapacity, customEpochDuration, customDeploymentValue));
       const accounts = await ethers.getSigners();
       for (i = 1; i < 20; i++) {
         etherDistributor.addPermissionedUser(accounts[i].address);
@@ -153,9 +173,9 @@ describe("EtherDistributor contract demand and claim functionality", async funct
     describe("Share updates", function () {
 
       it("Should be able to update the share 1 epoch later", async function () {
-        const { etherDistributor } = await loadFixture(permissionedDeploymentFixture);
+        const { etherDistributor } = await loadFixture(permissionedDeploymentFixture, 1);
         await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
-        await mine(EPOCH_DURATION);
+        await mine(DEFAULT_EPOCH_DURATION);
         await etherDistributor._updateState();
 
         // check that the share is correctly stored in the array
@@ -166,7 +186,7 @@ describe("EtherDistributor contract demand and claim functionality", async funct
       it("Should be able to update the share multiple epochs later", async function () {
         const { etherDistributor } = await loadFixture(permissionedDeploymentFixture);
         await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
-        await mine(EPOCH_DURATION * 5);
+        await mine(DEFAULT_EPOCH_DURATION * 5);
         await etherDistributor._updateState();
 
         // check that the share is correctly stored in the array
@@ -189,9 +209,10 @@ describe("EtherDistributor contract demand and claim functionality", async funct
     describe("Share and distribution calculations", function () {
       
       it("50: [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]", async function () {
-        const { etherDistributor } = await loadFixture(permissionedDeploymentFixture);
+        customEpochCapacity = 50;
+        const { etherDistributor } = await loadFixture(customPermissionedDeploymentFixture);
         await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
-        await mine(EPOCH_DURATION);
+        await mine(DEFAULT_EPOCH_DURATION);
         await etherDistributor._updateState();
 
         // check that the share is correctly stored in the array
@@ -199,7 +220,7 @@ describe("EtherDistributor contract demand and claim functionality", async funct
         expect(share).to.equal(6);
 
         // check whether the distribution is 49
-        expect(await etherDistributor.cumulativeCapacity()).to.equal(EPOCH_CAPACITY + 1);
+        expect(await etherDistributor.cumulativeCapacity()).to.equal(DEFAULT_EPOCH_CAPACITY + 1);
       });
 
       // TODO: add more tests with different capacities and demands
@@ -222,9 +243,9 @@ describe("EtherDistributor contract demand and claim functionality", async funct
 
 });
 
-async function deployDistributor() {
+async function deployDistributor(epochCapacity, epochDuration, deploymentValue) {
   EtherDistributor = await ethers.getContractFactory("EtherDistributor");
-  etherDistributor = await EtherDistributor.deploy(EPOCH_CAPACITY, EPOCH_DURATION, { value: DEPLOYMENT_VALUE });
+  etherDistributor = await EtherDistributor.deploy(epochCapacity, epochDuration, { value: deploymentValue });
   await etherDistributor.deployed();
   return { EtherDistributor, etherDistributor };
 }
