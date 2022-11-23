@@ -1,10 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { time, mine } = require("@nomicfoundation/hardhat-network-helpers");
+const { time, mine, loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 
-const EPOCH_CAPACITY = 2;
+const EPOCH_CAPACITY = 50;
 const EPOCH_DURATION = 2000;
-const DEPLOYMENT_VALUE = ethers.utils.parseEther("50.0");
+const DEPLOYMENT_VALUE = ethers.utils.parseEther("1000.0");
 
 describe("EtherDistributor contract basics", function () {
 
@@ -136,29 +136,90 @@ describe("EtherDistributor contract demand and claim functionality", async funct
     });
   });
 
-  describe("Demand with multiple users", function () {  
-  
-    let EtherDistributor;
-    let etherDistributor;
+  describe("Demand with multiple users, independent", function () {  
 
-    this.beforeAll(async function () {
-      ({ EtherDistributor, etherDistributor } = await deployDistributor(EtherDistributor, etherDistributor));
+    async function permissionedDeploymentFixture() {
+      let EtherDistributor;
+      let etherDistributor;
+      ({ EtherDistributor, etherDistributor } = await deployDistributor());
       const accounts = await ethers.getSigners();
-      await etherDistributor.addPermissionedUser(accounts[7].address);
-      await etherDistributor.addPermissionedUser(accounts[2].address);
-      await etherDistributor.addPermissionedUser(accounts[3].address);
+      for (i = 1; i < 20; i++) {
+        etherDistributor.addPermissionedUser(accounts[i].address);
+      }
+      await mine(1);
+      return { EtherDistributor, etherDistributor };
+    }
+
+    describe("Share updates", function () {
+
+      it("Should be able to update the share 1 epoch later", async function () {
+        const { etherDistributor } = await loadFixture(permissionedDeploymentFixture);
+        await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
+        await mine(EPOCH_DURATION);
+        await etherDistributor._updateState();
+
+        // check that the share is correctly stored in the array
+        const share = await etherDistributor.shares(1);
+        expect(share).to.equal(6);
+      });
+
+      it("Should be able to update the share multiple epochs later", async function () {
+        const { etherDistributor } = await loadFixture(permissionedDeploymentFixture);
+        await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
+        await mine(EPOCH_DURATION * 5);
+        await etherDistributor._updateState();
+
+        // check that the share is correctly stored in the array
+        const share = await etherDistributor.shares(1);
+        expect(share).to.equal(6);
+      });
+
+      it("Should not update the share before the epoch is over", async function () {
+        const { etherDistributor } = await loadFixture(permissionedDeploymentFixture);
+        await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
+        await mine(22);
+        await etherDistributor._updateState();
+
+        // check that the share is correctly stored in the array
+        const share = await etherDistributor.shares(1);
+        expect(share).to.equal(0);
+      });
     });
 
-    // YOUR TESTS GO HERE, USING LOCAL VARS ABOVE:
-    // it(...) { ... }
-    // EXAMPLE:
-    it("CHECK USER COUNT, IT SHOULD BE 3", async function () {
-      expect(await etherDistributor.numberOfUsers()).to.equal(3); // this is a new contract
+    describe("Share and distribution calculations", function () {
+      
+      it("50: [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]", async function () {
+        const { etherDistributor } = await loadFixture(permissionedDeploymentFixture);
+        await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
+        await mine(EPOCH_DURATION);
+        await etherDistributor._updateState();
+
+        // check that the share is correctly stored in the array
+        const share = await etherDistributor.shares(1);
+        expect(share).to.equal(6);
+
+        // check whether the distribution is 49
+        expect(await etherDistributor.cumulativeCapacity()).to.equal(EPOCH_CAPACITY + 1);
+      });
+
+      // TODO: add more tests with different capacities and demands
+
     });
+
+    async function demandBulk(etherDistributor, accounts, demandArray) {
+      for (i = 0; i < Math.min(accounts.length - 1, demandArray.length); i++) {
+        await etherDistributor.connect(accounts[i + 1]).demand(demandArray[i]);
+      }
+    }
+
+  });
+
+  describe("Demand with multiple users, cumulative", function () {
   });
 
   describe("Demand & claim multiple users", function () {
   });
+
 });
 
 async function deployDistributor() {
