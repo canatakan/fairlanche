@@ -12,7 +12,7 @@ describe("EtherDistributor contract basics", function () {
   let etherDistributor;
 
   this.beforeAll(async function () {
-    ({ EtherDistributor, etherDistributor } = await deployDistributor(EtherDistributor, etherDistributor));
+    ({ EtherDistributor, etherDistributor } = await deployDistributor());
   });
 
   describe("Deployment", function () {
@@ -123,7 +123,7 @@ describe("EtherDistributor contract demand and claim functionality", async funct
     let etherDistributor;
 
     this.beforeAll(async function () {
-      ({ EtherDistributor, etherDistributor } = await deployDistributor(EtherDistributor, etherDistributor));
+      ({ EtherDistributor, etherDistributor } = await deployDistributor());
       const accounts = await ethers.getSigners();
       await etherDistributor.addPermissionedUser(accounts[1].address);
     });
@@ -161,7 +161,7 @@ describe("EtherDistributor contract demand and claim functionality", async funct
   });
 });
 
-async function deployDistributor(EtherDistributor, etherDistributor) {
+async function deployDistributor() {
   EtherDistributor = await ethers.getContractFactory("EtherDistributor");
   etherDistributor = await EtherDistributor.deploy(EPOCH_CAPACITY, EPOCH_DURATION, { value: DEPLOYMENT_VALUE });
   await etherDistributor.deployed();
