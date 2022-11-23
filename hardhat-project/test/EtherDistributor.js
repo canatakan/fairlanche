@@ -1,7 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { time, mine } = require("@nomicfoundation/hardhat-network-helpers");
-const { parseSync } = require("yargs");
+const { time, mine, loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 
 
 describe("EtherDistributor contract basics", function () {
@@ -117,29 +116,39 @@ describe("EtherDistributor contract basics", function () {
 
 describe("EtherDistributor contract demand and claim functionality", function () {
 
-  this.beforeEach(async function () {
-    // Deploy a new contract before each test
-    this.EtherDistributor = await ethers.getContractFactory("EtherDistributor");
-    this.epochCapacity = 100;
-    this.epochDuration = 2000;
-    this.deploymentValue = ethers.utils.parseEther("50.0");
-    this.etherDistributor = await this.EtherDistributor.deploy(this.epochCapacity, this.epochDuration, { value: this.deploymentValue });
-    await this.etherDistributor.deployed();
+  async function deployDistributorFixture() {
+    const EtherDistributor = await ethers.getContractFactory("EtherDistributor");
+    const epochCapacity = 100;
+    const epochDuration = 2000;
+    const deploymentValue = ethers.utils.parseEther("50.0");
+    const etherDistributor = await EtherDistributor.deploy(epochCapacity, epochDuration, { value: deploymentValue });
+    await etherDistributor.deployed();    
+    const deploymentParams = [epochCapacity, epochDuration, deploymentValue];
 
-    // Register 5 permissioned users
+    return { EtherDistributor, etherDistributor, deploymentParams };
+  }
+
+  async function registerUsersFixture(contract) {
+    console.log("Registering users...");
+    console.log(contract.address);
     const accounts = await ethers.getSigners();
-    for (i = 1; i < 6; i++) {
-      await this.etherDistributor.addPermissionedUser(accounts[i].address);
+    for (i = 1; i < 10; i++) {
+      await contract.addPermissionedUser(accounts[i].address);
     }
-  });
+  }
   
   // describe demand functionality for single user
   describe("Demand and claim with single user", function () {
+  
+    const { etherDistributor, deploymentParams } = loadFixture(deployDistributorFixture);
+    console.log(etherDistributor.address);
+    loadFixture(registerUsersFixture, etherDistributor);
 
     // Check if the first user is permissioned
     it("Should check if the first user is permissioned", async function () {
+      console.log(await etherDistributor.owner);
       const accounts = await ethers.getSigners();
-      const user = await this.etherDistributor.permissionedAddresses((accounts[1].address))
+      const user = await etherDistributor.permissionedAddresses((accounts[1].address));
       expect(user.id).to.equal(1);
       expect(user.addr).to.equal(accounts[1].address);
     });
@@ -182,4 +191,7 @@ describe("EtherDistributor contract demand and claim functionality", function ()
       expect(demandedVolume.volume).to.equal(10);
     });    
   });
+
+  // describe
+
 });
