@@ -128,16 +128,52 @@ describe("EtherDistributor contract demand and claim functionality", async funct
       await etherDistributor.addPermissionedUser(accounts[1].address);
     });
 
-    // YOUR TESTS GO HERE, USING LOCAL VARS ABOVE:
-    // it(...) { ... }
-    // EXAMPLE:
-    it("CHECK USER COUNT, IT SHOULD BE 1", async function () {
-      expect(await etherDistributor.numberOfUsers()).to.equal(1); // this is a new contract
+
+    it("Registered user makes simple demand", async function () {
+      const accounts = await ethers.getSigners();
+      const user = accounts[1];
+      const amount = 10;
+      await etherDistributor.connect(user).demand(amount);
+      const currentEpoch = await etherDistributor.epoch();
+      const userInfo = await etherDistributor.getUser(user.address);
+      expect(userInfo[3][currentEpoch]).to.equal(amount);
+      // Last Demand Epoch: console.log("User info: ", userInfo[4]); #Correct
     });
+
+    it("Registered user makes demand with amount > epochCapacity", async function () {
+      const accounts = await ethers.getSigners();
+      const user = accounts[1];
+      const amount = DEFAULT_EPOCH_CAPACITY + 10;
+      await expect(etherDistributor.connect(user).demand(amount)).to.be.revertedWith("Invalid volume.");
+    });
+
+    // Registered user makes another demand in the same epoch (should fail)
+    it("Registered user makes demand in the same epoch", async function () {
+      const accounts = await ethers.getSigners();
+      const user = accounts[1];
+      const amount = 10;
+      await expect(etherDistributor.connect(user).demand(amount)).to.be.revertedWith("Wait for the next epoch.");
+    });
+
+    // Registered user makes another demand in the next epoch
+    it("Registered user makes demand in the next epoch", async function () {
+      const accounts = await ethers.getSigners();
+      const user = accounts[1];
+      const amount = 10;
+      await mine(await etherDistributor.epochDuration());
+      await etherDistributor._updateState();
+      await etherDistributor.connect(user).demand(amount);
+      const currentEpoch = await etherDistributor.epoch();
+      const userInfo = await etherDistributor.getUser(user.address);
+      expect(userInfo[3][currentEpoch]).to.equal(amount);
+    });
+
+    // TODO: Claims
+
   });
 
   describe("Demand with multiple users", function () {
-    
+
     async function permissionedDeploymentFixture() {
       let EtherDistributor;
       let etherDistributor;
