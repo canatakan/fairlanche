@@ -157,7 +157,7 @@ contract EtherDistributor {
 
             uint256 distribution;
             (
-                shares[epoch % DEMAND_EXPIRATION_TIME],
+                shares[(epoch - epochDifference) % DEMAND_EXPIRATION_TIME],
                 distribution
             ) = _calculateShare();
             cumulativeCapacity -= distribution; // subtract the distributed amount
