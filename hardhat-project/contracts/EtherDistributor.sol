@@ -102,7 +102,7 @@ contract EtherDistributor {
         _updateState();
         require(epochNumber < epoch, "Invalid epoch number.");
         require(
-            epochNumber > epoch - DEMAND_EXPIRATION_TIME,
+            epochNumber + DEMAND_EXPIRATION_TIME > epoch,
             "Epoch is too old."
         );
 
