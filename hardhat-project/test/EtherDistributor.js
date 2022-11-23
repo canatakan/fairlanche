@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { time, mine } = require("@nomicfoundation/hardhat-network-helpers");
+const { parseSync } = require("yargs");
 
 
 describe("EtherDistributor contract basics", function () {
@@ -117,23 +118,68 @@ describe("EtherDistributor contract basics", function () {
 describe("EtherDistributor contract demand and claim functionality", function () {
 
   this.beforeEach(async function () {
-    // 1. deploy a new contract for each test
-    // either with beforeEach or fixtures
+    // Deploy a new contract before each test
+    this.EtherDistributor = await ethers.getContractFactory("EtherDistributor");
+    this.epochCapacity = 100;
+    this.epochDuration = 2000;
+    this.deploymentValue = ethers.utils.parseEther("50.0");
+    this.etherDistributor = await this.EtherDistributor.deploy(this.epochCapacity, this.epochDuration, { value: this.deploymentValue });
+    await this.etherDistributor.deployed();
 
-    // 2. check if generating multiple addresses is possible
-
-    // 3. add permissioned users
+    // Register 5 permissioned users
+    const accounts = await ethers.getSigners();
+    for (i = 1; i < 6; i++) {
+      await this.etherDistributor.addPermissionedUser(accounts[i].address);
+    }
   });
   
-  describe("Demand & claim with single user", function () {
-    // 1. demand non-permissioned
-    // 2. demand twice in single epoch
-    // ...
-  });
+  // describe demand functionality for single user
+  describe("Demand and claim with single user", function () {
 
-  describe("Demand with multiple users", function () {
-  });
+    // Check if the first user is permissioned
+    it("Should check if the first user is permissioned", async function () {
+      const accounts = await ethers.getSigners();
+      const user = await this.etherDistributor.permissionedAddresses((accounts[1].address))
+      expect(user.id).to.equal(1);
+      expect(user.addr).to.equal(accounts[1].address);
+    });
 
-  describe("Demand & claim multiple users", function () {
+    // First user demands 10 ether in epoch 0
+    it("Should demand 10 ether in epoch 0", async function () {
+      const accounts = await ethers.getSigners();
+      await this.etherDistributor.connect(accounts[1]).demand(10);
+      const demand = await this.etherDistributor.demands(1);
+      // Get the first user's demand from Demanded Volumes struct of the contract
+      const demandedVolume = await this.etherDistributor.demandedVolumes(0);
+      expect(demandedVolume.epoch).to.equal(0);
+      expect(demandedVolume.volume).to.equal(10);
+          
+    });
+    
+    // Increment epoch by 1 and let first user demand 10 ether in epoch 1
+    it("Should demand 10 ether in epoch 1", async function () {
+      const accounts = await ethers.getSigners();
+      await mine(await this.etherDistributor.epochDuration());
+      await this.etherDistributor._updateState();
+      await this.etherDistributor.connect(accounts[1]).demand(10);
+      const demand = await this.etherDistributor.demands(1);
+      // Get the first user's demand from Demanded Volumes struct of the contract
+      const demandedVolume = await this.etherDistributor.demandedVolumes(1);
+      expect(demandedVolume.epoch).to.equal(1);
+      expect(demandedVolume.volume).to.equal(10);
+    });
+
+     // Increment epoch by 1 and let first user demand 10 ether in epoch 2
+    it("Should demand 10 ether in epoch 2", async function () {
+      const accounts = await ethers.getSigners();
+      await mine(await this.etherDistributor.epochDuration() * 2);
+      await this.etherDistributor._updateState();
+      await this.etherDistributor.connect(accounts[1]).demand(10);
+      const demand = await this.etherDistributor.demands(1);
+      // Get the first user's demand from Demanded Volumes struct of the contract
+      const demandedVolume = await this.etherDistributor.demandedVolumes(2);
+      expect(demandedVolume.epoch).to.equal(2);
+      expect(demandedVolume.volume).to.equal(10);
+    });    
   });
 });
