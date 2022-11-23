@@ -114,84 +114,44 @@ describe("EtherDistributor contract basics", function () {
   });
 });
 
-describe("EtherDistributor contract demand and claim functionality", function () {
+describe("EtherDistributor contract demand and claim functionality", async function () {
 
-  async function deployDistributorFixture() {
+  async function deploycontractFixture() {
     const EtherDistributor = await ethers.getContractFactory("EtherDistributor");
     const epochCapacity = 100;
     const epochDuration = 2000;
     const deploymentValue = ethers.utils.parseEther("50.0");
     const etherDistributor = await EtherDistributor.deploy(epochCapacity, epochDuration, { value: deploymentValue });
-    await etherDistributor.deployed();    
-    const deploymentParams = [epochCapacity, epochDuration, deploymentValue];
+    await etherDistributor.deployed();
 
-    return { EtherDistributor, etherDistributor, deploymentParams };
+    return { etherDistributor, EtherDistributor, epochCapacity, epochDuration, deploymentValue };
   }
 
-  async function registerUsersFixture(contract) {
-    console.log("Registering users...");
-    console.log(contract.address);
+  // Permissioned user fixture
+  async function permissionedUserFixture() {
+    const { etherDistributor, EtherDistributor, epochCapacity, epochDuration, deploymentValue } = await loadFixture(deploycontractFixture);
     const accounts = await ethers.getSigners();
-    for (i = 1; i < 10; i++) {
-      await contract.addPermissionedUser(accounts[i].address);
+
+    // register accounts 1-5, 0 is the owner
+    for (i = 1; i < 6; i++) {
+      await etherDistributor.addPermissionedUser(accounts[i].address);
     }
+    return etherDistributor;
   }
-  
-  // describe demand functionality for single user
-  describe("Demand and claim with single user", function () {
-  
-    const { etherDistributor, deploymentParams } = loadFixture(deployDistributorFixture);
-    console.log(etherDistributor.address);
-    loadFixture(registerUsersFixture, etherDistributor);
+  // define it and test if user is registered
+  it("Check that 5 user is registered", async function () {
+    const etherDistributor = await loadFixture(permissionedUserFixture);
+    const accounts = await ethers.getSigners();
 
-    // Check if the first user is permissioned
-    it("Should check if the first user is permissioned", async function () {
-      console.log(await etherDistributor.owner);
-      const accounts = await ethers.getSigners();
-      const user = await etherDistributor.permissionedAddresses((accounts[1].address));
-      expect(user.id).to.equal(1);
-      expect(user.addr).to.equal(accounts[1].address);
-    });
+    // check that 5 users are registered
+    expect(await etherDistributor.numberOfUsers()).to.equal(5);
 
-    // First user demands 10 ether in epoch 0
-    it("Should demand 10 ether in epoch 0", async function () {
-      const accounts = await ethers.getSigners();
-      await this.etherDistributor.connect(accounts[1]).demand(10);
-      const demand = await this.etherDistributor.demands(1);
-      // Get the first user's demand from Demanded Volumes struct of the contract
-      const demandedVolume = await this.etherDistributor.demandedVolumes(0);
-      expect(demandedVolume.epoch).to.equal(0);
-      expect(demandedVolume.volume).to.equal(10);
-          
-    });
-    
-    // Increment epoch by 1 and let first user demand 10 ether in epoch 1
-    it("Should demand 10 ether in epoch 1", async function () {
-      const accounts = await ethers.getSigners();
-      await mine(await this.etherDistributor.epochDuration());
-      await this.etherDistributor._updateState();
-      await this.etherDistributor.connect(accounts[1]).demand(10);
-      const demand = await this.etherDistributor.demands(1);
-      // Get the first user's demand from Demanded Volumes struct of the contract
-      const demandedVolume = await this.etherDistributor.demandedVolumes(1);
-      expect(demandedVolume.epoch).to.equal(1);
-      expect(demandedVolume.volume).to.equal(10);
-    });
-
-     // Increment epoch by 1 and let first user demand 10 ether in epoch 2
-    it("Should demand 10 ether in epoch 2", async function () {
-      const accounts = await ethers.getSigners();
-      await mine(await this.etherDistributor.epochDuration() * 2);
-      await this.etherDistributor._updateState();
-      await this.etherDistributor.connect(accounts[1]).demand(10);
-      const demand = await this.etherDistributor.demands(1);
-      // Get the first user's demand from Demanded Volumes struct of the contract
-      const demandedVolume = await this.etherDistributor.demandedVolumes(2);
-      expect(demandedVolume.epoch).to.equal(2);
-      expect(demandedVolume.volume).to.equal(10);
-    });    
+    // check that 5 users are registered with the correct data
+    for (i = 1; i < 6; i++) {
+      const user = await etherDistributor.permissionedAddresses((accounts[i].address))
+      expect(user.id).to.equal(i);
+      expect(user.addr).to.equal(accounts[i].address);
+    }
   });
-
-  // describe
-
 });
+
