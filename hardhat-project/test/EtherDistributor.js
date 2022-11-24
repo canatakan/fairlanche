@@ -8,11 +8,10 @@ const DEFAULT_DEPLOYMENT_VALUE = ethers.utils.parseEther("250.0");
 
 describe("EtherDistributor contract basics", function () {
 
-  let EtherDistributor;
   let etherDistributor;
 
   this.beforeAll(async function () {
-    ({ EtherDistributor, etherDistributor } = await deployDistributor(DEFAULT_EPOCH_CAPACITY, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE));
+    ({ etherDistributor } = await deployDistributor(DEFAULT_EPOCH_CAPACITY, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE));
   });
 
   describe("Deployment", function () {
