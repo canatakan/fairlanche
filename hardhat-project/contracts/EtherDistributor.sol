@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 contract EtherDistributor {
-    uint16 public constant DEMAND_EXPIRATION_TIME = 100; // in epochs
+    uint16 public constant DEMAND_EXPIRATION_TIME = 100; // * epochs
 
     struct User {
         uint256 id; // ids starting from 1
@@ -87,10 +87,10 @@ contract EtherDistributor {
             totalDemand++;
         }
         
-        permissionedAddresses[msg.sender].epochMultipliers[epoch % DEMAND_EXPIRATION_TIME] =
+        permissionedAddresses[msg.sender].epochMultipliers[epoch % (DEMAND_EXPIRATION_TIME * epochDuration)] =
             epoch /
-            DEMAND_EXPIRATION_TIME;
-        permissionedAddresses[msg.sender].demandedVolumes[epoch % DEMAND_EXPIRATION_TIME] = volume;
+            (DEMAND_EXPIRATION_TIME * epochDuration);
+        permissionedAddresses[msg.sender].demandedVolumes[epoch % (DEMAND_EXPIRATION_TIME * epochDuration)] = volume;
         permissionedAddresses[msg.sender].lastDemandEpoch = epoch;
 
     }
@@ -106,7 +106,7 @@ contract EtherDistributor {
             "Epoch is too old."
         );
 
-        uint256 index = epochNumber % DEMAND_EXPIRATION_TIME;
+        uint256 index = epochNumber % (DEMAND_EXPIRATION_TIME * epochDuration);
         uint256 epochMultiplierAtIndex = permissionedAddresses[msg.sender].epochMultipliers[index];
         uint256 volumeAtIndex = permissionedAddresses[msg.sender].demandedVolumes[index];
 
@@ -118,7 +118,7 @@ contract EtherDistributor {
 
         // send min(share, User.demanded) to User.addr
 
-        uint256 share = shares[epochNumber % DEMAND_EXPIRATION_TIME];
+        uint256 share = shares[epochNumber % (DEMAND_EXPIRATION_TIME * epochDuration)];
 
         // first, update the balance of the user
         permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
@@ -137,11 +137,11 @@ contract EtherDistributor {
         _updateState();
 
         uint256 claimAmount = 0;
-        for (uint256 i = 0; i < DEMAND_EXPIRATION_TIME; i++) {
+        for (uint256 i = 0; i < (DEMAND_EXPIRATION_TIME * epochDuration); i++) {
             uint16 currentVolume = permissionedAddresses[msg.sender].demandedVolumes[i];
             uint256 currentEpochMultiplier = permissionedAddresses[msg.sender].epochMultipliers[i];
 
-            if (currentEpochMultiplier * 100 + i < epoch - DEMAND_EXPIRATION_TIME)
+            if (currentEpochMultiplier * 100 + i < epoch - (DEMAND_EXPIRATION_TIME * epochDuration))
                 continue;
 
             if (currentVolume == 0) continue;
@@ -166,7 +166,7 @@ contract EtherDistributor {
 
             uint256 distribution;
             (
-                shares[(epoch - epochDifference) % DEMAND_EXPIRATION_TIME],
+                shares[(epoch - epochDifference) % (DEMAND_EXPIRATION_TIME * epochDuration)],
                 distribution
             ) = _calculateShare();
             cumulativeCapacity -= distribution; // subtract the distributed amount
