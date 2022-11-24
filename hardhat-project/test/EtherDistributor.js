@@ -189,7 +189,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     });
 
     // Registered user makes the claim of the epoch 2 in epoch 3
-    it("Registered user makes claim in the next epoch", async function () {
+    it("Registered user makes single claim", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
       const claimEpoch = 2;
@@ -200,8 +200,8 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       expect(userInfo[3][claimEpoch]).to.equal(0);
     });
 
-    // Registered user makes the claim of the epoch 1 after DEMAND_EXPIRATION_TIME(in epochs) + 1 blocks (should fail)
-    it("Registered user makes claim after (DEMAND_EXPIRATION_TIME * epochDuration) + 1 blocks", async function () {
+    // Registered user makes the claim of the epoch 1 after DEMAND_EXPIRATION_TIME + 1 (should fail)
+    it("Registered user makes claim after DEMAND_EXPIRATION_TIME + 1 blocks", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
       const claimEpoch = 1;
@@ -212,7 +212,6 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     });
 
     // TODO: Claim All
-
 
   });
 
