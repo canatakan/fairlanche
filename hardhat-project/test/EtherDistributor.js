@@ -507,15 +507,61 @@ describe("EtherDistributor contract demand & claim functionality", async functio
 
     });
 
-    describe("Claim", function () {
-
-      describe("Single demand claim", function () {
-        it("Should allow users to claim in the next epoch", async function () {
-
-        });
-
+    describe("Claim", function () {      
+      
+      const demandArray =  [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7];
+      let etherDistributor;
+      this.beforeAll(async function () {
+        ({ etherDistributor } = await loadFixture(permissionedDeploymentFixture));
+        await demandBulk(etherDistributor, await ethers.getSigners(), demandArray);
       });
 
+      describe("Claim single share", function () {
+        it("Should allow everyone to claim their calculated shares", async function () {
+          await mine(DEFAULT_EPOCH_DURATION);
+          await etherDistributor._updateState(); 
+          const accounts = await ethers.getSigners();
+          const claimEpoch = 1;
+          const expectedUserShares = [1, 1, 1, 2, 2, 3, 5, 5, 5, 6, 6, 6, 6]; // for capacity 50
+          for (i = 1; i <= 13; i++) {
+            const share = await etherDistributor.shares(claimEpoch);
+            
+            const userInfo =  await etherDistributor.getUser(accounts[i].address);
+            const userDemand = userInfo[3][claimEpoch];
+            expect(userDemand).to.equal(demandArray[i - 1]); // demand is correct
+            
+            const userShare = Math.min(share, userDemand);
+            expect(userShare).to.equal(expectedUserShares[i - 1]); // calculated share is correct
+
+            const initialBalance = await ethers.provider.getBalance(accounts[i].address);
+
+            const tx = await etherDistributor.connect(accounts[i]).claim(claimEpoch);
+            const userBalance = await ethers.provider.getBalance(accounts[i].address);
+            const txReceipt = await ethers.provider.getTransactionReceipt(tx.hash);
+            const gasUsed = txReceipt.gasUsed;
+            const gasPrice = tx.gasPrice;
+            const gasCost = gasUsed.mul(gasPrice);
+
+            const userInfoAfterClaim = await etherDistributor.getUser(accounts[i].address);
+            expect(userInfoAfterClaim[3][claimEpoch]).to.equal(0); // demand is reset to 0
+
+            const claimAmountWei = ethers.utils.parseEther(userShare.toString());
+            expect(userBalance).to.equal(initialBalance.add(claimAmountWei).sub(gasCost)); // transfer is correct
+          }
+        });
+
+        it("Should not allow anyone without a share to claim", async function () {
+          const accounts = await ethers.getSigners();
+          const userInfo = await etherDistributor.getUser(accounts[19].address);
+          const userDemand = userInfo[3][1];
+          expect(userDemand).to.equal(0); // demand is 0
+          await expect(etherDistributor.connect(accounts[19]).claim(1)).to.be.revertedWith("You do not have a demand for this epoch.");
+        });
+      });
+
+      describe("Claim all", function () {
+
+      });
     });
   });
 });
