@@ -154,7 +154,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       await expect(etherDistributor.connect(user).demand(amount)).to.be.revertedWith("Wait for the next epoch.");
     });
 
-    // Registered user makes another demand in the next epoch
+    // Registered user makes another demand in the next epoch (2)
     it("Registered user makes demand in the next epoch", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
@@ -167,7 +167,32 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       expect(userInfo[3][currentEpoch]).to.equal(amount);
     });
 
-    // TODO: Claims
+    // Registered user makes single claim of the epoch 2 in epoch 3
+    it("Registered user makes claim in the next epoch", async function () {
+      const accounts = await ethers.getSigners();
+      
+      const user = accounts[1];
+      const claimEpoch = 2;
+      await mine(await etherDistributor.epochDuration());
+      await etherDistributor._updateState();
+      await etherDistributor.connect(user).claim(2);
+      
+      const userInfo = await etherDistributor.getUser(user.address);
+      expect(userInfo[3][claimEpoch]).to.equal(0);
+    });
+
+    // Registered user makes single claim of the epoch 1 after DEMAND_EXPIRATION_TIME_IN_EPOCHS + 1 blocks (should fail)
+    it ("Registered user makes claim after (DEMAND_EXPIRATION_TIME * epochDuration) + 1 blocks", async function () {
+      const accounts = await ethers.getSigners();
+      const user = accounts[1];
+      const claimEpoch = 1;
+      // get DEMAND_EXPIRATION_TIME from contract
+      const DEMAND_EXPIRATION_TIME = await etherDistributor.DEMAND_EXPIRATION_TIME();
+      await mine((DEMAND_EXPIRATION_TIME + 1) * await etherDistributor.epochDuration());
+      await etherDistributor._updateState();
+      await expect(etherDistributor.connect(user).claim(claimEpoch)).to.be.revertedWith("Epoch is too old.");
+    });
+
 
   });
 
