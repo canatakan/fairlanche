@@ -202,7 +202,10 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       await etherDistributor._updateState();
       // Get the claim amount
       const userInfo = await etherDistributor.getUser(user.address);
-      const claimAmount = userInfo[3][claimEpoch];
+      //claim amount is min of (demandedValue and calculateShare[claimepoch])
+      const epochShare = await etherDistributor.shares(claimEpoch);
+      //console.log("Epoch share: ", epochShare); #Correct
+      const claimAmount = Math.min(userInfo[3][claimEpoch], epochShare);
 
       // Claim and get the transaction receipt
       const tx = await etherDistributor.connect(user).claim(claimEpoch);
@@ -220,6 +223,9 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       const claimAmountWei = ethers.utils.parseEther(claimAmount.toString());
       // check the final user balance is equal to the initial balance + claim amount - gas cost
       expect(userBalance).to.equal(userBalanceInitial.add(claimAmountWei).sub(gasCost));
+
+
+
     });
 
 
