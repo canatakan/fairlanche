@@ -146,8 +146,6 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       // Last Demand Epoch: console.log("User info: ", userInfo[4]); #Correct
     });
 
-    // BELOW TWO TESTS ARE SUBJECT TO CHANGE 
-    //--------------------------------------------------------------------------------
     // Registered user makes a demand with a value greater than the MAX_DEMAND_VALUE
     it("Should fail for the demands with a value greater than the MAX_DEMAND_VALUE", async function () {
       const accounts = await ethers.getSigners();
@@ -161,10 +159,10 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     it("Should fail for the demands with a value greater than the epochCapacity", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
-      const amount = DEFAULT_EPOCH_CAPACITY + 10;
-      await expect(etherDistributor.connect(user).demand(amount)).to.be.revertedWith("Invalid volume.");
+      const epochCapacity = await etherDistributor.epochCapacity();
+      // make a demand with a value greater than the EPOCH_CAPACITY
+      await expect(etherDistributor.connect(user).demand(epochCapacity + 1)).to.be.revertedWith("Invalid volume.");
     });
-    //--------------------------------------------------------------------------------
 
     // Registered user makes another demand in the same epoch (should fail)
     it("Should fail when the user makes multiple demands in the same epoch", async function () {
