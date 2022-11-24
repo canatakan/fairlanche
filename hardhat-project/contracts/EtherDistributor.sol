@@ -124,7 +124,8 @@ contract EtherDistributor {
         permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
 
         // then, send the ether
-        (bool success, ) = msg.sender.call{value: min(share, volumeAtIndex)}(
+   
+        (bool success, ) = msg.sender.call{value: min((share * (1 ether)), (volumeAtIndex * (1 ether)))}(
             ""
         );
         require(success, "Transfer failed.");
@@ -162,6 +163,7 @@ contract EtherDistributor {
 
         require(claimAmount > 0, "You have no claim.");
 
+       // Send the ether
         (bool success, ) = msg.sender.call{value: claimAmount}("");
         require(success, "Transfer failed.");
     }
