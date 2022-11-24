@@ -74,19 +74,13 @@ contract EtherDistributor {
             "User does not have the permission."
         );
         require(volume > 0 && volume <= MAX_DEMAND_VOLUME, "Invalid volume.");
-        unchecked {
-            /* _updateState() sets totalDemand numberOfDemands to 0
-             *   if the epoch is expired. That is why we need to use
-             *   unchecked here.
-             */
-            _updateState();
-            require(
-                permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
-                "Wait for the next epoch."
-            );
-            numberOfDemands[volume]++;
-            totalDemand++;
-        }
+        _updateState();
+        require(
+            permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
+            "Wait for the next epoch."
+        );
+        numberOfDemands[volume]++;
+        totalDemand++;
 
         permissionedAddresses[msg.sender].epochMultipliers[
             epoch % DEMAND_EXPIRATION_TIME
