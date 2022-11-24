@@ -111,7 +111,7 @@ contract EtherDistributor {
             .demandedVolumes[index];
 
         require(
-            epochMultiplierAtIndex * 100 + index == epochNumber ||
+            epochMultiplierAtIndex * DEMAND_EXPIRATION_TIME + index == epochNumber ||
                 volumeAtIndex != 0,
             "You do not have a demand for this epoch."
         );
@@ -133,37 +133,39 @@ contract EtherDistributor {
 
     function claimAll() public {
 
-        unchecked {
-            _updateState();
-            uint256 epochMultiplierAtIndex;
-            uint256 volumeAtIndex;
-            uint256 share;
-            uint256 index;
-            for (uint256 i = 0; i < DEMAND_EXPIRATION_TIME; i++) {
-                index = (epoch - i) % DEMAND_EXPIRATION_TIME;
-                epochMultiplierAtIndex = permissionedAddresses[msg.sender]
-                    .epochMultipliers[index];
-                volumeAtIndex = permissionedAddresses[msg.sender]
-                    .demandedVolumes[index];
+        _updateState();
+        uint256 epochMultiplierAtIndex;
+        uint256 volumeAtIndex;
+        uint256 share;
+        uint256 index;
+        for (uint256 i = 0; i < DEMAND_EXPIRATION_TIME; i++) {
 
-                if (
-                    epochMultiplierAtIndex * 100 + index == epoch - i &&
-                    volumeAtIndex != 0
-                ) {
-                    share = shares[index];
+            if (epoch == i){
+                break;
+            }
 
-                    // first, update the balance of the user
-                    permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
+            index = (epoch - i) % DEMAND_EXPIRATION_TIME;
+            epochMultiplierAtIndex = permissionedAddresses[msg.sender]
+                .epochMultipliers[index];
+            volumeAtIndex = permissionedAddresses[msg.sender]
+                .demandedVolumes[index];
 
-                    // then, send the ether
-                    (bool success, ) = msg.sender.call{value: min((share * (1 ether)), (volumeAtIndex * (1 ether)))}(
-                        ""
-                    );
-                    require(success, "Transfer failed.");
-                }
+            if (
+                epochMultiplierAtIndex * DEMAND_EXPIRATION_TIME + index == epoch - i &&
+                volumeAtIndex != 0
+            ) {
+                share = shares[index];
+
+                // first, update the balance of the user
+                permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
+
+                // then, send the ether
+                (bool success, ) = msg.sender.call{value: min((share * (1 ether)), (volumeAtIndex * (1 ether)))}(
+                    ""
+                );
+                require(success, "Transfer failed.");
             }
         }
-        
     }
 
     function _updateState() public {
