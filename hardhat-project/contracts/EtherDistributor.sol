@@ -111,7 +111,7 @@ contract EtherDistributor {
             .demandedVolumes[index];
 
         require(
-            epochMultiplierAtIndex * DEMAND_EXPIRATION_TIME + index == epochNumber ||
+            epochMultiplierAtIndex * DEMAND_EXPIRATION_TIME + index != epochNumber ||
                 volumeAtIndex != 0,
             "You do not have a demand for this epoch."
         );
