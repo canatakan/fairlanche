@@ -117,7 +117,6 @@ describe("EtherDistributor contract basics", function () {
 
 describe("EtherDistributor contract demand & claim functionality", async function () {
 
-
   describe("Single user", function () {
     
     let etherDistributor;
@@ -129,7 +128,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     });
 
     //Non registered user makes simple demand (should fail)
-    it("Non registered user makes simple demand", async function () {
+    it("Should fail when non-permissioned user tries to demand", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[2];
       const amount = 10;
@@ -137,7 +136,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     });
 
     // Registered user makes simple demand in epoch 1
-    it("Registered user makes simple demand", async function () {
+    it("Should make simple demand", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
       const amount = 10;
@@ -151,7 +150,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     // BELOW TWO TESTS ARE SUBJECT TO CHANGE 
     //--------------------------------------------------------------------------------
     // Registered user makes a demand with a value greater than the MAX_DEMAND_VALUE
-    it("Registered user makes a demand with a value greater than the MAX_DEMAND_VALUE", async function () {
+    it("Should fail for the demands with a value greater than the MAX_DEMAND_VALUE", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
       const MAX_DEMAND_VOLUME = await etherDistributor.MAX_DEMAND_VOLUME();
@@ -160,7 +159,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     });
 
     // Registered user makes a demand with a value greater than the EPOCH_CAPACITY
-    it("Registered user makes demand with amount > epochCapacity", async function () {
+    it("Should fail for the demands with a value greater than the epochCapacity", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
       const amount = DEFAULT_EPOCH_CAPACITY + 10;
@@ -169,7 +168,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     //--------------------------------------------------------------------------------
 
     // Registered user makes another demand in the same epoch (should fail)
-    it("Registered user makes demand in the same epoch", async function () {
+    it("Should fail when the user makes multiple demands in the same epoch", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
       const amount = 10;
@@ -177,7 +176,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     });
 
     // Registered user makes another demand in the next epoch (2)
-    it("Registered user makes demand in the next epoch", async function () {
+    it("Should be able to make another demand in Epoch 2", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
       const amount = 10;
@@ -190,8 +189,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     });
 
     // Registered user makes the claim of the epoch 2 in epoch 3
-    it("Registered user makes single claim and check his wallet balance", async function () {
-
+    it("Should be able to make the claim of Epoch 2", async function () {
 
       const accounts = await ethers.getSigners();
       const user = accounts[1];
@@ -228,7 +226,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     });
 
     // Registered user makes the claim of the epoch 1 after DEMAND_EXPIRATION_TIME + 1 (should fail)
-    it("Registered user makes claim after DEMAND_EXPIRATION_TIME + 1 blocks", async function () {
+    it("Should fail when the user tries to claim after the DEMAND_EXPIRATION_TIME", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
       const claimEpoch = 1;
@@ -237,36 +235,20 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       await etherDistributor._updateState();
       await expect(etherDistributor.connect(user).claim(claimEpoch)).to.be.revertedWith("Epoch is too old.");
     });
-  });
-
-  describe("Single user calls Claim All ", function () {
-
-    let etherDistributor;
-
-    this.beforeAll(async function () {
+    
+    // Registered user makes multiple demands in different epoch first, then after some epoch he calls claimAll function
+    it("Should allow the user to make multiple demands then claim all", async function () {
       ({ etherDistributor } = await deployDistributor(DEFAULT_EPOCH_CAPACITY, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE));
       const accounts = await ethers.getSigners();
-      await etherDistributor.addPermissionedUser(accounts[4].address);
-    });
+      const user = accounts[4];
+      await etherDistributor.addPermissionedUser(user.address);
 
-    // check epoch number is 1
-    it("Check epoch number is 1", async function () {
       const currentEpoch = await etherDistributor.epoch();
-      expect(currentEpoch).to.equal(1);
-    });
+      expect(currentEpoch).to.equal(1); // epoch number is 1
+      
+      const initialBalance = await ethers.provider.getBalance(user.address);
+      expect(initialBalance).to.equal(ethers.utils.parseEther("10000")); // initial balance is 10k ether
 
-    // expect user balance is 10 k ether
-    it("Expect user balance is 10", async function () {
-      const accounts = await ethers.getSigners();
-      const user = accounts[4];
-      const userBalance = await ethers.provider.getBalance(user.address);
-      expect(userBalance).to.equal(ethers.utils.parseEther("10000"));
-    });
-
-    // Registered user makes multiple demands in different epoch first, then after some epoch he calls claimAll function
-    it("Registered user makes multiple demands in different epoch first, then after some epoch he calls claimAll function", async function () {
-      const accounts = await ethers.getSigners();
-      const user = accounts[4];
       const amount = 10;
       const epochs = 5;
       const claimEpochs = [2, 3, 4, 5, 6];
