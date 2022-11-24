@@ -280,7 +280,68 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       // check the final user balance is equal to the initial balance + claim amount - gas cost
       expect(userBalance).to.equal(userBalanceInitial.add(claimAmountWei).sub(gasCost));
     });
+
+    // A registered user makes multiple demands in epochs 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, and 120. Then he/she calls claimAll function at epoch 130. Should be 
+    // able to claim only last 100 epochs' demands.
+    it("Should allow the user to make multiple demands then claim the ones that is not expired", async function () {
+      ({ etherDistributor } = await deployDistributor(DEFAULT_EPOCH_CAPACITY, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE));
+      const accounts = await ethers.getSigners();
+      const user = accounts[10];
+      await etherDistributor.addPermissionedUser(user.address);
+
+      const currentEpoch = await etherDistributor.epoch();
+      expect(currentEpoch).to.equal(1);
+
+      const initialBalance = await ethers.provider.getBalance(user.address);
+      expect(initialBalance).to.equal(ethers.utils.parseEther("10000"));
+
+      const amount = 10;
+      const epochs = 12;
+      const claimEpochs = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+      const claimAmounts = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+
+      // make demands in different epochs
+      for (let i = 0; i < epochs; i++) {
+        await mine(claimEpochs[i] * await etherDistributor.epochDuration());
+        await etherDistributor._updateState();
+        await etherDistributor.connect(user).demand(amount); // 11, 21, 31, 41, 51, 61, 71, 81, 91, 101, 111, 121 ...
+      }
+
+      await mine(55 * await etherDistributor.epochDuration()); // claimAll at epoch 176
+      await etherDistributor._updateState();
+
+      const currentEpochAfterDemand = await etherDistributor.epoch();
+      expect(currentEpochAfterDemand).to.equal(176);
+
+      console.log("currentEpochAfterDemand: ", currentEpochAfterDemand.toString());
+
+      const userBalanceInitial = await ethers.provider.getBalance(user.address);
+      console.log("userBalanceInitial: ", userBalanceInitial.toString());
+
+      const tx = await etherDistributor.connect(user).claimAll();
+      const userBalance = await ethers.provider.getBalance(user.address);
+      // ClaimAll at epoch 176 so should only get demands from epoch 76 to 176 which includes 81, 91, 101, 111, 121. (50)
+
+      const txReceipt = await ethers.provider.getTransactionReceipt(tx.hash);
+      const gasUsed = txReceipt.gasUsed;
+      const gasPrice = tx.gasPrice;
+      const gasCost = gasUsed.mul(gasPrice);
+
+      const userInfoAfterClaim = await etherDistributor.getUser(user.address);
+
+      // convert claim amount to wei
+      let claimAmountWei = ethers.utils.parseEther("0");
+      for (let i = 0; i < epochs; i++) {
+        claimAmountWei = claimAmountWei.add(ethers.utils.parseEther(claimAmounts[i].toString()));
+        //console.log("claimAmountWei: ",
+        claimAmountWei.toString();
+      }
+      // check the final user balance is equal to the initial balance + claim amount (50) - gas cost
+      expect(userBalance).to.equal(userBalanceInitial.add(ethers.utils.parseEther("50")).sub(gasCost));
+    });
   });
+
+
 
   describe("Multiple users", function () {
 
