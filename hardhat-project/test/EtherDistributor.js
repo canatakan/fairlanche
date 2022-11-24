@@ -560,14 +560,15 @@ describe("EtherDistributor contract demand & claim functionality", async functio
   
     describe("Claim", function () {      
         
-      const demandArray =  [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7];
-      let etherDistributor;
-      this.beforeAll(async function () {
-        ({ etherDistributor } = await loadFixture(permissionedDeploymentFixture));
-        await demandBulk(etherDistributor, await ethers.getSigners(), demandArray);
-      });
-  
       describe("Claim single share", function () {
+        
+        const demandArray =  [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7];
+        let etherDistributor;
+        this.beforeAll(async function () {
+          ({ etherDistributor } = await loadFixture(permissionedDeploymentFixture));
+          await demandBulk(etherDistributor, await ethers.getSigners(), demandArray);
+        });
+        
         it("Should allow everyone to claim their calculated shares", async function () {
           await mine(DEFAULT_EPOCH_DURATION);
           await etherDistributor._updateState(); 
@@ -610,8 +611,63 @@ describe("EtherDistributor contract demand & claim functionality", async functio
         });
       });
   
-      describe("Claim all", function () {
+      describe("Claim all shares", function () {
   
+        const demandArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let etherDistributor;
+        this.beforeAll(async function () {
+          ({ etherDistributor } = await deployDistributor(55, DEFAULT_EPOCH_DURATION, ethers.utils.parseEther("2000.0")));
+          const accounts = await ethers.getSigners();
+          for (i = 1; i <= 10; i++) {
+            etherDistributor.addPermissionedUser(accounts[i].address);
+          }
+        });
+
+        it("Should allow everyone to call claimAll() after 10 epochs of demanding", async function () {
+          const accounts = await ethers.getSigners();
+
+         /*
+          * Demands for 10 epochs:
+          * Epoch 1: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+          * Epoch 2: [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+          * Epoch 3: [3, 4, 5, 6, 7, 8, 9, 10, 1, 2]
+          * ...
+          * 
+          * Shares will be same as well. Everyone gets
+          * what they demanded since the capacity is 
+          * exactly 55.
+          * 
+          * Overall, everyone should get 55 shares.
+          */
+          
+          for(i = 0; i < 10; i++) { // keep demanding for 10 epochs
+            for (j = 0; j < 10; j++) { // all 10 users demand
+              await etherDistributor.connect(accounts[j + 1]).demand(demandArray[(j + i) % 10]);
+            }
+            await mine(DEFAULT_EPOCH_DURATION); // move to the next epoch
+          }
+
+          // check demands before claiming
+          for (i = 1; i <= 10; i++) {
+            const userInfo = await etherDistributor.getUser(accounts[i].address);
+            for (j = 1; j <= 10; j++) {
+              expect(userInfo[3][j]).to.equal(demandArray[(i + j - 2) % 10]);
+            }
+          }
+
+          for (i = 1; i <= 10; i++) {
+            const initialBalance = await ethers.provider.getBalance(accounts[i].address);
+            const tx = await etherDistributor.connect(accounts[i]).claimAll();
+            const userBalance = await ethers.provider.getBalance(accounts[i].address);
+            const txReceipt = await ethers.provider.getTransactionReceipt(tx.hash);
+            const gasUsed = txReceipt.gasUsed;
+            const gasPrice = tx.gasPrice;
+            const gasCost = gasUsed.mul(gasPrice);
+            const claimAmountWei = ethers.utils.parseEther("55.0");
+            expect(userBalance).to.equal(initialBalance.add(claimAmountWei).sub(gasCost)); // transfer is correct
+          }
+        });
+
       });
     });
   });
