@@ -127,7 +127,15 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       await etherDistributor.addPermissionedUser(accounts[1].address);
     });
 
+    //Non registered user makes simple demand (should fail)
+    it("Non registered user makes simple demand", async function () {
+      const accounts = await ethers.getSigners();
+      const user = accounts[2];
+      const amount = 10;
+      await expect(etherDistributor.connect(user).demand(amount)).to.be.revertedWith("User does not have the permission.");
+    });
 
+    // Registered user makes simple demand in epoch 1
     it("Registered user makes simple demand", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
@@ -139,12 +147,25 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       // Last Demand Epoch: console.log("User info: ", userInfo[4]); #Correct
     });
 
+    // BELOW TWO TESTS ARE SUBJECT TO CHANGE 
+    //--------------------------------------------------------------------------------
+    // Registered user makes a demand with a value greater than the MAX_DEMAND_VALUE
+    it("Registered user makes a demand with a value greater than the MAX_DEMAND_VALUE", async function () {
+      const accounts = await ethers.getSigners();
+      const user = accounts[1];
+      const MAX_DEMAND_VOLUME = await etherDistributor.MAX_DEMAND_VOLUME();
+      // make a demand with a value greater than the MAX_DEMAND_VALUE
+      await expect(etherDistributor.connect(user).demand(MAX_DEMAND_VOLUME + 1)).to.be.revertedWith("Invalid volume.");
+    });
+
+    // Registered user makes a demand with a value greater than the EPOCH_CAPACITY
     it("Registered user makes demand with amount > epochCapacity", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
       const amount = DEFAULT_EPOCH_CAPACITY + 10;
       await expect(etherDistributor.connect(user).demand(amount)).to.be.revertedWith("Invalid volume.");
     });
+    //--------------------------------------------------------------------------------
 
     // Registered user makes another demand in the same epoch (should fail)
     it("Registered user makes demand in the same epoch", async function () {
@@ -167,31 +188,30 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       expect(userInfo[3][currentEpoch]).to.equal(amount);
     });
 
-    // Registered user makes single claim of the epoch 2 in epoch 3
+    // Registered user makes the claim of the epoch 2 in epoch 3
     it("Registered user makes claim in the next epoch", async function () {
       const accounts = await ethers.getSigners();
-      
       const user = accounts[1];
       const claimEpoch = 2;
       await mine(await etherDistributor.epochDuration());
       await etherDistributor._updateState();
       await etherDistributor.connect(user).claim(2);
-      
       const userInfo = await etherDistributor.getUser(user.address);
       expect(userInfo[3][claimEpoch]).to.equal(0);
     });
 
-    // Registered user makes single claim of the epoch 1 after DEMAND_EXPIRATION_TIME_IN_EPOCHS + 1 blocks (should fail)
-    it ("Registered user makes claim after (DEMAND_EXPIRATION_TIME * epochDuration) + 1 blocks", async function () {
+    // Registered user makes the claim of the epoch 1 after DEMAND_EXPIRATION_TIME(in epochs) + 1 blocks (should fail)
+    it("Registered user makes claim after (DEMAND_EXPIRATION_TIME * epochDuration) + 1 blocks", async function () {
       const accounts = await ethers.getSigners();
       const user = accounts[1];
       const claimEpoch = 1;
-      // get DEMAND_EXPIRATION_TIME from contract
       const DEMAND_EXPIRATION_TIME = await etherDistributor.DEMAND_EXPIRATION_TIME();
       await mine((DEMAND_EXPIRATION_TIME + 1) * await etherDistributor.epochDuration());
       await etherDistributor._updateState();
       await expect(etherDistributor.connect(user).claim(claimEpoch)).to.be.revertedWith("Epoch is too old.");
     });
+
+    // TODO: Claim All
 
 
   });
