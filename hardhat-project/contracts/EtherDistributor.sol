@@ -10,7 +10,6 @@ contract EtherDistributor {
         // list of structs [(epochMultiplier, volume), ...]
         uint256[DEMAND_EXPIRATION_TIME] epochMultipliers;
         uint16[DEMAND_EXPIRATION_TIME] demandedVolumes;
-        
         uint256 lastDemandEpoch;
     }
 
@@ -70,34 +69,39 @@ contract EtherDistributor {
     }
 
     function demand(uint16 volume) public {
-        
-        require(permissionedAddresses[msg.sender].id != 0, "User does not have the permission.");
+        require(
+            permissionedAddresses[msg.sender].id != 0,
+            "User does not have the permission."
+        );
         require(volume > 0 && volume <= MAX_DEMAND_VOLUME, "Invalid volume.");
-        unchecked {
-            /* _updateState() sets totalDemand numberOfDemands to 0
-            *   if the epoch is expired. That is why we need to use
-            *   unchecked here.
-            */
-            _updateState();
-            require(
-                permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
-                "Wait for the next epoch."
-            );
-            numberOfDemands[volume]++;
-            totalDemand++;
-        }
-        
-        permissionedAddresses[msg.sender].epochMultipliers[epoch % DEMAND_EXPIRATION_TIME] =
-            epoch /
-            DEMAND_EXPIRATION_TIME;
-        permissionedAddresses[msg.sender].demandedVolumes[epoch % DEMAND_EXPIRATION_TIME] = volume;
-        permissionedAddresses[msg.sender].lastDemandEpoch = epoch;
+        //unchecked {
+        /* _updateState() sets totalDemand numberOfDemands to 0
+         *   if the epoch is expired. That is why we need to use
+         *   unchecked here.
+         */
+        _updateState();
+        require(
+            permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
+            "Wait for the next epoch."
+        );
+        numberOfDemands[volume]++;
+        totalDemand++;
+        //}
 
+        permissionedAddresses[msg.sender].epochMultipliers[
+            epoch % DEMAND_EXPIRATION_TIME
+        ] = epoch / DEMAND_EXPIRATION_TIME;
+        permissionedAddresses[msg.sender].demandedVolumes[
+            epoch % DEMAND_EXPIRATION_TIME
+        ] = volume;
+        permissionedAddresses[msg.sender].lastDemandEpoch = epoch;
     }
 
     function claim(uint256 epochNumber) public {
-        
-        require(permissionedAddresses[msg.sender].id != 0, "User does not have the permission.");
+        require(
+            permissionedAddresses[msg.sender].id != 0,
+            "User does not have the permission."
+        );
 
         _updateState();
         require(epochNumber < epoch, "Invalid epoch number.");
@@ -107,8 +111,10 @@ contract EtherDistributor {
         );
 
         uint256 index = epochNumber % DEMAND_EXPIRATION_TIME;
-        uint256 epochMultiplierAtIndex = permissionedAddresses[msg.sender].epochMultipliers[index];
-        uint256 volumeAtIndex = permissionedAddresses[msg.sender].demandedVolumes[index];
+        uint256 epochMultiplierAtIndex = permissionedAddresses[msg.sender]
+            .epochMultipliers[index];
+        uint256 volumeAtIndex = permissionedAddresses[msg.sender]
+            .demandedVolumes[index];
 
         require(
             epochMultiplierAtIndex * 100 + index == epochNumber ||
@@ -124,29 +130,38 @@ contract EtherDistributor {
         permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
 
         // then, send the ether
-        (bool success, ) = msg.sender.call{
-            value: min(share, volumeAtIndex)
-        }("");
+        (bool success, ) = msg.sender.call{value: min(share, volumeAtIndex)}(
+            ""
+        );
         require(success, "Transfer failed.");
     }
 
     function claimAll() public {
-       
-        require(permissionedAddresses[msg.sender].id != 0, "User does not have the permission.");
+        require(
+            permissionedAddresses[msg.sender].id != 0,
+            "User does not have the permission."
+        );
 
         _updateState();
 
         uint256 claimAmount = 0;
         for (uint256 i = 0; i < DEMAND_EXPIRATION_TIME; i++) {
-            uint16 currentVolume = permissionedAddresses[msg.sender].demandedVolumes[i];
-            uint256 currentEpochMultiplier = permissionedAddresses[msg.sender].epochMultipliers[i];
+            uint16 currentVolume = permissionedAddresses[msg.sender]
+                .demandedVolumes[i];
+            uint256 currentEpochMultiplier = permissionedAddresses[msg.sender]
+                .epochMultipliers[i];
 
-            if (currentEpochMultiplier * 100 + i < epoch - DEMAND_EXPIRATION_TIME)
-                continue;
+            if (
+                currentEpochMultiplier * 100 + i <
+                epoch - DEMAND_EXPIRATION_TIME
+            ) continue;
 
             if (currentVolume == 0) continue;
 
-            claimAmount += min(shares[i], permissionedAddresses[msg.sender].demandedVolumes[i]);
+            claimAmount += min(
+                shares[i],
+                permissionedAddresses[msg.sender].demandedVolumes[i]
+            );
 
             permissionedAddresses[msg.sender].demandedVolumes[i] = 0;
         }
@@ -158,7 +173,8 @@ contract EtherDistributor {
     }
 
     function _updateState() public {
-        uint256 currentEpoch = ((block.number - blockOffset) / epochDuration) + 1;
+        uint256 currentEpoch = ((block.number - blockOffset) / epochDuration) +
+            1;
         if (epoch < currentEpoch) {
             // if the current epoch is over
             uint256 epochDifference = currentEpoch - epoch;
