@@ -189,16 +189,41 @@ describe("EtherDistributor contract demand & claim functionality", async functio
     });
 
     // Registered user makes the claim of the epoch 2 in epoch 3
-    it("Registered user makes single claim", async function () {
+    it("Registered user makes single claim and check his wallet balance", async function () {
+
+
       const accounts = await ethers.getSigners();
       const user = accounts[1];
+
+      const userBalanceInitial = await ethers.provider.getBalance(user.address);
+
       const claimEpoch = 2;
       await mine(await etherDistributor.epochDuration());
       await etherDistributor._updateState();
-      await etherDistributor.connect(user).claim(2);
+      // Get the claim amount
       const userInfo = await etherDistributor.getUser(user.address);
-      expect(userInfo[3][claimEpoch]).to.equal(0);
+      const claimAmount = userInfo[3][claimEpoch];
+
+      // Claim and get the transaction receipt
+      const tx = await etherDistributor.connect(user).claim(claimEpoch);
+      const userBalance = await ethers.provider.getBalance(user.address);
+      const txReceipt = await ethers.provider.getTransactionReceipt(tx.hash);
+      const gasUsed = txReceipt.gasUsed;
+      const gasPrice = tx.gasPrice;
+      const gasCost = gasUsed.mul(gasPrice);
+
+      // check the userInfo[3]claimEpoch is 0
+      const userInfoAfterClaim = await etherDistributor.getUser(user.address);
+      expect(userInfoAfterClaim[3][claimEpoch]).to.equal(0);
+
+      // convert claim amount to wei
+      const claimAmountWei = ethers.utils.parseEther(claimAmount.toString());
+      // check the final user balance is equal to the initial balance + claim amount - gas cost
+      expect(userBalance).to.equal(userBalanceInitial.add(claimAmountWei).sub(gasCost));
     });
+
+
+
 
     // Registered user makes the claim of the epoch 1 after DEMAND_EXPIRATION_TIME + 1 (should fail)
     it("Registered user makes claim after DEMAND_EXPIRATION_TIME + 1 blocks", async function () {
