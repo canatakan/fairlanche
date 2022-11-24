@@ -73,7 +73,7 @@ contract EtherDistributor {
             permissionedAddresses[msg.sender].id != 0,
             "User does not have the permission."
         );
-        require(volume > 0 && volume <= MAX_DEMAND_VOLUME, "Invalid volume.");
+        require((volume > 0) && (volume <= MAX_DEMAND_VOLUME) && (volume <= epochCapacity), "Invalid volume.");
         _updateState();
         require(
             permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
