@@ -132,40 +132,38 @@ contract EtherDistributor {
     }
 
     function claimAll() public {
-        require(
-            permissionedAddresses[msg.sender].id != 0,
-            "User does not have the permission."
-        );
 
-        _updateState();
+        unchecked {
+            _updateState();
+            uint256 epochMultiplierAtIndex;
+            uint256 volumeAtIndex;
+            uint256 share;
+            uint256 index;
+            for (uint256 i = 0; i < DEMAND_EXPIRATION_TIME; i++) {
+                index = (epoch - i) % DEMAND_EXPIRATION_TIME;
+                epochMultiplierAtIndex = permissionedAddresses[msg.sender]
+                    .epochMultipliers[index];
+                volumeAtIndex = permissionedAddresses[msg.sender]
+                    .demandedVolumes[index];
 
-        uint256 claimAmount = 0;
-        for (uint256 i = 0; i < DEMAND_EXPIRATION_TIME; i++) {
-            uint16 currentVolume = permissionedAddresses[msg.sender]
-                .demandedVolumes[i];
-            uint256 currentEpochMultiplier = permissionedAddresses[msg.sender]
-                .epochMultipliers[i];
+                if (
+                    epochMultiplierAtIndex * 100 + index == epoch - i &&
+                    volumeAtIndex != 0
+                ) {
+                    share = shares[index];
 
-            if (
-                currentEpochMultiplier * 100 + i <
-                epoch - DEMAND_EXPIRATION_TIME
-            ) continue;
+                    // first, update the balance of the user
+                    permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
 
-            if (currentVolume == 0) continue;
-
-            claimAmount += min(
-                shares[i],
-                permissionedAddresses[msg.sender].demandedVolumes[i]
-            );
-
-            permissionedAddresses[msg.sender].demandedVolumes[i] = 0;
+                    // then, send the ether
+                    (bool success, ) = msg.sender.call{value: min((share * (1 ether)), (volumeAtIndex * (1 ether)))}(
+                        ""
+                    );
+                    require(success, "Transfer failed.");
+                }
+            }
         }
-
-        require(claimAmount > 0, "You have no claim.");
-
-       // Send the ether
-        (bool success, ) = msg.sender.call{value: claimAmount}("");
-        require(success, "Transfer failed.");
+        
     }
 
     function _updateState() public {
