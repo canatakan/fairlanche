@@ -272,7 +272,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
         expect(userInfoAfterClaim[3][claimEpochs[i]]).to.equal(0);
       }
       // convert claim amount to wei
-      let claimAmountWei = ethers.utils.parseEther("0");
+      var claimAmountWei = ethers.utils.parseEther("0");
       for (let i = 0; i < epochs; i++) {
         claimAmountWei = claimAmountWei.add(ethers.utils.parseEther(claimAmounts[i].toString()));
         //console.log("claimAmountWei: ", claimAmountWei.toString());
@@ -352,7 +352,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
         await etherDistributor._updateState();
       }
       //printUserInfo demand array
-      console.log("demand array: ", (await etherDistributor.getUser(user.address))[3]);
+      //console.log("demand array: ", (await etherDistributor.getUser(user.address))[3]);
       // expect the current epoch to be 101
       const currentEpochAfterDemand = await etherDistributor.epoch();
       expect(currentEpochAfterDemand).to.equal(101);
@@ -368,10 +368,10 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       const gasCost = gasUsed.mul(gasPrice);
       // print users demand array
       const userInfoAfterClaim = await etherDistributor.getUser(user.address);
-      console.log("userInfoAfterClaim: ", userInfoAfterClaim[3]);
+      //console.log("userInfoAfterClaim: ", userInfoAfterClaim[3]);
 
       // check the final user balance is equal to the initial balance + claim amount (100) - gas cost  
-      expect(userBalance).to.equal(userBalanceInitial.add(ethers.utils.parseEther("100")).sub(gasCost));
+      expect(userBalance).to.equal(userBalanceInitial.add(ethers.utils.parseEther("99")).sub(gasCost));
     });
 
   });
