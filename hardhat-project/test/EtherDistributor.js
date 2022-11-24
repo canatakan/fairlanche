@@ -297,12 +297,10 @@ describe("EtherDistributor contract demand & claim functionality", async functio
 
       const amount = 10;
       const epochs = 12;
-      const claimEpochs = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
-      const claimAmounts = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 
       // make demands in different epochs
       for (let i = 0; i < epochs; i++) {
-        await mine(claimEpochs[i] * await etherDistributor.epochDuration());
+        await mine(10 * await etherDistributor.epochDuration());
         await etherDistributor._updateState();
         await etherDistributor.connect(user).demand(amount); // 11, 21, 31, 41, 51, 61, 71, 81, 91, 101, 111, 121 ...
       }
@@ -313,28 +311,25 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       const currentEpochAfterDemand = await etherDistributor.epoch();
       expect(currentEpochAfterDemand).to.equal(176);
 
-      console.log("currentEpochAfterDemand: ", currentEpochAfterDemand.toString());
+      //console.log("currentEpochAfterDemand: ", currentEpochAfterDemand.toString());
 
       const userBalanceInitial = await ethers.provider.getBalance(user.address);
-      console.log("userBalanceInitial: ", userBalanceInitial.toString());
+      //console.log("userBalanceInitial: ", userBalanceInitial.toString());
 
       const tx = await etherDistributor.connect(user).claimAll();
       const userBalance = await ethers.provider.getBalance(user.address);
-      // ClaimAll at epoch 176 so should only get demands from epoch 76 to 176 which includes 81, 91, 101, 111, 121. (50)
+      // ClaimAll at epoch 176 so should only get demands from epoch 76 to 176 which includes 81, 91, 101, 111, 121. (=> 50)
 
       const txReceipt = await ethers.provider.getTransactionReceipt(tx.hash);
       const gasUsed = txReceipt.gasUsed;
       const gasPrice = tx.gasPrice;
       const gasCost = gasUsed.mul(gasPrice);
 
-      const userInfoAfterClaim = await etherDistributor.getUser(user.address);
-
       // convert claim amount to wei
       let claimAmountWei = ethers.utils.parseEther("0");
       for (let i = 0; i < epochs; i++) {
-        claimAmountWei = claimAmountWei.add(ethers.utils.parseEther(claimAmounts[i].toString()));
-        //console.log("claimAmountWei: ",
-        claimAmountWei.toString();
+        claimAmountWei = claimAmountWei.add(ethers.utils.parseEther(amount.toString()));
+        //console.log("claimAmountWei: ", claimAmountWei.toString();
       }
       // check the final user balance is equal to the initial balance + claim amount (50) - gas cost
       expect(userBalance).to.equal(userBalanceInitial.add(ethers.utils.parseEther("50")).sub(gasCost));
