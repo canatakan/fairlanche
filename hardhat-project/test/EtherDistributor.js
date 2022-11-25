@@ -283,7 +283,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
 
     // A registered user makes multiple demands in epochs 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, and 120. Then he/she calls claimAll function at epoch 130. Should be 
     // able to claim only last 100 epochs' demands.
-    it("Should allow the user to make multiple demands then claim the ones that is not expired", async function () {
+    it("Should allow the user to make multiple demands then claim the unexpired ones", async function () {
       ({ etherDistributor } = await deployDistributor(DEFAULT_EPOCH_CAPACITY, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE));
       const accounts = await ethers.getSigners();
       const user = accounts[10];
