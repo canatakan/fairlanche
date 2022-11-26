@@ -16,7 +16,6 @@ contract EtherDistributor {
     address public owner;
     uint256 public numberOfUsers;
 
-    User[] public permissionedUsers;
     mapping(address => User) public permissionedAddresses;
 
     uint16 public constant MAX_DEMAND_VOLUME = 10;
@@ -64,7 +63,6 @@ contract EtherDistributor {
             0
         );
 
-        permissionedUsers.push(currentUser);
         permissionedAddresses[_addr] = currentUser;
     }
 
