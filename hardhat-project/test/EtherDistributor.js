@@ -217,6 +217,11 @@ describe("EtherDistributor contract demand & claim functionality", async functio
 
     });
 
+    it("Should fail when the user tries to claim for the same epoch twice", async function () {
+      const accounts = await ethers.getSigners();
+      await expect(etherDistributor.connect(accounts[1]).claim(2)).to.be.revertedWith("You do not have a demand for this epoch.");
+    });
+
     // A registered user makes the claim of what he/she has demanded in epoch 1 after DEMAND_EXPIRATION_TIME + 1 (should fail)
     it("Should fail when the user tries to claim after the DEMAND_EXPIRATION_TIME", async function () {
       const accounts = await ethers.getSigners();
