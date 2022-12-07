@@ -2,7 +2,9 @@
 pragma solidity ^0.8.13;
 
 contract EtherDistributor {
-    uint16 public constant DEMAND_EXPIRATION_TIME = 100; // * epochs
+    uint16 public constant DEMAND_EXPIRATION_TIME = 100; // in epochs
+    bool public enableWithdraw;
+    uint256 public distributionEndBlock;
 
     struct User {
         uint256 id; // ids starting from 1
@@ -31,20 +33,53 @@ contract EtherDistributor {
     uint256 public epochDuration; // duration of each epoch, in blocks
     uint256 public epoch; // epoch counter
 
-    constructor(uint256 _epochCapacity, uint256 _epochDuration) payable {
+    constructor(
+        uint256 _epochCapacity,
+        uint256 _epochDuration,
+        bool _enableWithdraw
+    ) payable {
+        require(
+            _epochCapacity > 0 && _epochDuration > 0,
+            "Epoch capacity and duration must be greater than 0."
+        );
+        require(msg.value > 0, "Distribution capacity must be greater than 0.");
+
         owner = msg.sender;
         numberOfUsers = 0;
         blockOffset = block.number;
         epochCapacity = _epochCapacity;
         epochDuration = _epochDuration;
         cumulativeCapacity = epochCapacity;
-        // TODO: think about the usages of epoch variable after updating it to 1
         epoch = 1;
+
+        enableWithdraw = _enableWithdraw;
+        
+        uint256 deployedEthers = msg.value / (1 ether);
+        
+        if (deployedEthers % epochCapacity == 0) {
+            distributionEndBlock = block.number +
+                (deployedEthers / epochCapacity) *
+                epochDuration;
+        } else {
+            distributionEndBlock = block.number +
+                (deployedEthers / epochCapacity + 1) *
+                epochDuration;
+        }
     }
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function.");
         _;
+    }
+
+    function withdrawExpired() public onlyOwner {
+        require(enableWithdraw, "Withdraw is disabled.");
+        require(
+            block.number >= distributionEndBlock + epochDuration * DEMAND_EXPIRATION_TIME,
+            "Wait for the end of the distribution."
+        );
+        (bool success, ) = msg.sender.call{value: address(this).balance}("");
+        require(success, "Transfer failed.");
     }
 
     function addPermissionedUser(address payable _addr) public onlyOwner {
@@ -71,7 +106,12 @@ contract EtherDistributor {
             permissionedAddresses[msg.sender].id != 0,
             "User does not have the permission."
         );
-        require((volume > 0) && (volume <= MAX_DEMAND_VOLUME) && (volume <= epochCapacity), "Invalid volume.");
+        require(
+            (volume > 0) &&
+                (volume <= MAX_DEMAND_VOLUME) &&
+                (volume <= epochCapacity),
+            "Invalid volume."
+        );
         _updateState();
         require(
             permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
@@ -109,7 +149,8 @@ contract EtherDistributor {
             .demandedVolumes[index];
 
         require(
-            epochMultiplierAtIndex * DEMAND_EXPIRATION_TIME + index != epochNumber ||
+            epochMultiplierAtIndex * DEMAND_EXPIRATION_TIME + index !=
+                epochNumber ||
                 volumeAtIndex != 0,
             "You do not have a demand for this epoch."
         );
@@ -122,34 +163,34 @@ contract EtherDistributor {
         permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
 
         // then, send the ether
-   
-        (bool success, ) = msg.sender.call{value: min((share * (1 ether)), (volumeAtIndex * (1 ether)))}(
-            ""
-        );
+
+        (bool success, ) = msg.sender.call{
+            value: min((share * (1 ether)), (volumeAtIndex * (1 ether)))
+        }("");
         require(success, "Transfer failed.");
     }
 
     function claimAll() public {
-
         _updateState();
         uint256 epochMultiplierAtIndex;
         uint256 volumeAtIndex;
         uint256 share;
         uint256 index;
         for (uint256 i = 0; i < DEMAND_EXPIRATION_TIME; i++) {
-
-            if (epoch == i){
+            if (epoch == i) {
                 break;
             }
 
             index = (epoch - i) % DEMAND_EXPIRATION_TIME;
             epochMultiplierAtIndex = permissionedAddresses[msg.sender]
                 .epochMultipliers[index];
-            volumeAtIndex = permissionedAddresses[msg.sender]
-                .demandedVolumes[index];
+            volumeAtIndex = permissionedAddresses[msg.sender].demandedVolumes[
+                index
+            ];
 
             if (
-                epochMultiplierAtIndex * DEMAND_EXPIRATION_TIME + index == epoch - i &&
+                epochMultiplierAtIndex * DEMAND_EXPIRATION_TIME + index ==
+                epoch - i &&
                 volumeAtIndex != 0
             ) {
                 share = shares[index];
@@ -158,9 +199,9 @@ contract EtherDistributor {
                 permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
 
                 // then, send the ether
-                (bool success, ) = msg.sender.call{value: min((share * (1 ether)), (volumeAtIndex * (1 ether)))}(
-                    ""
-                );
+                (bool success, ) = msg.sender.call{
+                    value: min((share * (1 ether)), (volumeAtIndex * (1 ether)))
+                }("");
                 require(success, "Transfer failed.");
             }
         }

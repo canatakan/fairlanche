@@ -4,7 +4,9 @@ const { time, mine, loadFixture } = require("@nomicfoundation/hardhat-network-he
 
 const DEFAULT_EPOCH_CAPACITY = 50;
 const DEFAULT_EPOCH_DURATION = 2000;
-const DEFAULT_DEPLOYMENT_VALUE = ethers.utils.parseEther("250.0");
+
+const DEFAULT_DEPLOYMENT_ETHER = 250;
+const DEFAULT_DEPLOYMENT_VALUE = ethers.utils.parseEther(DEFAULT_DEPLOYMENT_ETHER + "");
 
 describe("EtherDistributor contract basics", function () {
 
@@ -27,6 +29,11 @@ describe("EtherDistributor contract basics", function () {
     it("Should deploy with the correct epoch capacity & duration", async function () {
       expect(await etherDistributor.epochCapacity()).to.equal(DEFAULT_EPOCH_CAPACITY);
       expect(await etherDistributor.epochDuration()).to.equal(DEFAULT_EPOCH_DURATION);
+    });
+
+    it("Should calculate distribution end block correctly", async function () {
+      expect(await etherDistributor.distributionEndBlock()).to.equal((await time.latestBlock()) + 
+        Math.ceil(DEFAULT_DEPLOYMENT_ETHER / DEFAULT_EPOCH_CAPACITY) * DEFAULT_EPOCH_DURATION);
     });
   });
 
@@ -766,9 +773,9 @@ describe("EtherDistributor contract demand & claim functionality", async functio
   });
 });
 
-async function deployDistributor(epochCapacity, epochDuration, deploymentValue) {
+async function deployDistributor(epochCapacity, epochDuration, deploymentValue, enableWithdrawal = false) {
   EtherDistributor = await ethers.getContractFactory("EtherDistributor");
-  etherDistributor = await EtherDistributor.deploy(epochCapacity, epochDuration, { value: deploymentValue });
+  etherDistributor = await EtherDistributor.deploy(epochCapacity, epochDuration, enableWithdrawal, { value: deploymentValue });
   await etherDistributor.deployed();
   return { EtherDistributor, etherDistributor };
 }
