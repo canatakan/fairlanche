@@ -6,6 +6,41 @@ const DEFAULT_EPOCH_CAPACITY = 50;
 const DEFAULT_EPOCH_DURATION = 2000;
 const DEFAULT_DEPLOYMENT_VALUE = 250;
 
+async function deployDistributor(
+  epochCapacity = DEFAULT_EPOCH_CAPACITY,
+  epochDuration = DEFAULT_EPOCH_DURATION,
+  deploymentValue = DEFAULT_DEPLOYMENT_VALUE,
+  enableWithdrawal = false
+) {
+  EtherDistributor = await ethers.getContractFactory("TestEtherDistributor");
+  etherDistributor = await EtherDistributor.deploy(
+    epochCapacity,
+    epochDuration,
+    enableWithdrawal,
+    { value: ethers.utils.parseEther(deploymentValue + "") }
+  );
+  await etherDistributor.deployed();
+  return { EtherDistributor, etherDistributor };
+}
+
+async function permissionedDeploymentFixture() {
+  let EtherDistributor;
+  let etherDistributor;
+  ({ EtherDistributor, etherDistributor } = await deployDistributor());
+  const accounts = await ethers.getSigners();
+  for (i = 1; i < 20; i++) {
+    etherDistributor.addPermissionedUser(accounts[i].address);
+  }
+  await mine(1);
+  return { EtherDistributor, etherDistributor };
+}
+
+async function demandBulk(etherDistributor, accounts, demandArray) {
+  for (i = 0; i < Math.min(accounts.length - 1, demandArray.length); i++) {
+    await etherDistributor.connect(accounts[i + 1]).demand(demandArray[i]);
+  }
+}
+
 describe("EtherDistributor contract basics", function () {
 
   let etherDistributor;
@@ -396,24 +431,6 @@ describe("EtherDistributor contract demand & claim functionality", async functio
 
   describe("Multiple users", function () {
 
-    async function permissionedDeploymentFixture() {
-      let EtherDistributor;
-      let etherDistributor;
-      ({ EtherDistributor, etherDistributor } = await deployDistributor());
-      const accounts = await ethers.getSigners();
-      for (i = 1; i < 20; i++) {
-        etherDistributor.addPermissionedUser(accounts[i].address);
-      }
-      await mine(1);
-      return { EtherDistributor, etherDistributor };
-    }
-
-    async function demandBulk(etherDistributor, accounts, demandArray) {
-      for (i = 0; i < Math.min(accounts.length - 1, demandArray.length); i++) {
-        await etherDistributor.connect(accounts[i + 1]).demand(demandArray[i]);
-      }
-    }
-
     describe("Demand", function () {
 
       describe("Single epoch (Independent)", function () {
@@ -421,7 +438,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
         describe("Share updates", function () {
 
           it("Should be able to update the share 1 epoch later", async function () {
-            const { etherDistributor } = await loadFixture(permissionedDeploymentFixture, 1);
+            const { etherDistributor } = await loadFixture(permissionedDeploymentFixture);
             await demandBulk(etherDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
             await mine(DEFAULT_EPOCH_DURATION);
             await etherDistributor._updateState();
@@ -543,7 +560,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
 
           it("1: [1, 1, 1, ... , 1]", async function () {
             const customEpochCapacity = customEpochCapacities[3];
-            const { etherDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE);
+            const { etherDistributor } = await deployDistributor(customEpochCapacity);
             const accounts = await ethers.getSigners();
             for (i = 1; i <= 19; i++) {
               etherDistributor.addPermissionedUser(accounts[i].address);
@@ -572,7 +589,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       describe("Multiple epochs (Cumulative)", function () {
         it("Should apply Calculation 1 for 2 epochs", async function () {
           const customEpochCapacity = 50;
-          const { etherDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE);
+          const { etherDistributor } = await deployDistributor(customEpochCapacity);
           const accounts = await ethers.getSigners();
           for (i = 1; i <= 13; i++) {
             etherDistributor.addPermissionedUser(accounts[i].address);
@@ -602,7 +619,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
 
         it("Should apply Calculation 2 for 5 epochs", async function () {
           const customEpochCapacity = 48;
-          const { etherDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE);
+          const { etherDistributor } = await deployDistributor(customEpochCapacity);
           const accounts = await ethers.getSigners();
           for (i = 1; i <= 13; i++) {
             etherDistributor.addPermissionedUser(accounts[i].address);
@@ -765,20 +782,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
             expect(userBalance).to.equal(initialBalance.add(claimAmountWei).sub(gasCost)); // transfer is correct
           }
         });
-
       });
     });
   });
 });
-
-async function deployDistributor(
-  epochCapacity = DEFAULT_EPOCH_CAPACITY,
-  epochDuration = DEFAULT_EPOCH_DURATION,
-  deploymentValue = DEFAULT_DEPLOYMENT_VALUE,
-  enableWithdrawal = false
-) {
-  EtherDistributor = await ethers.getContractFactory("TestEtherDistributor");
-  etherDistributor = await EtherDistributor.deploy(epochCapacity, epochDuration, enableWithdrawal, { value: ethers.utils.parseEther(deploymentValue + "") });
-  await etherDistributor.deployed();
-  return { EtherDistributor, etherDistributor };
-}
