@@ -26,7 +26,7 @@ contract EtherDistributor {
     uint256 public epochCapacity;
     uint256 public cumulativeCapacity;
 
-    uint16[DEMAND_EXPIRATION_TIME] public shares; // calculated with _calculateShare()
+    uint16[DEMAND_EXPIRATION_TIME] public shares; // calculated with calculateShare()
 
     uint256[MAX_DEMAND_VOLUME + 1] public numberOfDemands; // demand volume array
     uint256 public totalDemand; // total number of demands, D
@@ -123,7 +123,7 @@ contract EtherDistributor {
             "Distribution is over."
         );
 
-        _updateState();
+        updateState();
         require(
             permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
             "Wait for the next epoch."
@@ -152,7 +152,7 @@ contract EtherDistributor {
             "Distribution is over."
         );
 
-        _updateState();
+        updateState();
         require(epochNumber < epoch, "Invalid epoch number.");
         require(
             epochNumber + DEMAND_EXPIRATION_TIME > epoch,
@@ -192,7 +192,7 @@ contract EtherDistributor {
             block.number <=  claimEndBlock,
             "Distribution is over."
         );
-        _updateState();
+        updateState();
 
         uint256 epochMultiplierAtIndex;
         uint256 volumeAtIndex;
@@ -229,7 +229,7 @@ contract EtherDistributor {
         }
     }
 
-    function _updateState() public {
+    function updateState() internal {
         uint256 currentEpoch = ((block.number - blockOffset) / epochDuration) +
             1;
         if (epoch < currentEpoch) {
@@ -241,7 +241,7 @@ contract EtherDistributor {
             (
                 shares[(epoch - epochDifference) % DEMAND_EXPIRATION_TIME],
                 distribution
-            ) = _calculateShare();
+            ) = calculateShare();
             cumulativeCapacity -= distribution; // subtract the distributed amount
             cumulativeCapacity += (epochCapacity) * epochDifference; // add the capacity of the new epoch
 
@@ -253,7 +253,7 @@ contract EtherDistributor {
         // TODO: refund the remaining gas to the caller
     }
 
-    function _calculateShare()
+    function calculateShare()
         internal
         view
         returns (uint16 _share, uint256 _amount)
@@ -266,7 +266,7 @@ contract EtherDistributor {
          *
          * These two values mentioned above are returned in a tuple as (share, amount).
          *
-         * Note: only called by _updateState(), hence, assumes that the state is updated
+         * Note: only called by updateState(), hence, assumes that the state is updated
          */
 
         uint256 cumulativeNODSum = 0;
@@ -304,27 +304,5 @@ contract EtherDistributor {
 
     function min(uint256 a, uint256 b) internal pure returns (uint256) {
         return a < b ? a : b;
-    }
-
-    // define a view function to see user struct fields
-    function getUser(address _addr)
-        public
-        view
-        returns (
-            uint256,
-            address,
-            uint256[100] memory,
-            uint16[100] memory,
-            uint256
-        )
-    {
-        User memory currentUser = permissionedAddresses[_addr];
-        return (
-            currentUser.id,
-            currentUser.addr,
-            currentUser.epochMultipliers,
-            currentUser.demandedVolumes,
-            currentUser.lastDemandEpoch
-        );
     }
 }

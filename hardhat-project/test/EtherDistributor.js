@@ -777,7 +777,7 @@ async function deployDistributor(
   deploymentValue = DEFAULT_DEPLOYMENT_VALUE,
   enableWithdrawal = false
 ) {
-  EtherDistributor = await ethers.getContractFactory("EtherDistributor");
+  EtherDistributor = await ethers.getContractFactory("TestEtherDistributor");
   etherDistributor = await EtherDistributor.deploy(epochCapacity, epochDuration, enableWithdrawal, { value: ethers.utils.parseEther(deploymentValue + "") });
   await etherDistributor.deployed();
   return { EtherDistributor, etherDistributor };
