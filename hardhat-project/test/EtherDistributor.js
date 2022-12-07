@@ -301,7 +301,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
       // A registered user makes multiple demands in epochs 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, and 120.
       //  Then he/she calls claimAll function at epoch 130. Should be able to claim only last 100 epochs' demands.
       it("Should not include expired demands in claimAll()", async function () {
-        ({ etherDistributor } = await deployDistributor(DEFAULT_EPOCH_CAPACITY, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE));
+        ({ etherDistributor } = await deployDistributor(3, DEFAULT_EPOCH_DURATION, ethers.utils.parseEther("600")));
         const accounts = await ethers.getSigners();
         const user = accounts[10];
         await etherDistributor.addPermissionedUser(user.address);
@@ -312,7 +312,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
         const initialBalance = await ethers.provider.getBalance(user.address);
         expect(initialBalance).to.equal(ethers.utils.parseEther("10000"));
 
-        const amount = 10;
+        const amount = 2;
         const epochs = 12;
 
         // make demands in different epochs
@@ -342,13 +342,13 @@ describe("EtherDistributor contract demand & claim functionality", async functio
         const gasPrice = tx.gasPrice;
         const gasCost = gasUsed.mul(gasPrice);
 
-        // check the final user balance is equal to the initial balance + claim amount (50) - gas cost
-        expect(userBalance).to.equal(userBalanceInitial.add(ethers.utils.parseEther("50")).sub(gasCost));
+        // check the final user balance is equal to the initial balance + claim amount ( 5 * 2 = 10) - gas cost
+        expect(userBalance).to.equal(userBalanceInitial.add(ethers.utils.parseEther("10")).sub(gasCost));
       });
 
       // A registered user makes 100 demands starting from epoch 1 to epoch 100. Then he/she calls claimAll function at epoch 101. Should be able to claim all demands.
       it("Should allow the user to make max number of demands then claim all", async function () {
-        ({ etherDistributor } = await deployDistributor(DEFAULT_EPOCH_CAPACITY, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE));
+        ({ etherDistributor } = await deployDistributor(5, DEFAULT_EPOCH_DURATION, ethers.utils.parseEther("1000")));
         const accounts = await ethers.getSigners();
         const user = accounts[8];
         await etherDistributor.addPermissionedUser(user.address);
@@ -634,7 +634,7 @@ describe("EtherDistributor contract demand & claim functionality", async functio
 
         it("Should apply Calculation 3 for 50 epochs", async function () {
           const customEpochCapacity = 90;
-          const { etherDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE);
+          const { etherDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, ethers.utils.parseEther("4500"));
           const accounts = await ethers.getSigners();
           for (i = 1; i <= 10; i++) {
             etherDistributor.addPermissionedUser(accounts[i].address);

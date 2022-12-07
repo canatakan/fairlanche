@@ -4,7 +4,9 @@ pragma solidity ^0.8.13;
 contract EtherDistributor {
     uint16 public constant DEMAND_EXPIRATION_TIME = 100; // in epochs
     bool public enableWithdraw;
+    
     uint256 public distributionEndBlock;
+    uint256 public claimEndBlock;
 
     struct User {
         uint256 id; // ids starting from 1
@@ -65,6 +67,8 @@ contract EtherDistributor {
                 (deployedEthers / epochCapacity + 1) *
                 epochDuration;
         }
+
+        claimEndBlock = distributionEndBlock + epochDuration * DEMAND_EXPIRATION_TIME;
     }
 
     modifier onlyOwner() {
@@ -75,7 +79,7 @@ contract EtherDistributor {
     function withdrawExpired() public onlyOwner {
         require(enableWithdraw, "Withdraw is disabled.");
         require(
-            block.number >= distributionEndBlock + epochDuration * DEMAND_EXPIRATION_TIME,
+            block.number > claimEndBlock,
             "Wait for the end of the distribution."
         );
         (bool success, ) = msg.sender.call{value: address(this).balance}("");
@@ -112,6 +116,13 @@ contract EtherDistributor {
                 (volume <= epochCapacity),
             "Invalid volume."
         );
+        
+        // stop collecting demands after the distribution ends
+        require(
+            block.number <= distributionEndBlock,
+            "Distribution is over."
+        );
+
         _updateState();
         require(
             permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
@@ -133,6 +144,12 @@ contract EtherDistributor {
         require(
             permissionedAddresses[msg.sender].id != 0,
             "User does not have the permission."
+        );
+
+        // stop allowing claims after the distribution's ending + DEMAND_EXPIRATION_TIME
+        require(
+            block.number <= claimEndBlock,
+            "Distribution is over."
         );
 
         _updateState();
@@ -171,7 +188,12 @@ contract EtherDistributor {
     }
 
     function claimAll() public {
+        require(
+            block.number <=  claimEndBlock,
+            "Distribution is over."
+        );
         _updateState();
+
         uint256 epochMultiplierAtIndex;
         uint256 volumeAtIndex;
         uint256 share;
