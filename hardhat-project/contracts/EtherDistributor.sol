@@ -3,10 +3,10 @@ pragma solidity ^0.8.13;
 
 contract EtherDistributor {
     uint16 public constant DEMAND_EXPIRATION_TIME = 100; // in epochs
-    bool public enableWithdraw;
 
     uint256 public distributionEndBlock;
     uint256 public claimEndBlock;
+    bool public enableWithdraw;
 
     struct User {
         uint256 id; // ids starting from 1
@@ -60,13 +60,13 @@ contract EtherDistributor {
 
         if (deployedEthers % epochCapacity == 0) {
             distributionEndBlock =
-                block.number +
+                blockOffset +
                 (deployedEthers / epochCapacity) *
                 epochDuration;
         } else {
             distributionEndBlock =
-                block.number +
-                (deployedEthers / epochCapacity + 1) *
+                blockOffset +
+                ((deployedEthers / epochCapacity) + 1) *
                 epochDuration;
         }
 
@@ -123,7 +123,7 @@ contract EtherDistributor {
         );
 
         // stop collecting demands after the distribution ends
-        require(block.number <= distributionEndBlock, "Distribution is over.");
+        require(block.number < distributionEndBlock, "Distribution is over.");
 
         updateState();
         require(
@@ -149,7 +149,7 @@ contract EtherDistributor {
         );
 
         // stop allowing claims after the distribution's ending + DEMAND_EXPIRATION_TIME
-        require(block.number <= claimEndBlock, "Distribution is over.");
+        require(block.number < claimEndBlock, "Distribution is over.");
 
         updateState();
         require(epochNumber < epoch, "Invalid epoch number.");
@@ -187,7 +187,7 @@ contract EtherDistributor {
     }
 
     function claimAll() public {
-        require(block.number <= claimEndBlock, "Distribution is over.");
+        require(block.number < claimEndBlock, "Distribution is over.");
         updateState();
 
         uint256 epochMultiplierAtIndex;
