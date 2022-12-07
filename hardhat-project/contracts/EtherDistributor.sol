@@ -198,6 +198,8 @@ contract EtherDistributor {
         require(block.number < claimEndBlock, "Distribution is over.");
         updateState();
 
+        uint256 totalClaim;
+
         uint256 epochMultiplierAtIndex;
         uint256 volumeAtIndex;
         uint256 share;
@@ -219,16 +221,17 @@ contract EtherDistributor {
             ) {
                 share = shares[index];
 
-                // first, update the balance of the user
+                // first, update the balance of the user (in case of reentrancy)
                 permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
-
-                // then, send the ether
-                (bool success, ) = msg.sender.call{
-                    value: min((share * (1 ether)), (volumeAtIndex * (1 ether)))
-                }("");
-                require(success, "Transfer failed.");
+                totalClaim += min(share, volumeAtIndex);
             }
         }
+
+        // then, send the ether
+        (bool success, ) = msg.sender.call{
+            value: totalClaim * (1 ether)
+        }("");
+        require(success, "Transfer failed.");
     }
 
     function updateState() internal {
