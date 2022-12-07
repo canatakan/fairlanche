@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 contract EtherDistributor {
     uint16 public constant DEMAND_EXPIRATION_TIME = 100; // in epochs
     bool public enableWithdraw;
-    
+
     uint256 public distributionEndBlock;
     uint256 public claimEndBlock;
 
@@ -55,20 +55,25 @@ contract EtherDistributor {
         epoch = 1;
 
         enableWithdraw = _enableWithdraw;
-        
+
         uint256 deployedEthers = msg.value / (1 ether);
-        
+
         if (deployedEthers % epochCapacity == 0) {
-            distributionEndBlock = block.number +
+            distributionEndBlock =
+                block.number +
                 (deployedEthers / epochCapacity) *
                 epochDuration;
         } else {
-            distributionEndBlock = block.number +
+            distributionEndBlock =
+                block.number +
                 (deployedEthers / epochCapacity + 1) *
                 epochDuration;
         }
 
-        claimEndBlock = distributionEndBlock + epochDuration * DEMAND_EXPIRATION_TIME;
+        claimEndBlock =
+            distributionEndBlock +
+            epochDuration *
+            DEMAND_EXPIRATION_TIME;
     }
 
     modifier onlyOwner() {
@@ -116,12 +121,9 @@ contract EtherDistributor {
                 (volume <= epochCapacity),
             "Invalid volume."
         );
-        
+
         // stop collecting demands after the distribution ends
-        require(
-            block.number <= distributionEndBlock,
-            "Distribution is over."
-        );
+        require(block.number <= distributionEndBlock, "Distribution is over.");
 
         updateState();
         require(
@@ -147,10 +149,7 @@ contract EtherDistributor {
         );
 
         // stop allowing claims after the distribution's ending + DEMAND_EXPIRATION_TIME
-        require(
-            block.number <= claimEndBlock,
-            "Distribution is over."
-        );
+        require(block.number <= claimEndBlock, "Distribution is over.");
 
         updateState();
         require(epochNumber < epoch, "Invalid epoch number.");
@@ -188,10 +187,7 @@ contract EtherDistributor {
     }
 
     function claimAll() public {
-        require(
-            block.number <=  claimEndBlock,
-            "Distribution is over."
-        );
+        require(block.number <= claimEndBlock, "Distribution is over.");
         updateState();
 
         uint256 epochMultiplierAtIndex;
@@ -199,9 +195,7 @@ contract EtherDistributor {
         uint256 share;
         uint256 index;
         for (uint256 i = 0; i < DEMAND_EXPIRATION_TIME; i++) {
-            if (epoch == i) {
-                break;
-            }
+            if (epoch == i) break;
 
             index = (epoch - i) % DEMAND_EXPIRATION_TIME;
             epochMultiplierAtIndex = permissionedAddresses[msg.sender]
