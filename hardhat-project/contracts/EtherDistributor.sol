@@ -104,8 +104,8 @@ contract EtherDistributor {
         require(permissionedAddresses[_addr].id == 0, "User already exists.");
         numberOfUsers++; // user ids start from 1
 
-        uint256[100] memory _epochMultipliers;
-        uint16[100] memory _demandedVolumes;
+        uint256[DEMAND_EXPIRATION_TIME] memory _epochMultipliers;
+        uint16[DEMAND_EXPIRATION_TIME] memory _demandedVolumes;
 
         User memory currentUser = User(
             numberOfUsers,

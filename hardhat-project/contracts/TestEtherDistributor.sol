@@ -41,8 +41,8 @@ contract TestEtherDistributor is EtherDistributor {
         returns (
             uint256,
             address,
-            uint256[100] memory,
-            uint16[100] memory,
+            uint256[DEMAND_EXPIRATION_TIME] memory,
+            uint16[DEMAND_EXPIRATION_TIME] memory,
             uint256
         )
     {
