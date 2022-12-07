@@ -2,6 +2,8 @@
 pragma solidity ^0.8.13;
 
 contract EtherDistributor {
+
+    uint16 public constant MAX_DEMAND_VOLUME = 10;
     uint16 public constant DEMAND_EXPIRATION_TIME = 100; // in epochs
 
     uint256 public distributionEndBlock;
@@ -19,10 +21,8 @@ contract EtherDistributor {
 
     address public owner;
     uint256 public numberOfUsers;
-
     mapping(address => User) public permissionedAddresses;
 
-    uint16 public constant MAX_DEMAND_VOLUME = 10;
     uint256 public epochCapacity;
     uint256 public cumulativeCapacity;
 
@@ -89,6 +89,14 @@ contract EtherDistributor {
         );
         (bool success, ) = msg.sender.call{value: address(this).balance}("");
         require(success, "Transfer failed.");
+    }
+
+    function burnExpired() public onlyOwner {
+        require(
+            block.number > claimEndBlock,
+            "Wait for the end of the distribution."
+        );
+        selfdestruct(payable(address(0)));
     }
 
     function addPermissionedUser(address payable _addr) public onlyOwner {
