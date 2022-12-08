@@ -31,8 +31,8 @@ module.exports = {
   etherscan: {
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY,
-      avalanche: process.env.ETHERSCAN_API_KEY,
-      avalancheFujiTestnet: process.env.ETHERSCAN_API_KEY,
+      avalanche: process.env.SNOWTRACE_API_KEY,
+      avalancheFujiTestnet: process.env.SNOWTRACE_API_KEY,
     }
   },
 };
