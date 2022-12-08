@@ -47,3 +47,10 @@ async function withdrawExpired(etherDistributor) {
   console.log("Transaction receipt:");
   console.log(tx);
 }
+
+async function burnExpired(etherDistributor) {
+  const tx = await etherDistributor.burnExpired();
+  await tx.wait();
+  console.log("Transaction receipt:");
+  console.log(tx);
+}
