@@ -5,7 +5,7 @@ async function main() {
   const etherDistributor = await EtherDistributor.attach(CONTRACT_ADDRESS);
 
   // const accounts = await ethers.getSigners();
-  // addPermissionedUser(etherDistributor, "0x79b266c3020194e6ceCE28E112F75a65Ee51B848");
+  // await addPermissionedUser(etherDistributor, accounts[0].address);
 }
 
 main().catch((error) => {

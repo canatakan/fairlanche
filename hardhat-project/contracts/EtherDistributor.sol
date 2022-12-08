@@ -44,7 +44,10 @@ contract EtherDistributor {
             _epochCapacity > 0 && _epochDuration > 0,
             "Epoch capacity and duration must be greater than 0."
         );
-        require(msg.value > 0, "Distribution capacity must be greater than 0.");
+        require(
+            msg.value > _epochCapacity * (1 ether),
+            "The contract must be funded with at least one epoch capacity."
+        );
 
         owner = msg.sender;
         numberOfUsers = 0;
