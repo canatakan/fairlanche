@@ -57,3 +57,17 @@ To interact with the deployed contract, use the `interact.js` script. The script
 ```bash
 npx hardhat run scripts/interact.js --network fuji
 ```
+
+## Verifying Contract Source Code
+
+After filling the API key details in the `.env` file, the contract source code can be verified on Snowtrace. To verify the contract source code, run the following command:
+
+```bash
+npx hardhat verify --network fuji <CONTRACT_ADDRESS> <CONSTRUCTOR_ARGUMENTS>
+```
+
+Here, the `CONTRACT_ADDRESS` is the address of the deployed contract and the `CONSTRUCTOR_ARGUMENTS` are the arguments that were passed to the constructor of the contract. They can be provided in the following format:
+
+```bash
+<ARGUMENT_1> <ARGUMENT_2> ... <ARGUMENT_N>
+```
