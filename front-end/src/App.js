@@ -5,8 +5,9 @@ import { Route, Routes } from 'react-router-dom';
 
 import NavBar from './components/NavBar';
 import Home from './components/pages/Home';
-import ManagementPage from './components/pages/ManagementPage';
-import TransactionPage from './components/pages/TransactionPage';
+import Transaction from './components/pages/Transaction';
+import Deployment from './components/pages/Deployment';
+import Management from './components/pages/Management';
 
 function App() {
   return (
@@ -14,8 +15,9 @@ function App() {
       <NavBar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/manage" element={<ManagementPage />} />
-        <Route path="/transact" element={<TransactionPage />} />
+        <Route path="/transact" element={<Transaction />} />
+        <Route path="/deploy" element={<Deployment />} />
+        <Route path="/manage" element={<Management />} />
       </Routes>
     </div>
   );

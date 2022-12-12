@@ -14,11 +14,14 @@ function NavBar() {
                 <Link to="/" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                   Home
                 </Link>
-                <Link to="/manage" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  Manage
-                </Link>
                 <Link to="/transact" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                   Transact
+                </Link>
+                <Link to="/deploy" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                  Deploy
+                </Link>
+                <Link to="/manage" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                  Manage
                 </Link>
               </div>
           </div>

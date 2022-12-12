@@ -1,6 +1,6 @@
 import React from "react";
 
-function ManagementPage() {
+function Management() {
   return (
     <div>
       <h1>Management</h1>
@@ -8,4 +8,4 @@ function ManagementPage() {
   );
 }
 
-export default ManagementPage;
+export default Management;
