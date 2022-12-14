@@ -5,12 +5,26 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 
+import { Mainnet, DAppProvider, Goerli } from '@usedapp/core'
+import { getDefaultProvider } from '@ethersproject/providers'
+
+
+const config = {
+  readOnlyChainId: Mainnet.chainId,
+  readOnlyUrls: {
+    [Mainnet.chainId]: getDefaultProvider('mainnet'),
+    [Goerli.chainId]: getDefaultProvider('goerli'),
+  },
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <DAppProvider config={config}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </DAppProvider>
   </React.StrictMode>
 );
 
