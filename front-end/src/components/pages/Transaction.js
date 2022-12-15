@@ -98,7 +98,11 @@ class TransactionPage extends React.Component {
                 <div className='flex flex-col items-center justify-center'>
                   <div className='text-lg mb-2'>Subnet ID: {subnet.subnetId}</div>
                   <div className='text-lg'>Blockchain ID: {subnet.blockchainId}</div>
-                  <button className='mt-1' onClick={() => this.removeSubnet(subnet.subnetId)}>Remove</button>
+                  <button className='mt-1' onClick={() =>
+                    window.confirm('Are you sure you wish to remove this subnet?') 
+                    && this.removeSubnet(subnet.subnetId)
+                  }
+                  >Remove</button>
                 </div>
               </div>
             </div>
