@@ -18,6 +18,15 @@ class ContractPage extends React.Component {
     this.state = {
       contractAddresses: [],
     };
+    this.blockchainExists = true;
+
+    const subnets = JSON.parse(localStorage.getItem('subnets'));
+    if (!subnets) {
+      this.blockchainExists = false;
+    }
+    if (!subnets.find(subnet => subnet.blockchainId === this.props.params.id)) {
+      this.blockchainExists = false;
+    }
   }
 
   componentDidMount() {
@@ -60,10 +69,25 @@ class ContractPage extends React.Component {
   }
 
   render() {
+    
+    if (!this.blockchainExists) {
+      return (
+        <div className='flex flex-col items-center'>
+          <div className="flex justify-center">
+            <h1 className="text-3xl font-bold mb-2 mt-4">Contract Page</h1>
+          </div>
+          <div className='flex flex-col items-center'>
+            <h2 className='text-xl font-bold mb-2'>No such blockchain exists</h2>
+            <a href='/'>Go back to home page</a>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className='flex flex-col items-center'>
         <div className="flex justify-center">
-          <h1 className="text-3xl font-bold mb-2 mt-4">Contract Page {this.props.params.id}</h1>
+          <h1 className="text-3xl font-bold mb-2 mt-4">Contract Page</h1>
         </div>
         <form onSubmit={this.saveContractAddress}>
           <input type="text" name="contractAddress" placeholder='Contract Address' />
