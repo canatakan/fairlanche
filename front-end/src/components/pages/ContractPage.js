@@ -1,6 +1,11 @@
 import React from 'react';
+import { useParams } from "react-router-dom";
 
 import Collapsible from '../Collapsible';
+
+function withParams(Component) {
+  return props => <Component {...props} params={useParams()} />;
+}
 
 class ContractPage extends React.Component {
 
@@ -34,7 +39,7 @@ class ContractPage extends React.Component {
     return (
       <div>
         <div className="flex justify-center">
-          <h1 className="text-3xl font-bold mb-2 mt-4">Contract Interaction Page</h1>
+          <h1 className="text-3xl font-bold mb-2 mt-4">Contract Page {this.props.params.id}</h1>
         </div>
         <div className="form">
           <form onSubmit={this.saveContractAddress}>
@@ -81,4 +86,4 @@ class ContractPage extends React.Component {
   }
 }
 
-export default ContractPage;
+export default withParams(ContractPage);
