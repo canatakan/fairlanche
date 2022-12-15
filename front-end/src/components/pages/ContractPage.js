@@ -69,7 +69,7 @@ class ContractPage extends React.Component {
         </form>
         <ul>
           {this.state.contractAddresses.map((contractAddress) => (
-            <div className='border-2 border-gray-300 mb-2 rounded-xl'>
+            <div className='mb-6 border-2 border-gray-300 mb-2 rounded-xl'>
               <Collapsible
                 open
                 title=
