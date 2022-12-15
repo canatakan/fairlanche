@@ -1,6 +1,8 @@
 import React from 'react';
 import { useParams } from "react-router-dom";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from '@fortawesome/fontawesome-free-solid';
 import { ethers } from "ethers";
 
 import Collapsible from '../Collapsible';
@@ -79,32 +81,33 @@ class ContractPage extends React.Component {
                     }
                   </a>
                 </div>
-              >
-                <div className='flex flex-col items-center justify-center'>
-                  <div className='flex flex-row items-center justify-center'>
-                    <input type="number" name="volume" placeholder='Volume' />
-                    <button>
-                      demand
-                    </button>
-                  </div>
-                  <div className='flex flex-row items-center justify-center p-2'>
-                    <input type="number" name="epochNumber" placeholder='Epoch Number' />
-                    <button>
-                      claim
-                    </button>
-                  </div>
-                  <div className='flex flex-row items-center justify-center p-2'>
-                    <button>
-                      claimAll
-                    </button>
-                  </div>
-                  <button onClick={() => {
+                item= <div className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center"
+                  onClick={() => {
                     if (window.confirm('Are you sure you wish to remove this contract?'))
                       this.removeContractAddress(contractAddress)
                   }
                   }>
-                    Remove Contract
-                  </button>
+                    <FontAwesomeIcon icon={faTrash} />
+                  </div>
+              >
+                <div className='flex flex-col items-end justify-end'>
+                  <div className='flex flex-row items-center justify-center mb-1'>
+                    <input className='w-28' type="number" name="volume" placeholder='vol' />
+                    <button className='w-24'>
+                      demand
+                    </button>
+                  </div>
+                  <div className='flex flex-row items-center justify-center mb-1'>
+                    <input className='w-28' type="number" name="epochNumber" placeholder='epoch' />
+                    <button className='w-24'>
+                      claim
+                    </button>
+                  </div>
+                  <div className='flex flex-row items-center justify-center mb-1'>
+                  <button className='w-24'>
+                      claimAll
+                    </button>
+                  </div>
                 </div>
               </Collapsible>
             </div>
