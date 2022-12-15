@@ -18,7 +18,7 @@ const Collapsible= ({ open, children, title }) => {
         <div>
           <div className="p-3 border-bottom flex justify-between">
             <h6 className="font-weight-bold">{title}</h6>
-            <button type="button" className="btn" onClick={handleFilterOpening}>
+            <button onClick={handleFilterOpening}>
               {!isOpen ? (
                 <FontAwesomeIcon icon={faChevronDown} />
               ) : (

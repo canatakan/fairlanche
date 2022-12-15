@@ -8,6 +8,7 @@ import Home from './components/pages/Home';
 import Transaction from './components/pages/Transaction';
 import Deployment from './components/pages/Deployment';
 import Management from './components/pages/Management';
+import ContractPage from './components/pages/ContractPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/transact" element={<Transaction />} />
+        <Route path="/transact/:id" element={<ContractPage/>}/>
         <Route path="/deploy" element={<Deployment />} />
         <Route path="/manage" element={<Management />} />
       </Routes>

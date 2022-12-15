@@ -7,68 +7,98 @@ class TransactionPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      contractAddresses: [],
+      /**
+       * subnet: {
+       *  subnetId: string,
+       *  blockchainId: string,
+       *  subnetName: string,
+       * }
+       */
+      subnets: [],
     };
   }
 
   componentDidMount() {
-    const contractAddresses = JSON.parse(localStorage.getItem('contractAddresses')) || [];
-    this.setState({ contractAddresses });
+    const subnets = JSON.parse(localStorage.getItem('subnets')) || [];
+    this.setState({ subnets });
   }
 
-  saveContractAddress = (event) => {
+  saveSubnet = (event) => {
     event.preventDefault();
-    const contractAddress = event.target.elements.contractAddress.value;
-    const contractAddresses = [...this.state.contractAddresses, contractAddress];
-    this.setState({ contractAddresses });
-    localStorage.setItem('contractAddresses', JSON.stringify(contractAddresses));
+    if (!this.validateSubnet(event)) {
+      return;
+    }
+    const subnet = {
+      subnetId: event.target.elements.subnetId.value,
+      blockchainId: event.target.elements.blockchainId.value,
+      subnetName: "<GET SUBNET'S NAME WITH API CALL>"
+    };
+    const subnets = [...this.state.subnets, subnet];
+    this.setState({ subnets });
+    localStorage.setItem('subnets', JSON.stringify(subnets));
   }
 
-  removeContractAddress = (contractAddress) => {
-    const contractAddresses = this.state.contractAddresses.filter((address) => address !== contractAddress);
-    this.setState({ contractAddresses });
-    localStorage.setItem('contractAddresses', JSON.stringify(contractAddresses));
+  validateSubnet = (event) => {
+    event.preventDefault();
+    const subnetId = event.target.elements.subnetId.value;
+    const blockchainId = event.target.elements.blockchainId.value;
+
+    if (subnetId.length !== 50 || blockchainId.length !== 50) {
+      return false;
+    }
+
+    if (!subnetId.match(/^[a-zA-Z0-9]+$/) || !blockchainId.match(/^[a-zA-Z0-9]+$/)) {
+      return false;
+    }
+
+    // if subnet with these ids already exists, return false:
+    for (let i = 0; i < this.state.subnets.length; i++) {
+      if (this.state.subnets[i].subnetId === subnetId || this.state.subnets[i].blockchainId === blockchainId) {
+        return false;
+      }
+    }
+
+    // TODO: send an API request to check if the subnet exists
+    // https://docs.avax.network/apis/avalanchego/apis/p-chain#platformgetblockchainstatus
+
+    return true;
+  }
+
+  removeSubnet = (subnetId) => {
+    const subnets = this.state.subnets.filter((subnet) => subnet.subnetId !== subnetId);
+    this.setState({ subnets });
+    localStorage.setItem('subnets', JSON.stringify(subnets));
   }
 
   render() {
     return (
-      <div>
+      <div className="flex flex-col items-center justify-center">
         <div className="flex justify-center">
           <h1 className="text-3xl font-bold">Transaction Page</h1>
         </div>
         <div className="form">
-          <form onSubmit={this.saveContractAddress}>
-            <input type="text" name="contractAddress" placeholder='Contract Address'/>
-            <button type="submit">Save</button>
+          <form onSubmit={this.saveSubnet}>
+            <input type="text" name="subnetId" placeholder='Subnet ID' />
+            <input type="text" name="blockchainId" placeholder='Blockchain ID' />
+            <button
+            >
+              Add Subnet
+            </button>
           </form>
         </div>
         <ul>
-          {this.state.contractAddresses.map((contractAddress) => (
-             <div className='border-2 border-black'>
-              <Collapsible
-             open
-             title=<div className='text-xl font-bold'>{contractAddress}</div>
-           >
-              <div className='flex flex-col items-center justify-center'>
-                <button type="button">
-                  <input type="number" name="volume" placeholder='Volume'/>
-                  demand
-                </button>
-                <br></br>
-                <button type="button">
-                  <input type="number" name="epochNumber" placeholder='Epoch Number'/>
-                  claim
-                </button>
-                <br></br>
-                <button type="button">
-                  claimAll
-                </button>
-                <br></br>
-                <button type="button" onClick={() => this.removeContractAddress(contractAddress)}>
-                  Remove Contract
-                </button>
+          {this.state.subnets.map((subnet) => (
+            <div className="p-6 mt-6 text-left border w-wrap rounded-xl">
+              <div className="flex flex-col items-center justify-center">
+                <a href={'/transact/' + subnet.subnetId}>
+                  <div className='text-xl font-bold text-center mb-2 hover:text-blue-600 focus:text-blue-600'>{subnet.subnetName}</div>
+                </a>
+                <div className='flex flex-col items-center justify-center'>
+                  <div className='text-lg mb-2'>Subnet ID: {subnet.subnetId}</div>
+                  <div className='text-lg'>Blockchain ID: {subnet.blockchainId}</div>
+                  <button onClick={() => this.removeSubnet(subnet.subnetId)}>Remove</button>
+                </div>
               </div>
-           </Collapsible>
             </div>
           ))}
         </ul>
@@ -76,5 +106,4 @@ class TransactionPage extends React.Component {
     );
   }
 }
-
 export default TransactionPage;
