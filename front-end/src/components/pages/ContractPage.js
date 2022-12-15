@@ -59,32 +59,29 @@ class ContractPage extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className='flex flex-col items-center'>
         <div className="flex justify-center">
           <h1 className="text-3xl font-bold mb-2 mt-4">Contract Page {this.props.params.id}</h1>
         </div>
-        <div className="form">
-          <form onSubmit={this.saveContractAddress}>
-            <input type="text" name="contractAddress" placeholder='Contract Address' />
-            <button className='mt-1 mb-2'>Save</button>
-          </form>
-        </div>
+        <form onSubmit={this.saveContractAddress}>
+          <input type="text" name="contractAddress" placeholder='Contract Address' />
+          <button className='mt-1 mb-4'>Add Contract</button>
+        </form>
         <ul>
           {this.state.contractAddresses.map((contractAddress) => (
-            <div className='border-2 border-black'>
+            <div className='border-2 border-gray-300 mb-2 rounded-xl'>
               <Collapsible
                 open
                 title=
                 <div className='flex flex-row items-center justify-center'>
                   <a href={`https://testnet.snowtrace.io/address/${contractAddress}`} target="_blank" rel="noopener noreferrer">
-                    {<div className='text-xl font-bold text-center mb-2 hover:text-blue-600 focus:text-blue-600'>{contractAddress}</div>
+                    {<div className='text-l font-bold text-center hover:text-blue-600 focus:text-blue-600'>{contractAddress}</div>
                     }
                   </a>
                 </div>
               >
                 <div className='flex flex-col items-center justify-center'>
-
-                  <div className='flex flex-row items-center justify-center p-2'>
+                  <div className='flex flex-row items-center justify-center'>
                     <input type="number" name="volume" placeholder='Volume' />
                     <button>
                       demand
@@ -101,7 +98,11 @@ class ContractPage extends React.Component {
                       claimAll
                     </button>
                   </div>
-                  <button onClick={() => this.removeContractAddress(contractAddress)}>
+                  <button onClick={() => {
+                    if (window.confirm('Are you sure you wish to remove this contract?'))
+                      this.removeContractAddress(contractAddress)
+                  }
+                  }>
                     Remove Contract
                   </button>
                 </div>

@@ -42,16 +42,20 @@ class TransactionPage extends React.Component {
     const blockchainId = event.target.elements.blockchainId.value;
 
     if (subnetId.length !== 50 || blockchainId.length !== 50) {
+      alert('Invalid Subnet ID or Blockchain ID');
       return false;
     }
 
     if (!subnetId.match(/^[a-zA-Z0-9]+$/) || !blockchainId.match(/^[a-zA-Z0-9]+$/)) {
+      alert('Invalid Subnet ID or Blockchain ID');
       return false;
     }
 
     // if subnet with these ids already exists, return false:
     for (let i = 0; i < this.state.subnets.length; i++) {
-      if (this.state.subnets[i].subnetId === subnetId || this.state.subnets[i].blockchainId === blockchainId) {
+      if (this.state.subnets[i].subnetId === subnetId ||
+        this.state.subnets[i].blockchainId === blockchainId) {
+        alert('Subnet with these IDs already exists');
         return false;
       }
     }
@@ -86,7 +90,7 @@ class TransactionPage extends React.Component {
         </div>
         <ul>
           {this.state.subnets.map((subnet) => (
-            <div className="p-6 mt-6 text-left border w-wrap rounded-xl">
+            <div className="text-left border w-wrap rounded-xl">
               <div className="flex flex-col items-center justify-center">
                 <a href={'/transact/' + subnet.subnetId}>
                   <div className='text-xl font-bold text-center mb-2 hover:text-blue-600 focus:text-blue-600'>{subnet.subnetName}</div>
@@ -104,4 +108,5 @@ class TransactionPage extends React.Component {
     );
   }
 }
+
 export default TransactionPage;
