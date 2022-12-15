@@ -34,7 +34,7 @@ class ContractPage extends React.Component {
     return (
       <div>
         <div className="flex justify-center">
-          <h1 className="text-3xl font-bold">Contract Interaction Page</h1>
+          <h1 className="text-3xl font-bold mb-2 mt-4">Contract Interaction Page</h1>
         </div>
         <div className="form">
           <form onSubmit={this.saveContractAddress}>

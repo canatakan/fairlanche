@@ -1,7 +1,5 @@
 import React from 'react';
 
-import Collapsible from '../Collapsible';
-
 class TransactionPage extends React.Component {
 
   constructor(props) {
@@ -74,7 +72,7 @@ class TransactionPage extends React.Component {
     return (
       <div className="flex flex-col items-center justify-center">
         <div className="flex justify-center">
-          <h1 className="text-3xl font-bold">Transaction Page</h1>
+          <h1 className="text-3xl font-bold text-center mb-2 mt-4">Transaction Page</h1>
         </div>
         <div className="form">
           <form onSubmit={this.saveSubnet}>
