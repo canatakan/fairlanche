@@ -39,7 +39,7 @@ class ContractPage extends React.Component {
         <div className="form">
           <form onSubmit={this.saveContractAddress}>
             <input type="text" name="contractAddress" placeholder='Contract Address'/>
-            <button >Save</button>
+            <button className='mt-1 mb-2'>Save</button>
           </form>
         </div>
         <ul>

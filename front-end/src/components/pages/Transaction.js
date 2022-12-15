@@ -78,7 +78,7 @@ class TransactionPage extends React.Component {
           <form onSubmit={this.saveSubnet}>
             <input type="text" name="subnetId" placeholder='Subnet ID' />
             <input type="text" name="blockchainId" placeholder='Blockchain ID' />
-            <button
+            <button className='mt-1 mb-1'
             >
               Add Subnet
             </button>
@@ -94,7 +94,7 @@ class TransactionPage extends React.Component {
                 <div className='flex flex-col items-center justify-center'>
                   <div className='text-lg mb-2'>Subnet ID: {subnet.subnetId}</div>
                   <div className='text-lg'>Blockchain ID: {subnet.blockchainId}</div>
-                  <button onClick={() => this.removeSubnet(subnet.subnetId)}>Remove</button>
+                  <button className='mt-1' onClick={() => this.removeSubnet(subnet.subnetId)}>Remove</button>
                 </div>
               </div>
             </div>
