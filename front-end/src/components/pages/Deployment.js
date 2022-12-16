@@ -16,7 +16,9 @@ export default class subnetData extends Component {
     this.onChangeMechanism = this.onChangeMechanism.bind(this);
     this.onChangeFeeRate = this.onChangeFeeRate.bind(this);
     this.onChangeMaxDemandVolume = this.onChangeMaxDemandVolume.bind(this);
+    this.onChangeTotalDistribution = this.onChangeTotalDistribution.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+
     this.state = {
       subnetData: {
         nodeId: "",
@@ -28,6 +30,7 @@ export default class subnetData extends Component {
       },
       distributionData: {
         mechanism: "",
+        totalDistribution: "",
         epochCapacity: "",
         epochDuration: "",
         maxDemandVolume: "",
@@ -65,6 +68,9 @@ export default class subnetData extends Component {
   onChangeMaxDemandVolume(e) {
     this.setState({ maxDemandVolume: e.target.value })
   }
+  onChangeTotalDistribution(e) {
+    this.setState({ totalDistribution: e.target.value })
+  }
 
   onSubmit(e) {
     e.preventDefault()
@@ -82,6 +88,7 @@ export default class subnetData extends Component {
         epochDuration: this.state.epochDuration,
         mechanism: this.state.mechanism,
         maxDemandVolume: this.state.maxDemandVolume,  
+        totalDistribution: this.state.totalDistribution,
       }
     }, () => {
       localStorage.setItem('subnetData', JSON.stringify(this.state.subnetData));
@@ -110,64 +117,81 @@ export default class subnetData extends Component {
     }
   }
 
-  // Fee Rate Input Field is a dropdown with options: Low, Medium, High. Before selecting an option, the placeholder is "Fee Rate"
   render() {
     return (
       <div className="container mx-auto">
         <div className="flex flex-col items-center justify-center">
           <div className="w-full max-w-2xl">
             <div className="flex justify-center">
-              <h1 className="text-3xl font-bold text-center mb-2 mt-4">Transaction Page</h1>
+              <h1 className="text-3xl font-bold text-center mb-2 mt-4">Deployment Page</h1>
             </div>
             <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={this.onSubmit}>
               <div className="mb-4">
+              <label className="text-gray-500 text-sm font-bold mb-2" htmlFor="subnetId">
+                  SUBNET ID
+                </label>
                 <input
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="subnetId"
-                  type="number"
-                  placeholder="Subnet ID"
+                  type="string"
+                  placeholder="Enter your subnet's ChainId. It can be any positive integer."
                   value={this.state.subnetId}
                   onChange={this.onChangeSubnetId} />
               </div>
               <div className="mb-4">
+                <label className="text-gray-500 text-sm font-bold mb-2" htmlFor="subnetName">
+                  SUBNET NAME
+                </label>
                 <input
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="subnetName"
                   type="text"
-                  placeholder="Subnet Name"
+                  placeholder="Give your subnet a name."
                   value={this.state.subnetName}
                   onChange={this.onChangeSubnetName} />
               </div>
               <div className="mb-4">
+              <label className="text-gray-500 text-sm font-bold mb-2" htmlFor="tokenSymbol">
+                  TOKEN SYMBOL
+                </label>
                 <input
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="tokenSymbol"
                   type="text"
-                  placeholder="Token Symbol"
+                  placeholder="Select a symbol for your subnet's native token."
                   value={this.state.tokenSymbol}
                   onChange={this.onChangeTokenSymbol} />
               </div>
               <div className="mb-4">
+              <label className="text-gray-500 text-sm font-bold mb-2" htmlFor="fullyBootstrappedNodeId">
+                  NODE ID 
+                </label>
                 <input
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="fullyBootstrappedNodeId"
                   type="text"
-                  placeholder="Fully Bootstrapped Node ID"
+                  placeholder="Enter your fully bootstrapped Node ID."
                   value={this.state.fullyBootstrappedNodeId}
                   onChange={this.onChangeNodeId} />
               </div>
               <div className="mb-4">
+              <label className="text-gray-500 text-sm font-bold mb-2" htmlFor="permissionedAddresses">
+                  PERMISSIONED ADDRESSES
+                </label>
                 <input
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="permissionedAddresses"
                   type="file"
                   // fix: buttonText="Permissioned Addresses"
-                  placeholder="Permissioned Addresses"
+                  placeholder="Select a .txt file including permissioned addresses."
                   value={this.state.permissionedAddresses}
                   onChange={this.onChangePermissionedAddresses} />
               </div>
               <div className="mb-4">
                 <div className="relative">
+                <label className="text-gray-500 text-sm font-bold mb-2" htmlFor="feeRate">
+                    FEE RATE
+                </label>
                   <select
                     // fix: Design change
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -181,25 +205,46 @@ export default class subnetData extends Component {
                 </div>
               </div>
               <div className="mb-4">
+              <label className="text-gray-500 text-sm font-bold mb-2" htmlFor="totalDistribution">
+                  TOTAL DISTRIBUTION
+                </label>
+                <input
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  id="totalDistribution"
+                  type="number"
+                  placeholder="Enter the amount of tokens to be distributed."
+                  value={this.state.totalDistribution}
+                  onChange={this.onChangeTotalDistribution} />
+              </div>
+              <div className="mb-4">
+              <label className="text-gray-500 text-sm font-bold mb-2" htmlFor="epochCapacity">
+                  EPOCH CAPACITY
+                </label>
                 <input
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="epochCapacity"
                   type="number"
-                  placeholder="Epoch Capacity"
+                  placeholder="Enter epoch capacity."
                   value={this.state.epochCapacity}
                   onChange={this.onChangeEpochCapacity} />
               </div>
               <div className="mb-4">
+              <label className="text-gray-500 text-sm font-bold mb-2" htmlFor="epochDuration">
+                  EPOCH DURATION
+                </label>
                 <input
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="epochDuration"
                   type="number"
-                  placeholder="Epoch Duration"
+                  placeholder="Enter epoch duration."
                   value={this.state.epochDuration}
                   onChange={this.onChangeEpochDuration} />
               </div>
               <div className="mb-4">
                 <div className="relative">
+                <label className="text-gray-500 text-sm font-bold mb-2" htmlFor="mechanism">
+                  DISTRIBUTION MECHANISM
+                </label>
                   <select
                     // fix: Before selection, there should write "Distribution Mechanism"
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -213,17 +258,20 @@ export default class subnetData extends Component {
                 </div>
               </div>
               <div className="mb-4">
+              <label className="text-gray-500 text-sm font-bold mb-2" htmlFor="maxDemandVolume">
+                  MAX DEMAND VOLUME
+                </label>
                 <input
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="maxDemandVolume"
                   type="number"
-                  placeholder='Max Demand Volume'
+                  placeholder='Enter maximum demand volume that a user can request.'
                   value={this.state.maxDemandVolume}
                   onChange={this.onChangeMaxDemandVolume} />
               </div>
               <div className="mb-4">
                 <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" 
                   type="submit">
                   Deploy Subnet
                 </button>
