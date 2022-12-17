@@ -1,12 +1,27 @@
 import React from "react";
 
-import { useEthers } from '@usedapp/core'
+import { AvalancheTestnet, useEthers } from '@usedapp/core'
 
 
 function WalletConnector() {
 
-  const { account, deactivate, activateBrowserWallet } = useEthers()
+  const { account, deactivate, activateBrowserWallet, chainId, switchNetwork } = useEthers()
 
+  if (chainId !== AvalancheTestnet.chainId) {
+
+    return (
+      <div className="flex items-center">
+        <button
+          onClick={() => {
+            switchNetwork(AvalancheTestnet.chainId)
+          }}
+        >
+          Switch to Fuji Testnet
+        </button>
+      </div>
+    )
+  }
+  else {
   return (
     <div className="flex items-center">
       {account ? (
@@ -38,6 +53,7 @@ function WalletConnector() {
       )}
     </div>
   );
+}
 }
 
 export default WalletConnector;
