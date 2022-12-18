@@ -8,6 +8,7 @@ import { useEthers } from '@usedapp/core';
 import { useContractFunction } from '@usedapp/core';
 import { Contract } from 'ethers';
 
+
 // used mock for now
 import { abi } from '../../hooks';
 import { contractAddress } from '../../hooks';
@@ -43,7 +44,32 @@ export default function ContractPageTransactions()  {
     setContractAddresses(contractAddresses);
   }, []);
 
+  const validateContractAddress = (contractAddress) => {
+    if (contractAddress.length !== 10) {
+      alert('Invalid Contract Address');
+      return false;
+    }
+
+    if (!contractAddress.match(/^[a-zA-Z0-9]+$/)) {
+      alert('Invalid Contract Address');
+      return false;
+    }
+
+    for (let i = 0; i < contractAddresses.length; i++) {
+      if (contractAddresses[i] === contractAddress) {
+        alert('Contract with this address already exists');
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   const saveContractAddress = (contractAddress) => {
+    // Mock Validation for now
+    if (!validateContractAddress(contractAddress)) {
+      return;
+    }    
     const contractAddresses = JSON.parse(localStorage.getItem('contractAddresses')) || [];
     contractAddresses.push(contractAddress);
     localStorage.setItem('contractAddresses', JSON.stringify(contractAddresses));
