@@ -1,7 +1,5 @@
 import React from 'react';
 import './App.css';
-import { AvalancheTestnet, DAppProvider } from '@usedapp/core';
-import { getDefaultProvider } from 'ethers';
 import { Route, Routes } from 'react-router-dom';
 
 import NavBar from './components/NavBar';
@@ -12,17 +10,8 @@ import Management from './components/pages/Management';
 import ContractPage from './components/pages/ContractPage';
 
 function App() {
-  const config = {
-    networks: [AvalancheTestnet],
-    readOnlyChainId: AvalancheTestnet.chainId,
-    readOnlyUrls: {
-      [AvalancheTestnet.chainId]: AvalancheTestnet.rpcUrl,
-    },
-  }
 
   return (
-
-  <DAppProvider config={config}>
     <div className="App">
       <NavBar />
       <Routes>
@@ -33,7 +22,6 @@ function App() {
         <Route path="/manage" element={<Management />} />
       </Routes>
     </div>
-  </DAppProvider>
   );
 }
 
