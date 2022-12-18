@@ -45,13 +45,8 @@ export default function ContractPageTransactions()  {
   }, []);
 
   const validateContractAddress = (contractAddress) => {
-    if (contractAddress.length !== 10) {
-      alert('Invalid Contract Address');
-      return false;
-    }
-
-    if (!contractAddress.match(/^[a-zA-Z0-9]+$/)) {
-      alert('Invalid Contract Address');
+    if (!ethers.utils.isAddress(contractAddress)) {
+      alert('Invalid contract address');
       return false;
     }
 
