@@ -1,145 +1,151 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from "react-router-dom";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from '@fortawesome/fontawesome-free-solid';
 import { ethers } from "ethers";
-
 import Collapsible from '../Collapsible';
+import { useEthers } from '@usedapp/core';
+import { useContractFunction } from '@usedapp/core';
+import { Contract } from 'ethers';
 
-function withParams(Component) {
-  return props => <Component {...props} params={useParams()} />;
-}
+// used mock for now
+import { abi } from '../../hooks';
+import { contractAddress } from '../../hooks';
 
-class ContractPage extends React.Component {
+export default function ContractPageTransactions()  {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      contractAddresses: [],
-    };
-    this.blockchainExists = true;
+  // const { account } = useEthers();
+  const [contractAddresses, setContractAddresses] = useState([]);
+  const contractInstance = new Contract(contractAddress, abi, ethers.getDefaultProvider());
 
+  const { state: demandState, send: demand } = useContractFunction(contractInstance, 'demand', { transactionName: 'Demand' });
+  const { state: claimState, send: claim } = useContractFunction(contractInstance, 'claim', { transactionName: 'Claim' });
+
+  const [demandVolume, setDemandVolume] = useState(0);
+  const [epochNumber, setEpochNumber] = useState(0);
+  const [blockchainExists, setBlockchainExists] = useState(true);
+
+  const { id } = useParams();
+
+  useEffect(() => {
     const subnets = JSON.parse(localStorage.getItem('subnets'));
     if (!subnets) {
-      this.blockchainExists = false;
+      setBlockchainExists(false);
     }
-    if (!subnets.find(subnet => subnet.blockchainId === this.props.params.id)) {
-      this.blockchainExists = false;
-    }
-  }
 
-  componentDidMount() {
+    if (!subnets.find(subnet => subnet.blockchainId === id)) {
+      setBlockchainExists(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
     const contractAddresses = JSON.parse(localStorage.getItem('contractAddresses')) || [];
-    this.setState({ contractAddresses });
-  }
+    setContractAddresses(contractAddresses);
+  }, []);
 
-  saveContractAddress = (event) => {
-    event.preventDefault();
-    if (!this.verifyContractAddress(event)) {
-      return;
-    }
-    const contractAddress = event.target.elements.contractAddress.value;
-    const contractAddresses = [...this.state.contractAddresses, contractAddress];
-    this.setState({ contractAddresses });
+  const saveContractAddress = (contractAddress) => {
+    const contractAddresses = JSON.parse(localStorage.getItem('contractAddresses')) || [];
+    contractAddresses.push(contractAddress);
     localStorage.setItem('contractAddresses', JSON.stringify(contractAddresses));
+    setContractAddresses(contractAddresses);
   }
 
-  verifyContractAddress = (event) => {
+  const deleteContractAddress = (contractAddress) => {
+    const contractAddresses = JSON.parse(localStorage.getItem('contractAddresses')) || [];
+    const newContractAddresses = contractAddresses.filter(address => address !== contractAddress);
+    localStorage.setItem('contractAddresses', JSON.stringify(newContractAddresses));
+    setContractAddresses(newContractAddresses);
+  }  
+  
+  const handleDemandVolumeChange = (event) => { 
+    setDemandVolume(event.target.value);
+  }
+
+  const handleEpochNumberChange = (event) => {
+    setEpochNumber(event.target.value);
+  }
+
+  const handleDemand = (event) => {
     event.preventDefault();
-    const contractAddress = event.target.elements.contractAddress.value;
-
-    if (this.state.contractAddresses.includes(contractAddress)) {
-      alert('Duplicate contract address');
-      return false;
-    }
-
-    if (!ethers.utils.isAddress(contractAddress)) {
-      alert('Invalid contract address');
-      return false;
-    }
-
-    return true;
+    demand(demandVolume);
   }
 
-  removeContractAddress = (contractAddress) => {
-    const contractAddresses = this.state.contractAddresses.filter((address) => address !== contractAddress);
-    this.setState({ contractAddresses });
-    localStorage.setItem('contractAddresses', JSON.stringify(contractAddresses));
+  const handleClaim = (event) => {
+    event.preventDefault();
+    claim(epochNumber);
   }
 
-  render() {
-    
-    if (!this.blockchainExists) {
-      return (
-        <div className='flex flex-col items-center'>
-          <div className="flex justify-center">
-            <h1 className="text-3xl font-bold mb-2 mt-4">Contract Page</h1>
-          </div>
-          <div className='flex flex-col items-center'>
-            <h2 className='text-xl font-bold mb-2'>No such blockchain exists</h2>
-            <a href='/'>Go back to home page</a>
-          </div>
-        </div>
-      );
-    }
-
+  if (!blockchainExists) {
     return (
       <div className='flex flex-col items-center'>
         <div className="flex justify-center">
           <h1 className="text-3xl font-bold mb-2 mt-4">Contract Page</h1>
         </div>
-        <form onSubmit={this.saveContractAddress}>
-          <input type="text" name="contractAddress" placeholder='Contract Address' />
-          <button className='mt-1 mb-4'>Add Contract</button>
-        </form>
-        <ul>
-          {this.state.contractAddresses.map((contractAddress) => (
-            <div className='mb-6 border-2 border-gray-300 mb-2 rounded-xl'>
-              <Collapsible
-                open
-                title=
-                <div className='flex flex-row items-center justify-center'>
-                  <a href={`https://testnet.snowtrace.io/address/${contractAddress}`} target="_blank" rel="noopener noreferrer">
-                    {<div className='text-l font-bold text-center hover:text-blue-600 focus:text-blue-600'>{contractAddress}</div>
-                    }
-                  </a>
-                </div>
-                item= <div className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center"
-                  onClick={() => {
-                    if (window.confirm('Are you sure you wish to remove this contract?'))
-                      this.removeContractAddress(contractAddress)
-                  }
-                  }>
-                    <FontAwesomeIcon icon={faTrash} />
-                  </div>
-              >
-                <div className='flex flex-col items-end justify-end'>
-                  <div className='flex flex-row items-center justify-center mb-1'>
-                    <input className='w-28' type="number" name="volume" placeholder='vol' />
-                    <button className='w-24'>
-                      demand
-                    </button>
-                  </div>
-                  <div className='flex flex-row items-center justify-center mb-1'>
-                    <input className='w-28' type="number" name="epochNumber" placeholder='epoch' />
-                    <button className='w-24'>
-                      claim
-                    </button>
-                  </div>
-                  <div className='flex flex-row items-center justify-center mb-1'>
-                  <button className='w-24'>
-                      claimAll
-                    </button>
-                  </div>
-                </div>
-              </Collapsible>
-            </div>
-          ))}
-        </ul>
+        <div className='flex flex-col items-center'>
+          <h2 className='text-xl font-bold mb-2'>No such blockchain exists</h2>
+          <a href='/'>Go back to home page</a>
+        </div>
       </div>
     );
   }
-}
 
-export default withParams(ContractPage);
+  return (
+    <div className='flex flex-col items-center'>
+      <div className="flex justify-center">
+        <h1 className="text-3xl font-bold mb-2 mt-4">Contract Page</h1>
+      </div>
+      <form onSubmit={(event) => {
+        event.preventDefault();
+        const contractAddress = event.target.elements.contractAddress.value;
+        saveContractAddress(contractAddress);
+      }}>
+        <input type="text" name="contractAddress" placeholder='Contract Address'/>
+        <button className='mt-1 mb-4'>Add Contract</button>
+      </form>
+      <ul>
+        {contractAddresses.map(contractAddress => (
+          <div className='mb-6 border-2 border-gray-300 mb-2 rounded-xl'>
+            <Collapsible
+              open
+              title=
+              <div className='flex flex-row items-center justify-center'>
+                <a href={`https://testnet.snowtrace.io/address/${contractAddress}`} target="_blank" rel="noopener noreferrer">
+                  {<div className='text-l font-bold text-center hover:text-blue-600 focus:text-blue-600'>{contractAddress}</div>
+                  }
+                </a>
+              </div>
+              item= <div className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center"
+                onClick={() => {
+                  if (window.confirm('Are you sure you wish to remove this contract?'))
+                    deleteContractAddress(contractAddress)
+                }
+                }>
+                  <FontAwesomeIcon icon={faTrash} />
+                </div>
+            >
+              <div className='flex flex-col items-end justify-end'>
+                <div className='flex flex-row items-center justify-center mb-1'>
+                  <input className='w-28' type="number" name="volume" placeholder='vol' value={demandVolume} onChange={handleDemandVolumeChange} />
+                  <button className='w-24' onClick={(event) => handleDemand(event)} >
+                    demand
+                  </button>
+                </div>
+                <div className='flex flex-row items-center justify-center mb-1'>
+                  <input className='w-28' type="number" name="epochNumber" placeholder='epoch' value={epochNumber} onChange={handleEpochNumberChange} />
+                  <button className='w-24' onClick={(event) => handleClaim(event)} >
+                    claim
+                  </button>
+                </div>
+                <div className='flex flex-row items-center justify-center mb-1'>
+                <button className='w-24'>
+                    claimAll
+                  </button>
+                </div>
+              </div>
+            </Collapsible>
+          </div>
+        ))}
+      </ul>
+    </div>
+  );
+}
