@@ -3,12 +3,6 @@ const { Avalanche, BinTools, BN, evm } = require("avalanche")
 // Importing node details and Private key from the config file.
 const { evmBase, pBase, xBase, cBase, privKey } = require("../configs/config")
 
-console.log("evmBase: ", evmBase)
-console.log("pBase: ", pBase)
-console.log("xBase: ", xBase)
-console.log("cBase: ", cBase)
-console.log("privKey: ", privKey)
-
 // For encoding and decoding to CB58 and buffers.
 const bintools = BinTools.getInstance()
 
@@ -30,10 +24,13 @@ cchain.setBaseURL(cBase)
 //   "http", // protocol
 //   5, // fuji: 43113, mainnet: 43114, local: 1337
 // )
+//
+// const platform = avalanche.PChain()
+// const xchain = avalanche.XChain()
+// const cchain = avalanche.CChain()
 
 const info = avalanche.Info()
 info.setBaseURL(cBase)
-
 
 // Keychain for signing transactions
 const pKeyChain = platform.keyChain()
