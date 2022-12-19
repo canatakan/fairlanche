@@ -11,22 +11,31 @@ import { Contract } from 'ethers';
 
 // used mock for now
 import { abi } from '../../hooks';
-import { contractAddress } from '../../hooks';
 
 export default function ContractPageTransactions()  {
 
   // const { account } = useEthers();
   const [contractAddresses, setContractAddresses] = useState([]);
-  const contractInstance = new Contract(contractAddress, abi, ethers.getDefaultProvider());
 
-  const { state: demandState, send: demand } = useContractFunction(contractInstance, 'demand', { transactionName: 'Demand' });
-  const { state: claimState, send: claim } = useContractFunction(contractInstance, 'claim', { transactionName: 'Claim' });
 
   const [demandVolume, setDemandVolume] = useState(0);
   const [epochNumber, setEpochNumber] = useState(0);
   const [blockchainExists, setBlockchainExists] = useState(true);
+  const [contractInstance, setContractInstance] = useState(null);
+  const [contractAddress, setContractAddress] = useState('');
+
+
+  const { state: demandState, send: demand } = useContractFunction(contractInstance, 'demand', { transactionName: 'Demand' });
+  const { state: claimState, send: claim } = useContractFunction(contractInstance, 'claim', { transactionName: 'Claim' });
 
   const { id } = useParams();
+
+  useEffect(() => {
+    if (contractAddress) {
+      const instance = generateContractInstance(contractAddress);
+      setContractInstance(instance);
+    }
+  }, [contractAddress]);
 
   useEffect(() => {
     const subnets = JSON.parse(localStorage.getItem('subnets'));
@@ -60,6 +69,11 @@ export default function ContractPageTransactions()  {
     return true;
   }
 
+  const generateContractInstance = (address) => {
+    const instance = new Contract(address, abi, ethers.getDefaultProvider());
+    return instance;
+  }
+
   const saveContractAddress = (contractAddress) => {
     // Mock Validation for now
     if (!validateContractAddress(contractAddress)) {
@@ -69,6 +83,8 @@ export default function ContractPageTransactions()  {
     contractAddresses.push(contractAddress);
     localStorage.setItem('contractAddresses', JSON.stringify(contractAddresses));
     setContractAddresses(contractAddresses);
+    setContractAddress(contractAddress);
+
   }
 
   const deleteContractAddress = (contractAddress) => {
@@ -88,7 +104,9 @@ export default function ContractPageTransactions()  {
 
   const handleDemand = (event) => {
     event.preventDefault();
+    console.log(contractAddress);
     demand(demandVolume);
+    
   }
 
   const handleClaim = (event) => {
@@ -119,6 +137,7 @@ export default function ContractPageTransactions()  {
         event.preventDefault();
         const contractAddress = event.target.elements.contractAddress.value;
         saveContractAddress(contractAddress);
+
       }}>
         <input type="text" name="contractAddress" placeholder='Contract Address'/>
         <button className='mt-1 mb-4'>Add Contract</button>
