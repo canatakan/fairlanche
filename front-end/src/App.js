@@ -7,6 +7,7 @@ import Home from './components/pages/Home';
 import Transaction from './components/pages/Transaction';
 import Deployment from './components/pages/Deployment';
 import Management from './components/pages/Management';
+import ManageSubnet from './components/pages/ManageSubnet';
 import ContractPage from './components/pages/ContractPage';
 
 function App() {
@@ -20,6 +21,8 @@ function App() {
         <Route path="/transact/:id" element={<ContractPage/>}/>
         <Route path="/deploy" element={<Deployment />} />
         <Route path="/manage" element={<Management />} />
+        <Route path="/manage/:id" element={<ManageSubnet />} />
+      
       </Routes>
     </div>
   );
