@@ -8,26 +8,18 @@ import { useEthers } from '@usedapp/core';
 import { useContractFunction } from '@usedapp/core';
 import { Contract } from 'ethers';
 
-
-// used mock for now
 import { abi } from '../../hooks';
 
-export default function ContractPageTransactions()  {
+export default function ContractPageTransactions() {
 
-  // const { account } = useEthers();
   const [contractAddresses, setContractAddresses] = useState([]);
-
-
   const [demandVolume, setDemandVolume] = useState(0);
   const [epochNumber, setEpochNumber] = useState(0);
   const [blockchainExists, setBlockchainExists] = useState(true);
   const [contractInstance, setContractInstance] = useState(null);
   const [contractAddress, setContractAddress] = useState('');
-
-
   const { state: demandState, send: demand } = useContractFunction(contractInstance, 'demand', { transactionName: 'Demand' });
   const { state: claimState, send: claim } = useContractFunction(contractInstance, 'claim', { transactionName: 'Claim' });
-
   const { id } = useParams();
 
   useEffect(() => {
@@ -68,23 +60,20 @@ export default function ContractPageTransactions()  {
 
     return true;
   }
-
   const generateContractInstance = (address) => {
     const instance = new Contract(address, abi, ethers.getDefaultProvider());
     return instance;
   }
 
   const saveContractAddress = (contractAddress) => {
-    // Mock Validation for now
     if (!validateContractAddress(contractAddress)) {
       return;
-    }    
+    }
     const contractAddresses = JSON.parse(localStorage.getItem('contractAddresses')) || [];
     contractAddresses.push(contractAddress);
     localStorage.setItem('contractAddresses', JSON.stringify(contractAddresses));
     setContractAddresses(contractAddresses);
     setContractAddress(contractAddress);
-
   }
 
   const deleteContractAddress = (contractAddress) => {
@@ -92,9 +81,9 @@ export default function ContractPageTransactions()  {
     const newContractAddresses = contractAddresses.filter(address => address !== contractAddress);
     localStorage.setItem('contractAddresses', JSON.stringify(newContractAddresses));
     setContractAddresses(newContractAddresses);
-  }  
-  
-  const handleDemandVolumeChange = (event) => { 
+  }
+
+  const handleDemandVolumeChange = (event) => {
     setDemandVolume(event.target.value);
   }
 
@@ -104,9 +93,7 @@ export default function ContractPageTransactions()  {
 
   const handleDemand = (event) => {
     event.preventDefault();
-    console.log(contractAddress);
     demand(demandVolume);
-    
   }
 
   const handleClaim = (event) => {
@@ -137,9 +124,8 @@ export default function ContractPageTransactions()  {
         event.preventDefault();
         const contractAddress = event.target.elements.contractAddress.value;
         saveContractAddress(contractAddress);
-
       }}>
-        <input type="text" name="contractAddress" placeholder='Contract Address'/>
+        <input type="text" name="contractAddress" placeholder='Contract Address' />
         <button className='mt-1 mb-4'>Add Contract</button>
       </form>
       <ul>
@@ -154,14 +140,14 @@ export default function ContractPageTransactions()  {
                   }
                 </a>
               </div>
-              item= <div className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center"
+              item=<div className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center"
                 onClick={() => {
                   if (window.confirm('Are you sure you wish to remove this contract?'))
                     deleteContractAddress(contractAddress)
                 }
                 }>
-                  <FontAwesomeIcon icon={faTrash} />
-                </div>
+                <FontAwesomeIcon icon={faTrash} />
+              </div>
             >
               <div className='flex flex-col items-end justify-end'>
                 <div className='flex flex-row items-center justify-center mb-1'>
@@ -177,7 +163,7 @@ export default function ContractPageTransactions()  {
                   </button>
                 </div>
                 <div className='flex flex-row items-center justify-center mb-1'>
-                <button className='w-24'>
+                  <button className='w-24'>
                     claimAll
                   </button>
                 </div>
