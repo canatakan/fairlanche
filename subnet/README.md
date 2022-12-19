@@ -1,92 +1,50 @@
 # Subnets
 
-## Create an EVM Subnet on Fuji Testnet Using Subnet-CLI
+## Using AvalancheJS Library to Create & Deploy Subnets
 
-### Prerequisites
-* 1+ nodes running on Fuji Testnet (does not need to be a validator)
-* subnet-cli installed
-* subnet-cli private key with some Fuji AVAX
+### AvalancheJS Installation
 
-[Run avalanche node](https://docs.avax.network/nodes/build/run-avalanche-node-manually#connect-to-fuji-testnet)
+1. Directly clone the AvalancheJS repository to subnet directory
 
-Note: it may take a while to bootstrap Fuji Testnet from scratch.
-
-### Installation
-```
-git clone https://github.com/ava-labs/subnet-cli.git;
-cd subnet-cli;
-go install -v .;
+```bash
+git clone https://github.com/ava-labs/avalanchejs.git
 ```
 
-### subnet-cli Create Key
-```
-subnet-cli create key
-```
+2. Build the AvalancheJS library
 
-### Build Binary
-```
-git clone https://github.com/ava-labs/subnet-evm.git
-cd subnet-evm
+```bash
+cd avalanchejs
+npm run build
 ```
 
-### subnet-cli Create VMID
-```
-subnet-cli create VMID <identifier> [--hash]
-```
-and build with:
-```
-./scripts/build.sh build/srEXiWaHuhNyGwPUi444Tu47ZEDwxTWrbQiuD7FmgSAQ6X7Dy
-```
+### `config.js` File
 
-### Move Binary
+1. In `config.js` file, add the code currently contains the base URLs for the Ankr's Fuji Testnet endpoints. These endpoints can be found in:
 
-To put the subnet-evm binary in the right place, run the following command (assuming the avalanchego and subnet-evm repos are in the same folder):
-```
-mv ./subnet-evm/build/srEXiWaHuhNyGwPUi444Tu47ZEDwxTWrbQiuD7FmgSAQ6X7Dy ./avalanchego/build/plugins;
+```json
+{
+    pBase: "https://rpc.ankr.com/avalanche_fuji-p",
+    xBase: "https://rpc.ankr.com/avalanche_fuji-x",
+    cBase: "https://rpc.ankr.com/avalanche_fuji-c"
+}
 ```
 
-### Funding Wallet on Fuji
+2. Additionally, the `config.js` file reads your private key from the `PRIVATE_KEY` environment variable. You can set this variable in the `.env` file. **Use your P-chain private key**.
 
-* Use your private key in the ```.subnet-cli.pk``` file on the web wallet to access this wallet. 
-* Pick Fuji on the top right corner as the network and locate your C-Chain address which starts with 0x.
-* Request funds from the faucet using your C-Chain address.
-* Move the test funds from the C-Chain to the P-Chain by clicking on the Cross Chain on the left side of the web wallet.
 
-### subnet-cli Wizard
+### `importAPI.js` File
 
-subnet-cli wizard,
+With this file, you can import the AvalancheJS library and create an instance of the Avalanche class. The `Avalanche` class is the main class of the AvalancheJS library. It provides access to all the other classes.
 
-* Adds all NodeIDs as validators to the primary network (skipping any that already exist)
-* Creates a Subnet
-* Adds all NodeIDs as validators on the Subnet
-* Creates a new blockchain
+The instance of the `Avalanche` class is created with the following parameters:
 
+ ```js
+const skip = (num) => new Array(num);
+const avalanche = new Avalanche(...skip(3), 5, ...skip(2), "fuji")
 ```
-subnet-cli wizard \
---node-ids=NodeID-nBwT3MfSHA4es5o3iB5cMtkPng4eC861 \
---vm-genesis-path=my-genesis.json \
---vm-id=kL1G2oVE8BVXCBFQrwS2QkDnW4SBG86X5NoMSsiLidwyj3itG \
---chain-name=bayysubnet
-```
-### Add New Subnet to Node Whitelist
-```
---whitelisted-subnets=p433wpuXyJiDhyazPYyZMJeaoPSW76CBZ2x7wrVPLgvokotXz --network-id=fuji
-```
-Finally, restart the node.
 
+5 is used for the Fuji Network, and hrp is set to "fuji" as well.
 
---------------------------
-## Deploying Subnet with EVM Based Blockchain using AvalancheJS
-Creating Subnet and deploying Ethereum Virtual Machine (EVM) based blockchain on that Subnet through your Node.js application using AvalancheJS. 
+### `createSubnet.js` & `genesis.json` File
 
-## Setting up AvalancheGo and Subnet-EVM Binaries
-
-Follow the steps [here](https://docs.avax.network/subnets/create-a-evm-blockchain-on-subnet-with-avalanchejs#setting-up-avalanchego-and-subnet-evm-binaries)
-
-
-
-
-
-
-
-
+This script and the genesis file are taken from the [AvalancheJS documentation](https://docs.avax.network/subnets/create-a-evm-blockchain-on-subnet-with-avalanchejs).
