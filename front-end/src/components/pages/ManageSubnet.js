@@ -105,7 +105,7 @@ export default function ContractPageTransactions() {
                         connectContract(contractAddress);
                     }}>
                         <input className='w-56  mr-1 ml-2 mt-1' type="text" name="allowAddress" placeholder='Enter contract address.' value={contractAddress} onChange={handleConnectContract} />
-                        <button className='w-48  mt-1 mr-2 ml-1'> Connect Contract </button>
+                        <button className='w-48  mt-1 mr-2 ml-1 mb-2'> Connect Contract </button>
                     </form>
                 </div>
                 {isValidContract && <span className='text-green-700'>Connected to Contract</span>}
