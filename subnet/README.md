@@ -25,7 +25,7 @@
 
 ### `config.js` File
 
-1. In `config.js` file, add the code currently contains the base URLs for the Ankr's Fuji Testnet endpoints. These endpoints can be found in:
+1. The `config.js` file currently contains the base URLs for the Ankr's Fuji Testnet endpoints. These endpoints can be found in:
 
     ```json
     {
@@ -36,6 +36,8 @@
     ```
 
 2. Additionally, the `config.js` file reads your private key from the `PRIVATE_KEY` environment variable. You can set this variable in the `.env` file. **Use your P-chain private key**.
+
+3. Currently, the details about our node in AWS are also included in this file. You can prefer using either of nodes in the `importAPI.js` file.
 
 
 ### `importAPI.js` File
@@ -49,7 +51,8 @@ const skip = (num) => new Array(num);
 const avalanche = new Avalanche(...skip(3), 5, ...skip(2), "fuji")
 ```
 
-5 is used for the Fuji Network, and hrp is set to "fuji" as well.
+5 is used for the Fuji Network, and hrp is set to "fuji" as well. Note that the configuration for the node in AWS is a little bit different but it also creates an instance of `Avalanche` in a similar way.
+
 
 ### `createSubnet.js` & `genesis.json` File
 
