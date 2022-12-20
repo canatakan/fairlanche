@@ -174,7 +174,6 @@ export default function ContractPageTransactions() {
                         <button className='w-48  mt-1 mr-2 ml-1 mb-2'> Connect Contract </button>
                     </form>
                 </div>
-              {isConnected && <span className='text-green-700'>Connected to Contract</span>}
               {isConnected && (
               <div className='flex flex-col items-end justify-end'>
                 <div className='flex flex-row items-center justify-center mb-1'>
