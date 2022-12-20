@@ -17,8 +17,6 @@ async function addSubnetValidator() {
     subnetID,
   } = args
 
-  console.log("Node ID: ", nodeID)
-
   const pAddresses = pKeyChain.getAddresses()
 
   // Creating Subnet auth
@@ -38,17 +36,13 @@ async function addSubnetValidator() {
     undefined, // asOf
     subnetAuth // Subnet owners' address indices signing this tx
   )
-  
-  console.log("Unsigned Tx: ", unsignedTx.toBuffer().toString("hex"))
 
   // signing unsgined tx with pKeyChain
   const tx = unsignedTx.sign(pKeyChain)
 
-  console.log("Tx: ", tx.toBuffer().toString("hex"))
-
   // issuing tx
-  //const txId = await platform.issueTx(tx)
-  //console.log("Tx ID: ", txId)
+  const txId = await platform.issueTx(tx)
+  console.log("Tx ID: ", txId)
 }
 
 addSubnetValidator()
