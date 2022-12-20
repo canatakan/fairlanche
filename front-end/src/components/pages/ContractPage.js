@@ -170,8 +170,8 @@ export default function ContractPageTransactions() {
                     <form onSubmit={(event) => {
                         event.preventDefault();
                         connectContract(contractAddress);
-                    }}>
-                        <button className='w-48  mt-1 mr-2 ml-1 mb-2'> Connect Contract </button>
+                    }}> 
+                    {isConnected ? <button className='w-48 mr-2 ml-1 mb-6'> Disconnect Contract </button> : <button className='w-48 mr-2 ml-1 mb-6'> Connect Contract </button>}
                     </form>
                 </div>
               {isConnected && (
