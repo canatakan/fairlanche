@@ -87,6 +87,7 @@ export default function ManagePageTransactions() {
             <div className="flex justify-center">
                 <h1 className="text-3xl font-bold mb-2 mt-4">Subnet Management Portal</h1>
             </div>
+        
             <div className="flex flex-col items-center">
 
                 <div className="flex flex-col items-center">
@@ -105,7 +106,7 @@ export default function ManagePageTransactions() {
                             name="contractAddress"
                             placeholder="Contract Address"
                         />
-                        <button className="mt-1 mb-4">Add Contract</button>
+                        <button className="mt-2 mb-5">Add Contract</button>
                     </form>
                     <ul>
                         {contractAddresses.map((contractAddress) => (
@@ -118,8 +119,7 @@ export default function ManagePageTransactions() {
                 </div>
             </div>
             <hr className="border-2 border-blue-200 w-11/12 mb-4 mt-4" />
-            
-
+        
             <ul>
                 <div className="flex justify-center">
                     <h1 className="text-xl font-bold mb-2 mt-4 text-gray-700">Generate New Distribution</h1>

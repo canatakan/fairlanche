@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
-import ContractContainer from "../ContractContainer";
+import ContractContainer from "../ContractRequestContainer";
 
 export default function ContractPageTransactions() {
   const [contractAddresses, setContractAddresses] = useState([]);
