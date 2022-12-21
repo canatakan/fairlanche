@@ -5,7 +5,10 @@ contract NativeDistributor {
     uint16 public constant MAX_DEMAND_VOLUME = 10;
     uint16 public constant DEMAND_EXPIRATION_TIME = 100; // in epochs
 
+    uint256 public constant milliether = 1e15; // 0.001 ether
+
     uint16 public maxDemandVolume;
+    uint16 public etherMultiplier;
 
     uint256 public distributionEndBlock;
     uint256 public claimEndBlock;
@@ -36,11 +39,20 @@ contract NativeDistributor {
     uint256 public epochDuration; // duration of each epoch, in blocks
     uint256 public epoch; // epoch counter
 
+    /**
+     * @param _maxDemandVolume maximum demand volume
+     * @param _epochCapacity capacity of each epoch
+     * @param _epochDuration duration of each epoch, in blocks
+     * @param _etherMultiplier multiplier for the milliether value. To send 1 ether for shares, set it to 1000.
+     * @param _expirationBlocks number of blocks after the distribution ends that the contract will be active
+     * @param _enableWithdraw if true, the owner can withdraw the remaining balance after the expirationBlocks
+     */
     constructor(
         uint16 _maxDemandVolume,
         uint256 _epochCapacity,
         uint256 _epochDuration,
-        uint256 _expirationBlocks, // number of blocks after the distribution ends that the claims are still valid
+        uint16 _etherMultiplier,
+        uint256 _expirationBlocks,
         bool _enableWithdraw
     ) payable {
         require(
@@ -48,22 +60,24 @@ contract NativeDistributor {
             "Epoch capacity and duration must be greater than 0."
         );
         require(
-            msg.value >= _epochCapacity * (1 ether),
+            msg.value >= _epochCapacity * (_etherMultiplier * milliether),
             "The contract must be funded with at least one epoch capacity."
         );
 
         owner = msg.sender;
         numberOfUsers = 0;
         blockOffset = block.number;
+
+        maxDemandVolume = _maxDemandVolume;
+
         epochCapacity = _epochCapacity;
         epochDuration = _epochDuration;
         cumulativeCapacity = epochCapacity;
         epoch = 1;
 
-        enableWithdraw = _enableWithdraw;
+        etherMultiplier = _etherMultiplier;
 
-        uint256 deployedEthers = msg.value / (1 ether);
-
+        uint256 deployedEthers = msg.value / (etherMultiplier * milliether);
         if (deployedEthers % epochCapacity == 0) {
             distributionEndBlock =
                 blockOffset +
@@ -75,9 +89,9 @@ contract NativeDistributor {
                 ((deployedEthers / epochCapacity) + 1) *
                 epochDuration;
         }
-
         claimEndBlock = distributionEndBlock + _expirationBlocks;
-        maxDemandVolume = _maxDemandVolume;
+
+        enableWithdraw = _enableWithdraw;
     }
 
     modifier onlyOwner() {
@@ -193,7 +207,10 @@ contract NativeDistributor {
         // then, send the ether
 
         (bool success, ) = msg.sender.call{
-            value: min((share * (1 ether)), (volumeAtIndex * (1 ether)))
+            value: min(
+                (share * (etherMultiplier * milliether)),
+                (volumeAtIndex * (etherMultiplier * milliether))
+            )
         }("");
         require(success, "Transfer failed.");
     }
@@ -233,7 +250,7 @@ contract NativeDistributor {
 
         // then, send the ether
         (bool success, ) = msg.sender.call{
-            value: totalClaim * (1 ether)
+            value: totalClaim * (etherMultiplier * milliether)
         }("");
         require(success, "Transfer failed.");
     }
