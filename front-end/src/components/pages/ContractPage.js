@@ -18,7 +18,7 @@ export default function ContractPageTransactions() {
   const [blockchainExists, setBlockchainExists] = useState(true);
   const [contractInstance, setContractInstance] = useState(null);
   const [contractAddress, setContractAddress] = useState('');
-  const [isConnected, setIsConnected] = useState(false);
+ 
   const { state: demandState, send: demand } = useContractFunction(contractInstance, 'demand', { transactionName: 'Demand' });
   const { state: claimState, send: claim } = useContractFunction(contractInstance, 'claim', { transactionName: 'Claim' });
   const { id } = useParams();
@@ -96,26 +96,12 @@ export default function ContractPageTransactions() {
     event.preventDefault();
     console.log(contractAddress);
     demand(demandVolume);
-    isConnected ? setIsConnected(false) : setIsConnected(true);
   }
 
   const handleClaim = (event) => {
     event.preventDefault();
     claim(epochNumber);
-    isConnected ? setIsConnected(false) : setIsConnected(true);
   }
-
-  const connectContract = (contractAddress) => {
-    if (isConnected) {
-      setContractAddress('');
-      setIsConnected(false);
-      return;
-    }
-    else {
-      setContractAddress(contractAddress);
-      setIsConnected(true);
-    }
-  } 
 
 
   if (!blockchainExists) {
@@ -167,14 +153,7 @@ export default function ContractPageTransactions() {
               </div>
             >
               <div className='flex flex-row items-center justify-center mb-1'>
-                    <form onSubmit={(event) => {
-                        event.preventDefault();
-                        connectContract(contractAddress);
-                    }}> 
-                    {isConnected ? <button className='w-48 mr-2 ml-1 mb-6'> Disconnect Contract </button> : <button className='w-48 mr-2 ml-1 mb-6'> Connect Contract </button>}
-                    </form>
                 </div>
-              {isConnected && (
               <div className='flex flex-col items-end justify-end'>
                 <div className='flex flex-row items-center justify-center mb-1'>
                   <input className='w-28' type="number" name="volume" placeholder='vol' value={demandVolume} onChange={handleDemandVolumeChange} />
@@ -194,7 +173,7 @@ export default function ContractPageTransactions() {
                   </button>
                 </div>
               </div>
-              )}
+              
             </Collapsible>
           </div>
         ))}
