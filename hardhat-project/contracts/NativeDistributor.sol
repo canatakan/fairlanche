@@ -2,9 +2,10 @@
 pragma solidity ^0.8.13;
 
 contract NativeDistributor {
-
     uint16 public constant MAX_DEMAND_VOLUME = 10;
     uint16 public constant DEMAND_EXPIRATION_TIME = 100; // in epochs
+
+    uint16 public maxDemandVolume;
 
     uint256 public distributionEndBlock;
     uint256 public claimEndBlock;
@@ -36,8 +37,10 @@ contract NativeDistributor {
     uint256 public epoch; // epoch counter
 
     constructor(
+        uint16 _maxDemandVolume,
         uint256 _epochCapacity,
         uint256 _epochDuration,
+        uint256 _expirationBlocks, // number of blocks after the distribution ends that the claims are still valid
         bool _enableWithdraw
     ) payable {
         require(
@@ -73,10 +76,8 @@ contract NativeDistributor {
                 epochDuration;
         }
 
-        claimEndBlock =
-            distributionEndBlock +
-            epochDuration *
-            DEMAND_EXPIRATION_TIME;
+        claimEndBlock = distributionEndBlock + _expirationBlocks;
+        maxDemandVolume = _maxDemandVolume;
     }
 
     modifier onlyOwner() {
