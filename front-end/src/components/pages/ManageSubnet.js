@@ -8,7 +8,7 @@ import { useEthers } from '@usedapp/core';
 import { useContractFunction } from '@usedapp/core';
 import { Contract } from 'ethers';
 
-import { abi } from '../../hooks';
+import { abi } from '../../constants';
 
 
 export default function ContractPageTransactions() {
