@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "./EtherDistributor.sol";
+import "./NativeDistributor.sol";
 
-contract TestEtherDistributor is EtherDistributor {
+contract TestNativeDistributor is NativeDistributor {
     /*
      * Inherits the main contract and exposes internal functions for testing.
      * There is also an additional function to see the user struct fields.
@@ -15,7 +15,7 @@ contract TestEtherDistributor is EtherDistributor {
         bool _enableWithdraw
     )
         payable
-        EtherDistributor(_epochCapacity, _epochDuration, _enableWithdraw)
+        NativeDistributor(_epochCapacity, _epochDuration, _enableWithdraw)
     {}
 
     function _updateState() public {

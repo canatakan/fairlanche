@@ -1,8 +1,8 @@
-# EtherDistributor Hardhat Project
+# NativeDistributor Hardhat Project
 
 ## Overview
 
-This is a Hardhat project that contains the EtherDistributor contract. The contract is used to distribute native assets of any blockchain to the permissioned users in a fair manner.
+This is a Hardhat project that contains the NativeDistributor contract. The contract is used to distribute native assets of any blockchain to the permissioned users in a fair manner.
 
 ## Hardhat Configurations & `.env` File
 
@@ -21,7 +21,7 @@ SNOWTRACE_API_KEY = <YOUR_API_KEY>
 
 ## Testing
 
-There are comprehensive tests for the EtherDistributor contract. The tests are written using the Hardhat framework. Some important commands are listed below.
+There are comprehensive tests for the NativeDistributor contract. The tests are written using the Hardhat framework. Some important commands are listed below.
 
 1. To run the tests, run the following command.
     ```bash
@@ -41,13 +41,13 @@ There are comprehensive tests for the EtherDistributor contract. The tests are w
 
 ## Deployment on Testnet
 
-To deploy the EtherDistributor contract on Avalanche Fuji testnet, run the following command:
+To deploy the NativeDistributor contract on Avalanche Fuji testnet, run the following command:
 
 ```bash
 npx hardhat run scripts/deploy.js --network fuji
 ```
 
-The EtherDistributor contract is currently deployed on the Avalanche Fuji testnet. The contract address is verified on Snowtrace. The contract can be found at [0x66C695a59C8F748A792bfD6C447627664995d577](https://testnet.snowtrace.io/address/0x66c695a59c8f748a792bfd6c447627664995d577#readContract).
+The NativeDistributor contract is currently deployed on the Avalanche Fuji testnet. The contract address is verified on Snowtrace. The contract can be found at [0x66C695a59C8F748A792bfD6C447627664995d577](https://testnet.snowtrace.io/address/0x66c695a59c8f748a792bfd6c447627664995d577#readContract).
 
 
 ## Interacting with the Deployed Contract

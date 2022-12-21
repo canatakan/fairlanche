@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-contract EtherDistributor {
+contract NativeDistributor {
 
     uint16 public constant MAX_DEMAND_VOLUME = 10;
     uint16 public constant DEMAND_EXPIRATION_TIME = 100; // in epochs
