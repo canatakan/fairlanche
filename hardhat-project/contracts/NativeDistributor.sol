@@ -45,7 +45,7 @@ contract NativeDistributor {
             "Epoch capacity and duration must be greater than 0."
         );
         require(
-            msg.value > _epochCapacity * (1 ether),
+            msg.value >= _epochCapacity * (1 ether),
             "The contract must be funded with at least one epoch capacity."
         );
 
