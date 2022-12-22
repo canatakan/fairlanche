@@ -240,11 +240,12 @@ contract NativeDistributor {
             uint256 distribution;
             (share, distribution) = calculateShare();
 
+            shares.push(share);
+
             for (uint256 i = 0; i < epochDifference - 1; i++) {
                 // add 0 shares for the epochs that are skipped
                 shares.push(0);
             }
-            shares.push(share);
 
             cumulativeCapacity -= distribution; // subtract the distributed amount
             cumulativeCapacity += (epochCapacity) * epochDifference; // add the capacity of the new epoch
