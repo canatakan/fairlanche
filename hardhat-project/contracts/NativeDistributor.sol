@@ -70,6 +70,7 @@ contract NativeDistributor {
         epochDuration = _epochDuration;
         cumulativeCapacity = epochCapacity;
         epoch = 1;
+        shares.push(0);
 
         etherMultiplier = _etherMultiplier;
 
@@ -136,7 +137,7 @@ contract NativeDistributor {
         );
 
         // stop collecting demands after the distribution ends
-        require(block.number < distributionEndBlock, "Distribution is over.");
+        require(block.number < distributionEndBlock, "Demand period is over.");
 
         updateState();
         require(
@@ -157,7 +158,7 @@ contract NativeDistributor {
         );
 
         // stop allowing claims after the distribution's ending + expirationBlocks
-        require(block.number < claimEndBlock, "Distribution is over.");
+        require(block.number < claimEndBlock, "Claim period is over.");
 
         updateState();
         require(epochNumber < epoch, "You can only claim past epochs.");
@@ -171,14 +172,14 @@ contract NativeDistributor {
         );
 
         // send min(share, User.demanded) to User.addr
-        uint256 share = shares[epochNumber];
+        uint16 share = shares[epochNumber];
 
         // first, update the balance of the user
         permissionedAddresses[msg.sender].demandedVolumes[epochNumber] = 0;
 
         // then, send the ether
         (bool success, ) = msg.sender.call{
-            value: min(share, demandedVolume) * (etherMultiplier * milliether)
+            value: (min(share, demandedVolume)) * (etherMultiplier * milliether)
         }("");
         require(success, "Transfer failed.");
     }
@@ -194,7 +195,7 @@ contract NativeDistributor {
             "You can only claim up to 255 epochs at once."
         );
 
-        require(block.number < claimEndBlock, "Distribution is over.");
+        require(block.number < claimEndBlock, "Claim period is over.");
         updateState();
 
         uint256 totalClaim;
@@ -203,8 +204,6 @@ contract NativeDistributor {
         uint16 share;
         for (uint16 i = 0; i < epochNumbers.length; i++) {
             uint256 currentEpoch = epochNumbers[i];
-            if (currentEpoch == 0) break;
-
             require(currentEpoch < epoch, "You can only claim past epochs.");
 
             demandedVolume = permissionedAddresses[msg.sender].demandedVolumes[
@@ -241,7 +240,7 @@ contract NativeDistributor {
             uint256 distribution;
             (share, distribution) = calculateShare();
 
-            for (uint256 i = 0; i < epochDifference; i++) {
+            for (uint256 i = 0; i < epochDifference - 1; i++) {
                 // add 0 shares for the epochs that are skipped
                 shares.push(0);
             }
