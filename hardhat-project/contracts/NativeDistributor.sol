@@ -21,7 +21,12 @@ contract NativeDistributor is ResourceDistributor {
             _expirationBlocks,
             _enableWithdraw
         )
-    {}
+    {
+        require(
+            msg.value >= _epochCapacity * (_etherMultiplier * milliether),
+            "The contract must be funded with at least one epoch capacity."
+        );
+    }
 
     function calculateEndingBlock()
         internal
