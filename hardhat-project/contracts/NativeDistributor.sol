@@ -14,7 +14,7 @@ contract NativeDistributor {
     struct User {
         uint256 id; // ids starting from 1
         address payable addr;
-        mapping (uint256 => uint16) demandedVolumes; // volume demanded for each epoch
+        mapping(uint256 => uint16) demandedVolumes; // volume demanded for each epoch
         uint256 lastDemandEpoch;
     }
 
@@ -123,9 +123,10 @@ contract NativeDistributor {
     }
 
     function demand(uint16 volume) public {
-        User storage currentUser = permissionedAddresses[msg.sender];
-
-        require(currentUser.id != 0, "User does not have the permission.");
+        require(
+            permissionedAddresses[msg.sender].id != 0,
+            "User does not have the permission."
+        );
         require(
             (volume > 0) &&
                 (volume <= maxDemandVolume) &&
@@ -138,19 +139,21 @@ contract NativeDistributor {
 
         updateState();
         require(
-            currentUser.lastDemandEpoch < epoch,
+            permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
             "Wait for the next epoch."
         );
         numberOfDemands[volume]++;
         totalDemand++;
 
-        currentUser.demandedVolumes[epoch] = volume;
-        currentUser.lastDemandEpoch = epoch;
+        permissionedAddresses[msg.sender].demandedVolumes[epoch] = volume;
+        permissionedAddresses[msg.sender].lastDemandEpoch = epoch;
     }
 
     function claim(uint256 epochNumber) public {
-        User storage currentUser = permissionedAddresses[msg.sender];
-        require(currentUser.id != 0, "User does not have the permission.");
+        require(
+            permissionedAddresses[msg.sender].id != 0,
+            "User does not have the permission."
+        );
 
         // stop allowing claims after the distribution's ending + expirationBlocks
         require(block.number < claimEndBlock, "Distribution is over.");
@@ -158,7 +161,8 @@ contract NativeDistributor {
         updateState();
         require(epochNumber < epoch, "You can only claim past epochs.");
 
-        uint256 demandedVolume = currentUser.demandedVolumes[epochNumber];
+        uint256 demandedVolume = permissionedAddresses[msg.sender]
+            .demandedVolumes[epochNumber];
 
         require(
             demandedVolume != 0,
@@ -169,7 +173,7 @@ contract NativeDistributor {
         uint256 share = shares[epochNumber];
 
         // first, update the balance of the user
-        currentUser.demandedVolumes[epochNumber] = 0;
+        permissionedAddresses[msg.sender].demandedVolumes[epochNumber] = 0;
 
         // then, send the ether
         (bool success, ) = msg.sender.call{
@@ -179,10 +183,12 @@ contract NativeDistributor {
     }
 
     function claimBulk(uint256[] memory epochNumbers) public {
-        User storage currentUser = permissionedAddresses[msg.sender];
-        require(currentUser.id != 0, "User does not have the permission.");
+        require(
+            permissionedAddresses[msg.sender].id != 0,
+            "User does not have the permission."
+        );
 
-        require (
+        require(
             epochNumbers.length <= 255,
             "You can only claim up to 255 epochs at once."
         );
@@ -200,7 +206,9 @@ contract NativeDistributor {
 
             require(currentEpoch < epoch, "You can only claim past epochs.");
 
-            demandedVolume = currentUser.demandedVolumes[currentEpoch];
+            demandedVolume = permissionedAddresses[msg.sender].demandedVolumes[
+                currentEpoch
+            ];
             require(
                 demandedVolume != 0,
                 "You do not have a demand for one of the epochs."
@@ -209,7 +217,7 @@ contract NativeDistributor {
             share = shares[currentEpoch];
 
             // first, update the balance of the user (in case of reentrancy)
-            currentUser.demandedVolumes[currentEpoch] = 0;
+            permissionedAddresses[msg.sender].demandedVolumes[currentEpoch] = 0;
             totalClaim += min(share, demandedVolume);
         }
 
