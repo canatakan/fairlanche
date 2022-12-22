@@ -2,6 +2,12 @@
 pragma solidity ^0.8.13;
 
 contract NativeDistributor {
+    event Register(address indexed _user);
+    event Unregister(address indexed _user);
+    event Demand(address indexed _from, uint16 _volume);
+    event Claim(address indexed _from, uint256 _epoch, uint16 _share);
+    event Share(uint256 _epoch, uint16 _share, uint256 _distribution);
+
     uint256 public constant milliether = 1e15; // 0.001 ether
 
     uint16 public maxDemandVolume;
@@ -122,6 +128,16 @@ contract NativeDistributor {
         User storage currentUser = permissionedAddresses[_addr];
         currentUser.id = numberOfUsers;
         currentUser.addr = _addr;
+
+        emit Register(_addr);
+    }
+
+    function removePermissionedUser(address _addr) public onlyOwner {
+        require(permissionedAddresses[_addr].id != 0, "User does not exist.");
+        delete permissionedAddresses[_addr];
+        numberOfUsers--;
+
+        emit Unregister(_addr);
     }
 
     function demand(uint16 volume) public {
@@ -149,6 +165,8 @@ contract NativeDistributor {
 
         permissionedAddresses[msg.sender].demandedVolumes[epoch] = volume;
         permissionedAddresses[msg.sender].lastDemandEpoch = epoch;
+
+        emit Demand(msg.sender, volume);
     }
 
     function claim(uint256 epochNumber) public {
@@ -182,6 +200,8 @@ contract NativeDistributor {
             value: (min(share, demandedVolume)) * (etherMultiplier * milliether)
         }("");
         require(success, "Transfer failed.");
+
+        emit Claim(msg.sender, epochNumber, uint16(min(share, demandedVolume)));
     }
 
     function claimBulk(uint256[] memory epochNumbers) public {
@@ -219,6 +239,12 @@ contract NativeDistributor {
             // first, update the balance of the user (in case of reentrancy)
             permissionedAddresses[msg.sender].demandedVolumes[currentEpoch] = 0;
             totalClaim += min(share, demandedVolume);
+
+            emit Claim(
+                msg.sender,
+                currentEpoch,
+                uint16(min(share, demandedVolume))
+            );
         }
 
         // then, send the ether
@@ -239,6 +265,8 @@ contract NativeDistributor {
             uint16 share;
             uint256 distribution;
             (share, distribution) = calculateShare();
+
+            emit Share(currentEpoch, share, distribution);
 
             shares.push(share);
 
