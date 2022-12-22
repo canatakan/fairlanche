@@ -87,7 +87,7 @@ abstract contract ResourceDistributor {
         internal
         virtual;
 
-    function deposit() public payable virtual;
+    function deposit(uint256 _amount) public virtual;
 
     function withdrawExpired() public virtual;
 
@@ -118,7 +118,7 @@ abstract contract ResourceDistributor {
         emit Unregister(_addr);
     }
 
-    function demand(uint16 volume) public {
+    function demand(uint16 volume) public virtual {
         require(
             permissionedAddresses[msg.sender].id != 0,
             "User does not have the permission."
@@ -147,7 +147,7 @@ abstract contract ResourceDistributor {
         emit Demand(msg.sender, volume);
     }
 
-    function claim(uint256 epochNumber) public {
+    function claim(uint256 epochNumber) public virtual {
         require(
             permissionedAddresses[msg.sender].id != 0,
             "User does not have the permission."
@@ -179,7 +179,7 @@ abstract contract ResourceDistributor {
         emit Claim(msg.sender, epochNumber, uint16(min(share, demandedVolume)));
     }
 
-    function claimBulk(uint256[] memory epochNumbers) public {
+    function claimBulk(uint256[] memory epochNumbers) public virtual {
         require(
             permissionedAddresses[msg.sender].id != 0,
             "User does not have the permission."
@@ -226,7 +226,7 @@ abstract contract ResourceDistributor {
         handleTransfer(msg.sender, totalClaim * (etherMultiplier * milliether));
     }
 
-    function updateState() internal {
+    function updateState() internal virtual {
         uint256 currentEpoch = ((block.number - blockOffset) / epochDuration) +
             1;
         if (epoch < currentEpoch) {
@@ -261,6 +261,7 @@ abstract contract ResourceDistributor {
     function calculateShare()
         internal
         view
+        virtual
         returns (uint16 _share, uint256 _amount)
     {
         /*

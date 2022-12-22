@@ -73,7 +73,7 @@ contract NativeDistributor is ResourceDistributor {
         selfdestruct(payable(address(0)));
     }
 
-    function deposit() public payable virtual override {
+    function deposit(uint256) public virtual override onlyOwner {
         revert(
             "Deposits are not allowed for native asset distribution contracts."
         );
