@@ -35,17 +35,17 @@ describe("Single user", function () {
             let amount = 10;
             await nativeDistributor.connect(user).demand(amount);
             let currentEpoch = await nativeDistributor.epoch();
-            let userInfo = await nativeDistributor.getUser(user.address);
-            expect(userInfo[3][currentEpoch]).to.equal(amount);
-            // Last Demand Epoch: console.log("User info: ", userInfo[4]); #Correct
+            let userInfo = await nativeDistributor.getUser(user.address, [currentEpoch]);
+            expect(userInfo[2][0]).to.equal(amount);
+            // Last Demand Epoch: console.log("User info: ", userInfo[4]);
         });
 
-        // A registered user makes a demand with a value greater than the MAX_DEMAND_VALUE
-        it("Should fail for the demands with a value greater than the MAX_DEMAND_VALUE", async function () {
+        // A registered user makes a demand with a value greater than the maxDemandVolume
+        it("Should fail for the demands with a value greater than the maxDemandVolume", async function () {
             let accounts = await ethers.getSigners();
             let user = accounts[1];
-            let MAX_DEMAND_VOLUME = await nativeDistributor.MAX_DEMAND_VOLUME();
-            await expect(nativeDistributor.connect(user).demand(MAX_DEMAND_VOLUME + 1)).to.be.revertedWith("Invalid volume.");
+            let maxDemandVolume = await nativeDistributor.maxDemandVolume();
+            await expect(nativeDistributor.connect(user).demand(maxDemandVolume + 1)).to.be.revertedWith("Invalid volume.");
         });
 
         // A registered user makes a demand with a value greater than the EPOCH_CAPACITY
@@ -73,8 +73,8 @@ describe("Single user", function () {
             await nativeDistributor._updateState();
             await nativeDistributor.connect(user).demand(amount);
             let currentEpoch = await nativeDistributor.epoch();
-            let userInfo = await nativeDistributor.getUser(user.address);
-            expect(userInfo[3][currentEpoch]).to.equal(amount);
+            let userInfo = await nativeDistributor.getUser(user.address, [currentEpoch]);
+            expect(userInfo[2][0]).to.equal(amount);
         });
     });
 
@@ -90,10 +90,10 @@ describe("Single user", function () {
             let claimEpoch = 2;
             await mine(await nativeDistributor.epochDuration());
             await nativeDistributor._updateState();
-            let userInfo = await nativeDistributor.getUser(user.address);
+            let userInfo = await nativeDistributor.getUser(user.address, [claimEpoch]);
             let epochShare = await nativeDistributor.shares(claimEpoch);
             //console.log("Epoch share: ", epochShare); #Correct
-            let claimAmount = Math.min(userInfo[3][claimEpoch], epochShare);
+            let claimAmount = Math.min(userInfo[2][0], epochShare);
 
             // claim and get the transaction receipt
             let tx = await nativeDistributor.connect(user).claim(claimEpoch);
@@ -103,8 +103,8 @@ describe("Single user", function () {
             let gasPrice = tx.gasPrice;
             let gasCost = gasUsed.mul(gasPrice);
 
-            let userInfoAfterClaim = await nativeDistributor.getUser(user.address);
-            expect(userInfoAfterClaim[3][claimEpoch]).to.equal(0);
+            let userInfoAfterClaim = await nativeDistributor.getUser(user.address, [claimEpoch]);
+            expect(userInfoAfterClaim[2][0]).to.equal(0);
 
             // convert claim amount to wei
             let claimAmountWei = ethers.utils.parseEther(claimAmount.toString());

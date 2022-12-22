@@ -162,7 +162,7 @@ contract NativeDistributor {
         updateState();
         require(epochNumber < epoch, "You can only claim past epochs.");
 
-        uint256 demandedVolume = permissionedAddresses[msg.sender]
+        uint16 demandedVolume = permissionedAddresses[msg.sender]
             .demandedVolumes[epochNumber];
 
         require(
@@ -239,11 +239,14 @@ contract NativeDistributor {
 
             uint16 share;
             uint256 distribution;
-            (
-                share,
-                distribution
-            ) = calculateShare();
+            (share, distribution) = calculateShare();
+
+            for (uint256 i = 0; i < epochDifference; i++) {
+                // add 0 shares for the epochs that are skipped
+                shares.push(0);
+            }
             shares.push(share);
+
             cumulativeCapacity -= distribution; // subtract the distributed amount
             cumulativeCapacity += (epochCapacity) * epochDifference; // add the capacity of the new epoch
 
