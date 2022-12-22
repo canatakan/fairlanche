@@ -11,7 +11,6 @@ const {
 const {
   DEFAULT_EPOCH_DURATION,
   DEFAULT_ETHER_MULTIPLIER,
-  DEFAULT_DEPLOYMENT_VALUE,
 } = require("../test_utils/config");
 
 describe("Multiple users", function () {
@@ -316,7 +315,7 @@ describe("Multiple users", function () {
 
     describe("Claim all shares", function () {
 
-      it("Should allow everyone to call claimAll() after 10 epochs of demanding", async function () {
+      it("Should allow everyone to call claimBulk() after 10 epochs of demanding", async function () {
         let { nativeDistributor } = await deployDistributor(
           { _epochCapacity: 55, _value: ethers.utils.parseEther("2000") }
         );
