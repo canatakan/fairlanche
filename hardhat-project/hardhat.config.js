@@ -45,3 +45,11 @@ task("accounts", "Prints the list of accounts with balances", async (_, hre) => 
     console.log("[" + i + "]", account.address, "(" + balance + " ETH)");
   }
 });
+
+task("deploy", "Runs the deploy script", async (_, hre) => {
+  await hre.run("run", { script: "./scripts/deploy.js" });
+});
+
+task("interact", "Runs the interact script", async (_, hre) => {
+  await hre.run("run", { script: "./scripts/interact.js" });
+});

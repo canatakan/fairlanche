@@ -10,12 +10,22 @@ contract TestNativeDistributor is NativeDistributor {
      */
 
     constructor(
+        uint16 _maxDemandVolume,
         uint256 _epochCapacity,
         uint256 _epochDuration,
+        uint16 _etherMultiplier,
+        uint256 _expirationBlocks,
         bool _enableWithdraw
     )
         payable
-        NativeDistributor(_epochCapacity, _epochDuration, _enableWithdraw)
+        NativeDistributor(
+            _maxDemandVolume,
+            _epochCapacity,
+            _epochDuration,
+            _etherMultiplier,
+            _expirationBlocks,
+            _enableWithdraw
+        )
     {}
 
     function _updateState() public {
@@ -34,25 +44,27 @@ contract TestNativeDistributor is NativeDistributor {
         return super.min(a, b);
     }
 
-    // define a view function to see user struct fields
-    function getUser(address _addr)
+    function getUser(address _addr, uint256[] memory _epochNumbers)
         public
         view
         returns (
             uint256,
             address,
-            uint256[DEMAND_EXPIRATION_TIME] memory,
-            uint16[DEMAND_EXPIRATION_TIME] memory,
+            uint16[] memory,
             uint256
         )
     {
-        User memory currentUser = permissionedAddresses[_addr];
-        return (
-            currentUser.id,
-            currentUser.addr,
-            currentUser.epochMultipliers,
-            currentUser.demandedVolumes,
-            currentUser.lastDemandEpoch
-        );
+        User storage user = permissionedAddresses[_addr];
+        uint256 epochCount = _epochNumbers.length;
+        uint16[] memory demandedVolumeList = new uint16[](epochCount);
+        for (uint256 i = 0; i < _epochNumbers.length; i++) {
+            demandedVolumeList[i] = (user.demandedVolumes[_epochNumbers[i]]);
+        }
+
+        return (user.id, user.addr, demandedVolumeList, user.lastDemandEpoch);
+    }
+
+    function getShares() public view returns (uint16[] memory) {
+        return shares;
     }
 }

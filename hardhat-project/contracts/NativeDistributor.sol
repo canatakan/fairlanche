@@ -2,9 +2,16 @@
 pragma solidity ^0.8.13;
 
 contract NativeDistributor {
+    event Register(address indexed _user);
+    event Unregister(address indexed _user);
+    event Demand(address indexed _from, uint16 _volume);
+    event Claim(address indexed _from, uint256 _epoch, uint16 _share);
+    event Share(uint256 _epoch, uint16 _share, uint256 _distribution);
 
-    uint16 public constant MAX_DEMAND_VOLUME = 10;
-    uint16 public constant DEMAND_EXPIRATION_TIME = 100; // in epochs
+    uint256 public constant milliether = 1e15; // 0.001 ether
+
+    uint16 public maxDemandVolume;
+    uint16 public etherMultiplier;
 
     uint256 public distributionEndBlock;
     uint256 public claimEndBlock;
@@ -13,9 +20,7 @@ contract NativeDistributor {
     struct User {
         uint256 id; // ids starting from 1
         address payable addr;
-        // list of structs [(epochMultiplier, volume), ...]
-        uint256[DEMAND_EXPIRATION_TIME] epochMultipliers;
-        uint16[DEMAND_EXPIRATION_TIME] demandedVolumes;
+        mapping(uint256 => uint16) demandedVolumes; // volume demanded for each epoch
         uint256 lastDemandEpoch;
     }
 
@@ -26,18 +31,29 @@ contract NativeDistributor {
     uint256 public epochCapacity;
     uint256 public cumulativeCapacity;
 
-    uint16[DEMAND_EXPIRATION_TIME] public shares; // calculated with calculateShare()
+    uint16[] public shares; // calculated with calculateShare()
 
-    uint256[MAX_DEMAND_VOLUME + 1] public numberOfDemands; // demand volume array
+    uint256[] public numberOfDemands; // demand volume array
     uint256 public totalDemand; // total number of demands, D
 
     uint256 public blockOffset; // block number of the contract creation
     uint256 public epochDuration; // duration of each epoch, in blocks
     uint256 public epoch; // epoch counter
 
+    /**
+     * @param _maxDemandVolume maximum demand volume
+     * @param _epochCapacity capacity of each epoch
+     * @param _epochDuration duration of each epoch, in blocks
+     * @param _etherMultiplier multiplier for the milliether value. To send 1 ether for shares, set it to 1000.
+     * @param _expirationBlocks number of blocks after the distribution ends that the contract will be active
+     * @param _enableWithdraw if true, the owner can withdraw the remaining balance after the expirationBlocks
+     */
     constructor(
+        uint16 _maxDemandVolume,
         uint256 _epochCapacity,
         uint256 _epochDuration,
+        uint16 _etherMultiplier,
+        uint256 _expirationBlocks,
         bool _enableWithdraw
     ) payable {
         require(
@@ -45,22 +61,26 @@ contract NativeDistributor {
             "Epoch capacity and duration must be greater than 0."
         );
         require(
-            msg.value > _epochCapacity * (1 ether),
+            msg.value >= _epochCapacity * (_etherMultiplier * milliether),
             "The contract must be funded with at least one epoch capacity."
         );
 
         owner = msg.sender;
         numberOfUsers = 0;
         blockOffset = block.number;
+
+        maxDemandVolume = _maxDemandVolume;
+        numberOfDemands = new uint256[](maxDemandVolume + 1);
+
         epochCapacity = _epochCapacity;
         epochDuration = _epochDuration;
         cumulativeCapacity = epochCapacity;
         epoch = 1;
+        shares.push(0);
 
-        enableWithdraw = _enableWithdraw;
+        etherMultiplier = _etherMultiplier;
 
-        uint256 deployedEthers = msg.value / (1 ether);
-
+        uint256 deployedEthers = msg.value / (etherMultiplier * milliether);
         if (deployedEthers % epochCapacity == 0) {
             distributionEndBlock =
                 blockOffset +
@@ -72,11 +92,9 @@ contract NativeDistributor {
                 ((deployedEthers / epochCapacity) + 1) *
                 epochDuration;
         }
+        claimEndBlock = distributionEndBlock + _expirationBlocks;
 
-        claimEndBlock =
-            distributionEndBlock +
-            epochDuration *
-            DEMAND_EXPIRATION_TIME;
+        enableWithdraw = _enableWithdraw;
     }
 
     modifier onlyOwner() {
@@ -107,18 +125,19 @@ contract NativeDistributor {
         require(permissionedAddresses[_addr].id == 0, "User already exists.");
         numberOfUsers++; // user ids start from 1
 
-        uint256[DEMAND_EXPIRATION_TIME] memory _epochMultipliers;
-        uint16[DEMAND_EXPIRATION_TIME] memory _demandedVolumes;
+        User storage currentUser = permissionedAddresses[_addr];
+        currentUser.id = numberOfUsers;
+        currentUser.addr = _addr;
 
-        User memory currentUser = User(
-            numberOfUsers,
-            _addr,
-            _epochMultipliers,
-            _demandedVolumes,
-            0
-        );
+        emit Register(_addr);
+    }
 
-        permissionedAddresses[_addr] = currentUser;
+    function removePermissionedUser(address _addr) public onlyOwner {
+        require(permissionedAddresses[_addr].id != 0, "User does not exist.");
+        delete permissionedAddresses[_addr];
+        numberOfUsers--;
+
+        emit Unregister(_addr);
     }
 
     function demand(uint16 volume) public {
@@ -128,13 +147,13 @@ contract NativeDistributor {
         );
         require(
             (volume > 0) &&
-                (volume <= MAX_DEMAND_VOLUME) &&
+                (volume <= maxDemandVolume) &&
                 (volume <= epochCapacity),
             "Invalid volume."
         );
 
         // stop collecting demands after the distribution ends
-        require(block.number < distributionEndBlock, "Distribution is over.");
+        require(block.number < distributionEndBlock, "Demand period is over.");
 
         updateState();
         require(
@@ -144,13 +163,10 @@ contract NativeDistributor {
         numberOfDemands[volume]++;
         totalDemand++;
 
-        permissionedAddresses[msg.sender].epochMultipliers[
-            epoch % DEMAND_EXPIRATION_TIME
-        ] = epoch / DEMAND_EXPIRATION_TIME;
-        permissionedAddresses[msg.sender].demandedVolumes[
-            epoch % DEMAND_EXPIRATION_TIME
-        ] = volume;
+        permissionedAddresses[msg.sender].demandedVolumes[epoch] = volume;
         permissionedAddresses[msg.sender].lastDemandEpoch = epoch;
+
+        emit Demand(msg.sender, volume);
     }
 
     function claim(uint256 epochNumber) public {
@@ -159,80 +175,81 @@ contract NativeDistributor {
             "User does not have the permission."
         );
 
-        // stop allowing claims after the distribution's ending + DEMAND_EXPIRATION_TIME
-        require(block.number < claimEndBlock, "Distribution is over.");
+        // stop allowing claims after the distribution's ending + expirationBlocks
+        require(block.number < claimEndBlock, "Claim period is over.");
 
         updateState();
-        require(epochNumber < epoch, "Invalid epoch number.");
-        require(
-            epochNumber + DEMAND_EXPIRATION_TIME > epoch,
-            "Epoch is too old."
-        );
+        require(epochNumber < epoch, "You can only claim past epochs.");
 
-        uint256 index = epochNumber % DEMAND_EXPIRATION_TIME;
-        uint256 epochMultiplierAtIndex = permissionedAddresses[msg.sender]
-            .epochMultipliers[index];
-        uint256 volumeAtIndex = permissionedAddresses[msg.sender]
-            .demandedVolumes[index];
+        uint16 demandedVolume = permissionedAddresses[msg.sender]
+            .demandedVolumes[epochNumber];
 
         require(
-            epochMultiplierAtIndex * DEMAND_EXPIRATION_TIME + index ==
-                epochNumber &&
-                volumeAtIndex != 0,
+            demandedVolume != 0,
             "You do not have a demand for this epoch."
         );
 
         // send min(share, User.demanded) to User.addr
-
-        uint256 share = shares[epochNumber % DEMAND_EXPIRATION_TIME];
+        uint16 share = shares[epochNumber];
 
         // first, update the balance of the user
-        permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
+        permissionedAddresses[msg.sender].demandedVolumes[epochNumber] = 0;
 
         // then, send the ether
-
         (bool success, ) = msg.sender.call{
-            value: min((share * (1 ether)), (volumeAtIndex * (1 ether)))
+            value: (min(share, demandedVolume)) * (etherMultiplier * milliether)
         }("");
         require(success, "Transfer failed.");
+
+        emit Claim(msg.sender, epochNumber, uint16(min(share, demandedVolume)));
     }
 
-    function claimAll() public {
-        require(block.number < claimEndBlock, "Distribution is over.");
+    function claimBulk(uint256[] memory epochNumbers) public {
+        require(
+            permissionedAddresses[msg.sender].id != 0,
+            "User does not have the permission."
+        );
+
+        require(
+            epochNumbers.length <= 255,
+            "You can only claim up to 255 epochs at once."
+        );
+
+        require(block.number < claimEndBlock, "Claim period is over.");
         updateState();
 
         uint256 totalClaim;
 
-        uint256 epochMultiplierAtIndex;
-        uint256 volumeAtIndex;
-        uint256 share;
-        uint256 index;
-        for (uint256 i = 0; i < DEMAND_EXPIRATION_TIME; i++) {
-            if (epoch == i) break;
+        uint16 demandedVolume;
+        uint16 share;
+        for (uint16 i = 0; i < epochNumbers.length; i++) {
+            uint256 currentEpoch = epochNumbers[i];
+            require(currentEpoch < epoch, "You can only claim past epochs.");
 
-            index = (epoch - i) % DEMAND_EXPIRATION_TIME;
-            epochMultiplierAtIndex = permissionedAddresses[msg.sender]
-                .epochMultipliers[index];
-            volumeAtIndex = permissionedAddresses[msg.sender].demandedVolumes[
-                index
+            demandedVolume = permissionedAddresses[msg.sender].demandedVolumes[
+                currentEpoch
             ];
+            require(
+                demandedVolume != 0,
+                "You do not have a demand for one of the epochs."
+            );
 
-            if (
-                epochMultiplierAtIndex * DEMAND_EXPIRATION_TIME + index ==
-                epoch - i &&
-                volumeAtIndex != 0
-            ) {
-                share = shares[index];
+            share = shares[currentEpoch];
 
-                // first, update the balance of the user (in case of reentrancy)
-                permissionedAddresses[msg.sender].demandedVolumes[index] = 0;
-                totalClaim += min(share, volumeAtIndex);
-            }
+            // first, update the balance of the user (in case of reentrancy)
+            permissionedAddresses[msg.sender].demandedVolumes[currentEpoch] = 0;
+            totalClaim += min(share, demandedVolume);
+
+            emit Claim(
+                msg.sender,
+                currentEpoch,
+                uint16(min(share, demandedVolume))
+            );
         }
 
         // then, send the ether
         (bool success, ) = msg.sender.call{
-            value: totalClaim * (1 ether)
+            value: totalClaim * (etherMultiplier * milliether)
         }("");
         require(success, "Transfer failed.");
     }
@@ -245,16 +262,24 @@ contract NativeDistributor {
             uint256 epochDifference = currentEpoch - epoch;
             epoch = currentEpoch;
 
+            uint16 share;
             uint256 distribution;
-            (
-                shares[(epoch - epochDifference) % DEMAND_EXPIRATION_TIME],
-                distribution
-            ) = calculateShare();
+            (share, distribution) = calculateShare();
+
+            emit Share(currentEpoch, share, distribution);
+
+            shares.push(share);
+
+            for (uint256 i = 0; i < epochDifference - 1; i++) {
+                // add 0 shares for the epochs that are skipped
+                shares.push(0);
+            }
+
             cumulativeCapacity -= distribution; // subtract the distributed amount
             cumulativeCapacity += (epochCapacity) * epochDifference; // add the capacity of the new epoch
 
             totalDemand = 0;
-            for (uint256 i = 0; i < MAX_DEMAND_VOLUME + 1; i++) {
+            for (uint256 i = 0; i <= maxDemandVolume; i++) {
                 numberOfDemands[i] = 0;
             }
         }
@@ -283,7 +308,7 @@ contract NativeDistributor {
         uint256 necessaryCapacity = 0; // necessary capacity to meet demands at ith volume
         uint256 sufficientCapacity = 0; // the latest necessaryCapacity that can be distributed
 
-        for (uint16 i = 1; i <= MAX_DEMAND_VOLUME; i++) {
+        for (uint16 i = 1; i <= maxDemandVolume; i++) {
             // always point to the previous necessaryCapacity
             sufficientCapacity = necessaryCapacity;
 
@@ -307,7 +332,7 @@ contract NativeDistributor {
         }
 
         // cumulative capacity was enough for all demands
-        return (MAX_DEMAND_VOLUME, necessaryCapacity);
+        return (maxDemandVolume, necessaryCapacity);
     }
 
     function min(uint256 a, uint256 b) internal pure returns (uint256) {
