@@ -1,6 +1,7 @@
 const hre = require("hardhat"); // Hardhat Runtime Environment
 
 const DEPLOYMENT_PARAMS = {
+  _contractName: "NativeDistributor",
   _maxDemandVolume: 3,
   _epochCapacity: 5,
   _epochDuration: 1000,
@@ -11,7 +12,7 @@ const DEPLOYMENT_PARAMS = {
 };
 
 async function main() {
-  const NativeDistributor = await hre.ethers.getContractFactory("NativeDistributor");
+  const NativeDistributor = await hre.ethers.getContractFactory(DEPLOYMENT_PARAMS._contractName);
   const nativeDistributor = await NativeDistributor.deploy(
     DEPLOYMENT_PARAMS._maxDemandVolume,
     DEPLOYMENT_PARAMS._epochCapacity,
@@ -22,7 +23,7 @@ async function main() {
     { value: DEPLOYMENT_PARAMS._value }
   );
   await nativeDistributor.deployed();
-  console.log("NativeDistributor deployed to:", nativeDistributor.address);
+  console.log(`${DEPLOYMENT_PARAMS._contractName} is deployed to:`, nativeDistributor.address);
 }
 
 main().catch((error) => {
