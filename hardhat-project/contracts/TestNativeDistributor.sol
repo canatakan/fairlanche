@@ -10,12 +10,22 @@ contract TestNativeDistributor is NativeDistributor {
      */
 
     constructor(
+        uint16 _maxDemandVolume,
         uint256 _epochCapacity,
         uint256 _epochDuration,
+        uint16 _etherMultiplier,
+        uint256 _expirationBlocks,
         bool _enableWithdraw
     )
         payable
-        NativeDistributor(_epochCapacity, _epochDuration, _enableWithdraw)
+        NativeDistributor(
+            _maxDemandVolume,
+            _epochCapacity,
+            _epochDuration,
+            _etherMultiplier,
+            _expirationBlocks,
+            _enableWithdraw
+        )
     {}
 
     function _updateState() public {
@@ -32,27 +42,5 @@ contract TestNativeDistributor is NativeDistributor {
 
     function _min(uint256 a, uint256 b) public pure returns (uint256) {
         return super.min(a, b);
-    }
-
-    // define a view function to see user struct fields
-    function getUser(address _addr)
-        public
-        view
-        returns (
-            uint256,
-            address,
-            uint256[DEMAND_EXPIRATION_TIME] memory,
-            uint16[DEMAND_EXPIRATION_TIME] memory,
-            uint256
-        )
-    {
-        User memory currentUser = permissionedAddresses[_addr];
-        return (
-            currentUser.id,
-            currentUser.addr,
-            currentUser.epochMultipliers,
-            currentUser.demandedVolumes,
-            currentUser.lastDemandEpoch
-        );
     }
 }
