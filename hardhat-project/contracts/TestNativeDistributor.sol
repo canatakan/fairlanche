@@ -63,4 +63,8 @@ contract TestNativeDistributor is NativeDistributor {
 
         return (user.id, user.addr, demandedVolumeList, user.lastDemandEpoch);
     }
+
+    function getShares() public view returns (uint16[] memory) {
+        return shares;
+    }
 }

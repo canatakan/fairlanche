@@ -11,7 +11,7 @@ const {
     DEFAULT_ETHER_MULTIPLIER,
     DEFAULT_EXPIRATION_BLOCKS,
     DEFAULT_DEPLOYMENT_VALUE,
-} = require("../test_utils/constants");
+} = require("../test_utils/config");
 
 describe("NativeDistributor contract basics", function () {
 

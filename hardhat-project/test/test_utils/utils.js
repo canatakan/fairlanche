@@ -7,7 +7,7 @@ const {
     DEFAULT_EXPIRATION_BLOCKS,
     DEFAULT_ENABLE_WITHDRAW,
     DEFAULT_DEPLOYMENT_VALUE,
-} = require("./constants");
+} = require("./config");
 
 async function deployDistributor(
     {
