@@ -64,6 +64,7 @@ contract NativeDistributor {
         blockOffset = block.number;
 
         maxDemandVolume = _maxDemandVolume;
+        numberOfDemands = new uint256[](maxDemandVolume + 1);
 
         epochCapacity = _epochCapacity;
         epochDuration = _epochDuration;
@@ -236,16 +237,18 @@ contract NativeDistributor {
             uint256 epochDifference = currentEpoch - epoch;
             epoch = currentEpoch;
 
+            uint16 share;
             uint256 distribution;
             (
-                shares[(epoch - epochDifference)],
+                share,
                 distribution
             ) = calculateShare();
+            shares.push(share);
             cumulativeCapacity -= distribution; // subtract the distributed amount
             cumulativeCapacity += (epochCapacity) * epochDifference; // add the capacity of the new epoch
 
             totalDemand = 0;
-            for (uint256 i = 0; i < maxDemandVolume + 1; i++) {
+            for (uint256 i = 0; i <= maxDemandVolume; i++) {
                 numberOfDemands[i] = 0;
             }
         }
