@@ -6,10 +6,12 @@ const {
   deployDistributor,
   demandBulk,
   permissionedDeploymentFixture
-} = require("../test_utils/deployment");
+} = require("../test_utils/utils");
 
 const {
+  DEFAULT_EPOCH_DURATION,
   DEFAULT_ETHER_MULTIPLIER,
+  DEFAULT_DEPLOYMENT_VALUE,
 } = require("../test_utils/config");
 
 describe("Multiple users", function () {
@@ -48,9 +50,9 @@ describe("Multiple users", function () {
           await mine(22);
           await nativeDistributor._updateState();
 
-          // check that the share is correctly stored in the array
-          let share = await nativeDistributor.shares(1);
-          expect(share).to.equal(0);
+          // check that new share is not stored in the array
+          let shares = await nativeDistributor.getShares();
+          expect(shares.length).to.equal(1);
         });
       });
 
@@ -60,7 +62,7 @@ describe("Multiple users", function () {
 
         it("50: [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]", async function () {
           let customEpochCapacity = customEpochCapacities[0];
-          let { nativeDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE);
+          let { nativeDistributor } = await deployDistributor({ _epochCapacity: customEpochCapacity });
           let accounts = await ethers.getSigners();
           for (i = 1; i <= 13; i++) {
             nativeDistributor.addPermissionedUser(accounts[i].address);
@@ -81,7 +83,7 @@ describe("Multiple users", function () {
 
         it("48: [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]", async function () {
           let customEpochCapacity = customEpochCapacities[1];
-          let { nativeDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE);
+          let { nativeDistributor } = await deployDistributor({ _epochCapacity: customEpochCapacity });
           let accounts = await ethers.getSigners();
           for (i = 1; i <= 13; i++) {
             nativeDistributor.addPermissionedUser(accounts[i].address);
@@ -101,7 +103,7 @@ describe("Multiple users", function () {
 
         it("90: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]", async function () {
           let customEpochCapacity = customEpochCapacities[2];
-          let { nativeDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE);
+          let { nativeDistributor } = await deployDistributor({ _epochCapacity: customEpochCapacity });
           let accounts = await ethers.getSigners();
           for (i = 1; i <= 10; i++) {
             nativeDistributor.addPermissionedUser(accounts[i].address);
@@ -122,7 +124,7 @@ describe("Multiple users", function () {
 
         it("5: [5, 2, 2, 5, 1]", async function () {
           let customEpochCapacity = customEpochCapacities[3];
-          let { nativeDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, DEFAULT_DEPLOYMENT_VALUE);
+          let { nativeDistributor } = await deployDistributor({ _epochCapacity: customEpochCapacity });
           let accounts = await ethers.getSigners();
           for (i = 1; i <= 5; i++) {
             nativeDistributor.addPermissionedUser(accounts[i].address);
@@ -143,7 +145,7 @@ describe("Multiple users", function () {
 
         it("1: [1, 1, 1, ... , 1]", async function () {
           let customEpochCapacity = customEpochCapacities[3];
-          let { nativeDistributor } = await deployDistributor(customEpochCapacity);
+          let { nativeDistributor } = await deployDistributor({ _epochCapacity: customEpochCapacity });
           let accounts = await ethers.getSigners();
           for (i = 1; i <= 19; i++) {
             nativeDistributor.addPermissionedUser(accounts[i].address);
@@ -172,7 +174,7 @@ describe("Multiple users", function () {
     describe("Multiple epochs (Cumulative)", function () {
       it("Should apply Calculation 1 for 2 epochs", async function () {
         let customEpochCapacity = 50;
-        let { nativeDistributor } = await deployDistributor(customEpochCapacity);
+        let { nativeDistributor } = await deployDistributor({ _epochCapacity: customEpochCapacity });
         let accounts = await ethers.getSigners();
         for (i = 1; i <= 13; i++) {
           nativeDistributor.addPermissionedUser(accounts[i].address);
@@ -202,7 +204,7 @@ describe("Multiple users", function () {
 
       it("Should apply Calculation 2 for 5 epochs", async function () {
         let customEpochCapacity = 48;
-        let { nativeDistributor } = await deployDistributor(customEpochCapacity);
+        let { nativeDistributor } = await deployDistributor({ _epochCapacity: customEpochCapacity });
         let accounts = await ethers.getSigners();
         for (i = 1; i <= 13; i++) {
           nativeDistributor.addPermissionedUser(accounts[i].address);
@@ -232,7 +234,7 @@ describe("Multiple users", function () {
 
       it("Should apply Calculation 3 for 50 epochs", async function () {
         let customEpochCapacity = 90;
-        let { nativeDistributor } = await deployDistributor(customEpochCapacity, DEFAULT_EPOCH_DURATION, 4500, false);
+        let { nativeDistributor } = await deployDistributor({ _epochCapacity: customEpochCapacity, _value: ethers.utils.parseEther("4500") });
         let accounts = await ethers.getSigners();
         for (i = 1; i <= 10; i++) {
           nativeDistributor.addPermissionedUser(accounts[i].address);
@@ -275,8 +277,8 @@ describe("Multiple users", function () {
         for (i = 1; i <= 13; i++) {
           let share = await nativeDistributor.shares(claimEpoch);
 
-          let userInfo = await nativeDistributor.getUser(accounts[i].address);
-          let userDemand = userInfo[3][claimEpoch];
+          let userInfo = await nativeDistributor.getUser(accounts[i].address, [claimEpoch]);
+          let userDemand = userInfo[2][0];
           expect(userDemand).to.equal(demandArray[i - 1]); // demand is correct
 
           let userShare = Math.min(share, userDemand);
@@ -291,38 +293,40 @@ describe("Multiple users", function () {
           let gasPrice = tx.gasPrice;
           let gasCost = gasUsed.mul(gasPrice);
 
-          let userInfoAfterClaim = await nativeDistributor.getUser(accounts[i].address);
-          expect(userInfoAfterClaim[3][claimEpoch]).to.equal(0); // demand is reset to 0
+          let userInfoAfterClaim = await nativeDistributor.getUser(accounts[i].address, [claimEpoch]);
+          expect(userInfoAfterClaim[2][0]).to.equal(0); // demand is reset to 0
 
           let claimAmountWei = ethers.utils.parseEther(userShare.toString());
-          expect(userBalance).to.equal(initialBalance.add(claimAmountWei).sub(gasCost)); // transfer is correct
+          expect(userBalance).to.equal(initialBalance.add(
+            claimAmountWei.mul(DEFAULT_ETHER_MULTIPLIER).div(1000)
+          ).sub(gasCost)); // transfer is correct
         }
       });
 
       it("Should not allow anyone without a share to claim", async function () {
         let accounts = await ethers.getSigners();
-        let userInfo = await nativeDistributor.getUser(accounts[19].address);
-        let userDemand = userInfo[3][1];
+        let userInfo = await nativeDistributor.getUser(accounts[19].address, [1]);
+        let userDemand = userInfo[2][0];
         expect(userDemand).to.equal(0); // demand is 0
-        await expect(nativeDistributor.connect(accounts[19]).claim(1)).to.be.revertedWith("You do not have a demand for this epoch.");
+        await expect(nativeDistributor.connect(accounts[19]).claim(1))
+          .to.be.revertedWith("You do not have a demand for this epoch.");
       });
     });
 
 
     describe("Claim all shares", function () {
 
-      let demandArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-      let nativeDistributor;
-      this.beforeAll(async function () {
-        ({ nativeDistributor } = await deployDistributor(55, DEFAULT_EPOCH_DURATION, 2000, false));
+      it("Should allow everyone to call claimAll() after 10 epochs of demanding", async function () {
+        let { nativeDistributor } = await deployDistributor(
+          { _epochCapacity: 55, _value: ethers.utils.parseEther("2000") }
+        );
         let accounts = await ethers.getSigners();
         for (i = 1; i <= 10; i++) {
           nativeDistributor.addPermissionedUser(accounts[i].address);
         }
-      });
 
-      it("Should allow everyone to call claimAll() after 10 epochs of demanding", async function () {
-        let accounts = await ethers.getSigners();
+        let demandArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let claimEpochs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
         /*
          * Demands for 10 epochs:
@@ -347,23 +351,31 @@ describe("Multiple users", function () {
 
         // check demands before claiming
         for (i = 1; i <= 10; i++) {
-          let userInfo = await nativeDistributor.getUser(accounts[i].address);
+          let userInfo = await nativeDistributor.getUser(accounts[i].address, claimEpochs);
           for (j = 1; j <= 10; j++) {
-            expect(userInfo[3][j]).to.equal(demandArray[(i + j - 2) % 10]);
+            expect(userInfo[2][j - 1]).to.equal(demandArray[(i + j - 2) % 10]);
           }
         }
 
         for (i = 1; i <= 10; i++) {
+
           let initialBalance = await ethers.provider.getBalance(accounts[i].address);
-          let tx = await nativeDistributor.connect(accounts[i]).claimAll();
+          let tx = await nativeDistributor.connect(accounts[i]).claimBulk(claimEpochs);
+
           let userBalance = await ethers.provider.getBalance(accounts[i].address);
+
           let txReceipt = await ethers.provider.getTransactionReceipt(tx.hash);
           let gasUsed = txReceipt.gasUsed;
           let gasPrice = tx.gasPrice;
           let gasCost = gasUsed.mul(gasPrice);
           let claimAmountWei = ethers.utils.parseEther("55.0");
-          expect(userBalance).to.equal(initialBalance.add(claimAmountWei).sub(gasCost)); // transfer is correct
+
+          // transfer is correct
+          expect(userBalance).to.equal(initialBalance.add(
+            claimAmountWei.mul(DEFAULT_ETHER_MULTIPLIER).div(1000)
+          ).sub(gasCost));
         }
+
       });
     });
   });

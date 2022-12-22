@@ -1,4 +1,6 @@
 const { ethers } = require("hardhat");
+const { mine } = require("@nomicfoundation/hardhat-network-helpers");
+
 const {
     DEFAULT_MAX_DEMAND_VOLUME,
     DEFAULT_EPOCH_CAPACITY,
