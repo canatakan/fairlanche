@@ -1,4 +1,4 @@
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const CONTRACT_ADDRESS = "0x320747f4D026A08919DDa6fD3ed6B703a060e67B";
 
 async function main() {
   const NativeDistributor = await hre.ethers.getContractFactory("NativeDistributor");
@@ -6,6 +6,8 @@ async function main() {
 
   // const accounts = await ethers.getSigners();
   // await addPermissionedUser(nativeDistributor, accounts[0].address);
+  // await addPermissionedUser(nativeDistributor, "0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC");
+  // await demand(nativeDistributor, accounts[0], 3);
 }
 
 main().catch((error) => {
@@ -34,8 +36,8 @@ async function claim(nativeDistributor, user, epochNumber) {
   console.log(tx);
 }
 
-async function claimAll(nativeDistributor, user) {
-  const tx = await nativeDistributor.connect(user).claimAll();
+async function claimBulk(nativeDistributor, user, epochNumbers) {
+  const tx = await nativeDistributor.connect(user).claimBulk(epochNumbers);
   await tx.wait();
   console.log("Transaction receipt:");
   console.log(tx);
