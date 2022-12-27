@@ -47,14 +47,15 @@ describe("NativeDistributor contract basics", function () {
 
             let distributionEndBlock;
             if (deployedEthers.mod(DEFAULT_EPOCH_CAPACITY).eq(0)) {
-                // do not forget to add block number:
                 distributionEndBlock = deployedEthers.div(DEFAULT_EPOCH_CAPACITY)
-                    .mul(DEFAULT_EPOCH_DURATION).add(1);
+                    .mul(DEFAULT_EPOCH_DURATION);
             }
             else {
                 distributionEndBlock = (deployedEthers.div(DEFAULT_EPOCH_CAPACITY)
                     .add(1)).mul(DEFAULT_EPOCH_DURATION).add(1);
             }
+
+            distributionEndBlock = distributionEndBlock.add(await nativeDistributor.blockOffset());
 
             expect(await nativeDistributor.distributionEndBlock())
                 .to.equal(distributionEndBlock);
