@@ -18,7 +18,6 @@ contract TestERC20Distributor is ERC20Distributor {
         uint256 _expirationBlocks,
         bool _enableWithdraw
     )
-        payable
         ERC20Distributor(
             _tokenContract,
             _maxDemandVolume,
