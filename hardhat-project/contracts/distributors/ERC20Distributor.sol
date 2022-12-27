@@ -144,6 +144,7 @@ contract ERC20Distributor is ResourceDistributor {
         internal
         view
         override
+        depositCompleted
         returns (uint16 _share, uint256 _amount)
     {
         return super.calculateShare();

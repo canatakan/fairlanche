@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "../ERC20Distributor.sol";
+import "./NativeDistributor.sol";
 
-contract TestERC20Distributor is ERC20Distributor {
+contract TestNativeDistributor is NativeDistributor {
     /*
      * Inherits the main contract and exposes internal functions for testing.
      * There is also an additional function to see the user struct fields.
      */
 
     constructor(
-        address _tokenContract,
         uint16 _maxDemandVolume,
         uint256 _epochCapacity,
         uint256 _epochDuration,
@@ -18,8 +17,8 @@ contract TestERC20Distributor is ERC20Distributor {
         uint256 _expirationBlocks,
         bool _enableWithdraw
     )
-        ERC20Distributor(
-            _tokenContract,
+        payable
+        NativeDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,

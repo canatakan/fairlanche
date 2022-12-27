@@ -49,7 +49,8 @@ async function deployERC20Distributor(
         _enableWithdraw = DEFAULT_ENABLE_WITHDRAW,
     } = {}
 ) {
-    ERC20Distributor = await ethers.getContractFactory("TestERC20Distributor");
+    // ERC20Distributor = await ethers.getContractFactory("TestERC20Distributor");
+    ERC20Distributor = await ethers.getContractFactory("ERC20Distributor");
     erc20Distributor = await ERC20Distributor.deploy(
         _tokenContract,
         _maxDemandVolume,
@@ -75,7 +76,8 @@ async function deployERC1155Distributor(
         _enableWithdraw = DEFAULT_ENABLE_WITHDRAW,
     } = {}
 ) {
-    ERC1155Distributor = await ethers.getContractFactory("TestERC1155Distributor");
+    // ERC1155Distributor = await ethers.getContractFactory("TestERC1155Distributor");
+    ERC1155Distributor = await ethers.getContractFactory("ERC1155Distributor");
     erc1155Distributor = await ERC1155Distributor.deploy(
         _tokenContract,
         _tokenId,

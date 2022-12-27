@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "./ResourceDistributor.sol";
 
-contract ERC20Distributor is ResourceDistributor {
+contract ERC1155Distributor is ResourceDistributor {
     IERC1155 public token;
     uint256 public tokenId;
     uint256 public expirationBlocks;
@@ -147,6 +147,7 @@ contract ERC20Distributor is ResourceDistributor {
         internal
         view
         override
+        depositCompleted
         returns (uint16 _share, uint256 _amount)
     {
         return super.calculateShare();
