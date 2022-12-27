@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @custom:security-contact can.ugur@boun.edu.tr
-contract Resource is ERC20, ERC20Burnable, Ownable {
+contract ERC20Resource is ERC20, ERC20Burnable, Ownable {
     uint256 public maximumSupply;
 
     constructor(

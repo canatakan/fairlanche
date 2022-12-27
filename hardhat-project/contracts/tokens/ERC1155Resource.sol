@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
 /// @custom:security-contact can.ugur@boun.edu.tr
-contract Resource is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
+contract ERC1155Resource is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
     string public name;
     string public symbol;
 

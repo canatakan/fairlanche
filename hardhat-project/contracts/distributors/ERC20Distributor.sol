@@ -51,10 +51,10 @@ contract ERC20Distributor is ResourceDistributor {
 
         blockOffset = block.number; // the distribution will now start!
         hasDeposited = true;
-        updateEndingBlock();
+        _updateEndingBlock();
     }
 
-    function updateEndingBlock() internal {
+    function _updateEndingBlock() private {
         /**
          * This function is called after the token deposit by the owner.
          * This process is done only once.
