@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "./ERC20Distributor.sol";
+import "../ERC20Distributor.sol";
 
 contract TestERC20Distributor is ERC20Distributor {
     /*
