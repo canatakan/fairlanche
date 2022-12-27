@@ -4,7 +4,7 @@ const { ethers } = require("hardhat");
 const { time, mine } = require("@nomicfoundation/hardhat-network-helpers");
 
 
-const { deployDistributor } = require("../test_utils/utils");
+const { deployNativeDistributor } = require("../test_utils/utils");
 const {
     DEFAULT_EPOCH_CAPACITY,
     DEFAULT_EPOCH_DURATION,
@@ -18,7 +18,7 @@ describe("NativeDistributor contract basics", function () {
     let nativeDistributor;
 
     this.beforeAll(async function () {
-        ({ nativeDistributor } = await deployDistributor());
+        ({ nativeDistributor } = await deployNativeDistributor());
     });
 
     describe("Deployment", function () {

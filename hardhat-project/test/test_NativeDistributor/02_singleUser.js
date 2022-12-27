@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { mine } = require("@nomicfoundation/hardhat-network-helpers");
 
-const { deployDistributor } = require("../test_utils/utils");
+const { deployNativeDistributor } = require("../test_utils/utils");
 const {
     DEFAULT_ETHER_MULTIPLIER,
 } = require("../test_utils/config");
@@ -12,7 +12,7 @@ describe("Single user Demand & Claim", function () {
     let nativeDistributor;
 
     this.beforeAll(async function () {
-        ({ nativeDistributor } = await deployDistributor());
+        ({ nativeDistributor } = await deployNativeDistributor());
         let accounts = await ethers.getSigners();
         await nativeDistributor.addPermissionedUser(accounts[1].address);
     });
@@ -138,7 +138,7 @@ describe("Single user Demand & Claim", function () {
 describe("Single user Demand & Claim Bulk", function () {
 
     it("Should allow the user to make multiple demands then claim all", async function () {
-        let { nativeDistributor } = await deployDistributor();
+        let { nativeDistributor } = await deployNativeDistributor();
         let accounts = await ethers.getSigners();
         let user = accounts[4];
         await nativeDistributor.addPermissionedUser(user.address);
@@ -190,7 +190,7 @@ describe("Single user Demand & Claim Bulk", function () {
         /**
          * 1000 ETH / 5 unit per epoch = 100 epochs
          */
-        let { nativeDistributor } = await deployDistributor(
+        let { nativeDistributor } = await deployNativeDistributor(
             { _epochCapacity: 5, _value: ethers.utils.parseEther("500") }
         );
         let accounts = await ethers.getSigners();
@@ -242,7 +242,7 @@ describe("Single user Demand & Claim Bulk", function () {
         /**
          * 10 ETH / 5 unit per epoch = 2 epochs
          */
-        let { nativeDistributor } = await deployDistributor({ _epochCapacity: 5, _expirationBlocks: 13, _value: ethers.utils.parseEther("10") });
+        let { nativeDistributor } = await deployNativeDistributor({ _epochCapacity: 5, _expirationBlocks: 13, _value: ethers.utils.parseEther("10") });
         let accounts = await ethers.getSigners();
         let user = accounts[9];
         await nativeDistributor.addPermissionedUser(user.address);
