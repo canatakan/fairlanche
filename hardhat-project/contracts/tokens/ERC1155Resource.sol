@@ -11,21 +11,20 @@ contract ERC1155Resource is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
     string public name;
     string public symbol;
 
+    uint256[] public maximumSupplies;
+
     constructor(
         string memory _name,
         string memory _symbol,
-        string memory _uri
+        string memory _uri,
+        uint256[] memory _premintIds,
+        uint256[] memory _premintAmounts,
+        uint256[] memory _maximumSupplies
     ) ERC1155(_uri) {
         name = _name;
         symbol = _symbol;
-
-        uint256[] memory ids = new uint256[](5);
-        uint256[] memory amounts = new uint256[](5);
-        for (uint256 i = 0; i < 5; i++) {
-            ids[i] = i;
-            amounts[i] = 10_000 ether;
-        }
-        _mintBatch(msg.sender, ids, amounts, "");
+        maximumSupplies = _maximumSupplies;
+        _mintBatch(msg.sender, _premintIds, _premintAmounts, "");
     }
 
     function setURI(string memory newuri) public onlyOwner {
@@ -38,6 +37,10 @@ contract ERC1155Resource is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
         uint256 amount,
         bytes memory data
     ) public onlyOwner {
+        require(
+            amount + totalSupply(id) <= maximumSupplies[id],
+            "ERC1155Resource: mint amount exceeds maximum supply"
+        );
         _mint(account, id, amount, data);
     }
 
@@ -47,6 +50,12 @@ contract ERC1155Resource is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
         uint256[] memory amounts,
         bytes memory data
     ) public onlyOwner {
+        for (uint256 i = 0; i < ids.length; i++) {
+            require(
+                amounts[i] + totalSupply(ids[i]) <= maximumSupplies[ids[i]],
+                "ERC1155Resource: mint amount exceeds maximum supply"
+            );
+        }
         _mintBatch(to, ids, amounts, data);
     }
 
