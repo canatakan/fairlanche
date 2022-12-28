@@ -71,3 +71,9 @@ Here, the `CONTRACT_ADDRESS` is the address of the deployed contract and the `CO
 ```bash
 <ARGUMENT_1> <ARGUMENT_2> ... <ARGUMENT_N>
 ```
+
+Arguments can also be provided in JavaScript files. Enter the correct constructor arguments in the `./scripts/verify/{contractName}Args.js` file and run the verify command with the `--constructor-args` flag. An example command is given below:
+
+```bash
+npx hardhat verify --constructor-args ./scripts/verify/erc20Args.js --network fuji <CONTRACT_ADDRESS>
+```

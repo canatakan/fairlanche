@@ -66,4 +66,4 @@ module.exports = {
     ERC1155_DEPLOYMENT_PARAMS,
     ERC20_RESOURCE_PARAMS,
     ERC1155_RESOURCE_PARAMS,
-};;;;;;;
+};
