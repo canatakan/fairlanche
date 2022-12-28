@@ -2,9 +2,10 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
 import "./ResourceDistributor.sol";
 
-contract ERC1155Distributor is ResourceDistributor {
+contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
     IERC1155 public token;
     uint256 public tokenId;
     uint256 public expirationBlocks;
@@ -151,5 +152,26 @@ contract ERC1155Distributor is ResourceDistributor {
         returns (uint16 _share, uint256 _amount)
     {
         return super.calculateShare();
+    }
+
+    // overrides for accepting ERC1155 tokens
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
     }
 }
