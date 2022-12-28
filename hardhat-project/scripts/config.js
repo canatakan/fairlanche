@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 
 // "native", "erc20", "erc1155"
-const RESOURCE_TYPE = "native";
+const RESOURCE_TYPE = "erc1155";
 
 const NATIVE_DEPLOYMENT_PARAMS = {
     _maxDemandVolume: 3,
@@ -47,14 +47,14 @@ const ERC1155_RESOURCE_PARAMS = {
     _uri: "https://<EXAMPLE_WEBSITE>/api/item/{id}.json",
     _premintIds: [0, 1, 2],
     _premintSupplies: [
-        ethers.utils.parseEther("100000"),
-        ethers.utils.parseEther("100000"),
-        ethers.utils.parseEther("100000")
+        100_000,
+        100_000,
+        100_000
     ],
     _maximumSupplies: [
-        ethers.utils.parseEther("1000000"),
-        ethers.utils.parseEther("1000000"),
-        ethers.utils.parseEther("1000000")
+        1_000_000,
+        1_000_000,
+        1_000_000
     ],
 };
 
