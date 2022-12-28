@@ -1,6 +1,9 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomiclabs/hardhat-etherscan");
 
+const fs = require('fs');
+const readline = require('readline');
+
 const dotenv = require("dotenv")
 dotenv.config()
 
@@ -46,9 +49,40 @@ task("accounts", "Prints the list of accounts with balances", async (_, hre) => 
   }
 });
 
-task("deploy", "Runs the deploy script", async (_, hre) => {
-  await hre.run("run", { script: "./scripts/deploy.js" });
-});
+// add positional param:
+task("deploy", "Runs the deploy script")
+  .addPositionalParam(
+    "resource",
+    "The resource type to deploy distribution contract for. Can be 'native', 'erc20' or 'erc1155'",
+    "native",
+    types.string
+  )
+  .setAction(async ({ resource }) => {
+
+    resource = resource.toLowerCase();
+    if (!["native", "erc20", "erc1155"].includes(resource)) {
+      throw new Error("Invalid resource type");
+    }
+
+    // the following is a hack to replace the RESOURCE_TYPE variable in the config.js file
+    // this is done because hardhat doesn't support running scripts with arguments
+    let rl = readline.createInterface({
+      input: fs.createReadStream('./scripts/config.js'),
+      console: false,
+    });
+
+    rl.on("line", (line) => {
+      if (line.includes("RESOURCE_TYPE")) {
+        let newLine = line.replace(/native|erc20|erc1155/, resource);
+        let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
+        fs.writeFileSync('./scripts/config.js', newContent);
+        rl.close();
+        return;
+      }
+    });
+
+    await hre.run("run", { script: "./scripts/deploy.js" });
+  });
 
 task("interact", "Runs the interact script", async (_, hre) => {
   await hre.run("run", { script: "./scripts/interact.js" });
