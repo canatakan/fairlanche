@@ -34,6 +34,7 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
         tokenId = _tokenId;
         expirationBlocks = _expirationBlocks;
         hasDeposited = false;
+        etherMultiplier = 1000; // disable ether multiplier
     }
 
     modifier depositCompleted() {
@@ -47,7 +48,7 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
     function deposit(uint256 _amount) public virtual override onlyOwner {
         require(!hasDeposited, "Token deposit is already done.");
         require(
-            _amount >= epochCapacity * (etherMultiplier * milliether),
+            _amount >= epochCapacity,
             "The contract must be funded with at least one epoch capacity."
         );
 
@@ -64,8 +65,7 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
          * This process is done only once.
          */
 
-        uint256 deployedTokens = token.balanceOf(address(this), tokenId) /
-            (etherMultiplier * milliether);
+        uint256 deployedTokens = token.balanceOf(address(this), tokenId);
         if (deployedTokens % epochCapacity == 0) {
             distributionEndBlock = (block.number +
                 (deployedTokens / epochCapacity) *

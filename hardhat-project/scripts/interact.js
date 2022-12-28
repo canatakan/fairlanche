@@ -1,4 +1,4 @@
-const CONTRACT_ADDRESS = "0x7Eb4Fbb1e3922ffD0f93F0Cf0f4A0BeCc596dc7D";
+const CONTRACT_ADDRESS = "0xd40723d8d583729a93ec9C67e4bfC03568c649B0";
 
 const { ethers } = require("hardhat");
 const { RESOURCE_TYPE } = require("./config.js");
@@ -31,7 +31,7 @@ async function main() {
   // await addPermissionedUser(distributor, accounts[0].address);
   // await addPermissionedUser(distributor, "0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC");
   // await approveERC1155(resource, accounts[0]);
-  // await deposit(distributor, accounts[0], ethers.utils.parseEther("10000"));
+  // await deposit(distributor, accounts[0], 10_000);
   // await demand(distributor, accounts[0], 3);
 }
 
