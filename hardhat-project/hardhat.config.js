@@ -49,7 +49,6 @@ task("accounts", "Prints the list of accounts with balances", async (_, hre) => 
   }
 });
 
-// add positional param:
 task("deploy", "Runs the deploy script")
   .addPositionalParam(
     "resource",
