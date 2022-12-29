@@ -52,7 +52,7 @@ describe("NativeDistributor contract basics", function () {
             }
             else {
                 distributionEndBlock = (deployedEthers.div(DEFAULT_EPOCH_CAPACITY)
-                    .add(1)).mul(DEFAULT_EPOCH_DURATION).add(1);
+                    .add(1)).mul(DEFAULT_EPOCH_DURATION);
             }
 
             distributionEndBlock = distributionEndBlock.add(await nativeDistributor.blockOffset());
