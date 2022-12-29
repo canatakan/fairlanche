@@ -31,7 +31,7 @@ describe("ERC20Distributor basics", function () {
             expect(await erc20Resource.owner()).to.equal(owner.address);
         });
 
-        it("Should mint 100,000 tokens to the distributor", async function () {
+        it("Should mint 100,000 tokens to the owner", async function () {
             let [owner, _] = await ethers.getSigners();
             expect(await erc20Resource.balanceOf(owner.address))
                 .to.equal(ethers.utils.parseEther("100000"));
