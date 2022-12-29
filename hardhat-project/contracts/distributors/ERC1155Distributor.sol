@@ -96,8 +96,20 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
 
     function handleTransfer(
         address _receiver,
-        uint256 _amount
+        uint256 _weiAmount
     ) internal virtual override {
+        /** 
+         * This function will be called by the parent contract,
+         * after the share calculation. The call amount will be
+         * in wei, so it needs to be converted for the ERC1155 token.
+         */
+        _handleTransfer(_receiver, _weiAmount / (1 ether));
+    }
+
+    function _handleTransfer(
+        address _receiver,
+        uint256 _amount
+    ) private {
         token.safeTransferFrom(address(this), _receiver, tokenId, _amount, "");
     }
 
@@ -107,7 +119,7 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
             block.number > claimEndBlock,
             "Wait for the end of the distribution."
         );
-        handleTransfer(msg.sender, token.balanceOf(address(this), tokenId));
+        _handleTransfer(msg.sender, token.balanceOf(address(this), tokenId));
     }
 
     function burnExpired() public override onlyOwner {
@@ -115,7 +127,7 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
             block.number > claimEndBlock,
             "Wait for the end of the distribution."
         );
-        handleTransfer(address(0), token.balanceOf(address(this), tokenId));
+        _handleTransfer(address(0), token.balanceOf(address(this), tokenId));
     }
 
     /**
