@@ -1,4 +1,4 @@
-const CONTRACT_ADDRESS = "0xd40723d8d583729a93ec9C67e4bfC03568c649B0";
+const CONTRACT_ADDRESS = "0x26787610df9161579306f4e3a0deb757d1fd172b";
 
 const { ethers } = require("hardhat");
 const { RESOURCE_TYPE } = require("./config.js");
@@ -6,6 +6,9 @@ const { RESOURCE_TYPE } = require("./config.js");
 async function main() {
 
   let distributorName, resourceName;
+
+  // the contract type is fetched from the config.js file
+  // by default, you interact with the latest deployed contract
   switch (RESOURCE_TYPE.toLowerCase()) {
     case "native":
       distributorName = "NativeDistributor";
@@ -24,14 +27,23 @@ async function main() {
 
   const Distributor = await hre.ethers.getContractFactory(distributorName);
   const distributor = await Distributor.attach(CONTRACT_ADDRESS);
+
+  // FOR ERC20 & ERC1155:
   // const resourceAddress = await distributor.token();
   // const resource = await ethers.getContractAt(resourceName, resourceAddress);
 
   const accounts = await ethers.getSigners();
   // await addPermissionedUser(distributor, accounts[0].address);
   // await addPermissionedUser(distributor, "0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC");
+
+  // FOR ERC20:
+  // await approveERC20(resource, accounts[0], ethers.utils.parseEther("100000"));
+  // await deposit(distributor, accounts[0], ethers.utils.parseEther("100000"));
+  
+  // FOR ERC1155:
   // await approveERC1155(resource, accounts[0]);
-  // await deposit(distributor, accounts[0], 10_000);
+  // await deposit(distributor, accounts[0], 100_000);
+
   // await demand(distributor, accounts[0], 3);
 }
 
