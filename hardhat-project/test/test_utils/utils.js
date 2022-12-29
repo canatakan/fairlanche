@@ -115,8 +115,19 @@ async function deployERC20Resource(
 async function deployERC1155Resource(
     {
         _name = "Test Token",
-        _symbol = "TT1155",
-        _uri = "https://example.com/{id}",
+        _symbol = "TST1155",
+        _uri = "https://<EXAMPLE_WEBSITE>/api/item/{id}.json",
+        _premintIds = [0, 1, 2],
+        _premintSupplies = [
+            100_000,
+            100_000,
+            100_000
+        ],
+        _maximumSupplies = [
+            1_000_000,
+            1_000_000,
+            1_000_000
+        ]
     } = {}
 ) {
     ERC1155Resource = await ethers.getContractFactory("ERC1155Resource");
@@ -124,6 +135,9 @@ async function deployERC1155Resource(
         _name,
         _symbol,
         _uri,
+        _premintIds,
+        _premintSupplies,
+        _maximumSupplies
     );
     await erc1155Resource.deployed();
     return { ERC1155Resource, erc1155Resource };
