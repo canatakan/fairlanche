@@ -86,3 +86,26 @@ task("deploy", "Runs the deploy script")
 task("interact", "Runs the interact script", async (_, hre) => {
   await hre.run("run", { script: "./scripts/interact.js" });
 });
+
+// with this override, test scripts can be run as follows:
+// npx hardhat test ERC20 ERC1155 Native
+task("test", "Runs the test script", async (taskArgs, hre) => {
+
+  let newFileList = [];
+  for (let i = 0; i < taskArgs.testFiles.length; i++) {
+    if (taskArgs.testFiles[i].toLowerCase() == 'erc20') {
+      newFileList.push('./test/test_ERC20Distributor/01_basics.js');
+      newFileList.push('./test/test_ERC20Distributor/02_transfers.js');
+    } else if (taskArgs.testFiles[i].toLowerCase() == 'erc1155') {
+      newFileList.push('./test/test_ERC1155Distributor/01_basics.js');
+      newFileList.push('./test/test_ERC1155Distributor/02_transfers.js');
+    } else if (taskArgs.testFiles[i].toLowerCase() == 'native') {
+      newFileList.push('./test/test_NativeDistributor/01_basics.js');
+      newFileList.push('./test/test_NativeDistributor/02_singleUser.js');
+      newFileList.push('./test/test_NativeDistributor/03_multipleUsers.js');
+    }
+  }
+
+  taskArgs.testFiles = newFileList;
+  await runSuper(taskArgs, hre);
+});
