@@ -4,7 +4,7 @@ const { ethers } = require("hardhat");
 const { time, mine } = require("@nomicfoundation/hardhat-network-helpers");
 
 
-const { deployDistributor } = require("../test_utils/utils");
+const { deployNativeDistributor } = require("../test_utils/utils");
 const {
     DEFAULT_EPOCH_CAPACITY,
     DEFAULT_EPOCH_DURATION,
@@ -18,7 +18,7 @@ describe("NativeDistributor contract basics", function () {
     let nativeDistributor;
 
     this.beforeAll(async function () {
-        ({ nativeDistributor } = await deployDistributor());
+        ({ nativeDistributor } = await deployNativeDistributor());
     });
 
     describe("Deployment", function () {
@@ -47,14 +47,15 @@ describe("NativeDistributor contract basics", function () {
 
             let distributionEndBlock;
             if (deployedEthers.mod(DEFAULT_EPOCH_CAPACITY).eq(0)) {
-                // do not forget to add block number:
                 distributionEndBlock = deployedEthers.div(DEFAULT_EPOCH_CAPACITY)
-                    .mul(DEFAULT_EPOCH_DURATION).add(1);
+                    .mul(DEFAULT_EPOCH_DURATION);
             }
             else {
                 distributionEndBlock = (deployedEthers.div(DEFAULT_EPOCH_CAPACITY)
-                    .add(1)).mul(DEFAULT_EPOCH_DURATION).add(1);
+                    .add(1)).mul(DEFAULT_EPOCH_DURATION);
             }
+
+            distributionEndBlock = distributionEndBlock.add(await nativeDistributor.blockOffset());
 
             expect(await nativeDistributor.distributionEndBlock())
                 .to.equal(distributionEndBlock);

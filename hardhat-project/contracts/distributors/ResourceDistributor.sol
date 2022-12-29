@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-contract NativeDistributor {
+abstract contract ResourceDistributor {
     event Register(address indexed _user);
     event Unregister(address indexed _user);
     event Demand(address indexed _from, uint16 _volume);
@@ -60,10 +60,6 @@ contract NativeDistributor {
             _epochCapacity > 0 && _epochDuration > 0,
             "Epoch capacity and duration must be greater than 0."
         );
-        require(
-            msg.value >= _epochCapacity * (_etherMultiplier * milliether),
-            "The contract must be funded with at least one epoch capacity."
-        );
 
         owner = msg.sender;
         numberOfUsers = 0;
@@ -79,45 +75,27 @@ contract NativeDistributor {
         shares.push(0);
 
         etherMultiplier = _etherMultiplier;
-
-        uint256 deployedEthers = msg.value / (etherMultiplier * milliether);
-        if (deployedEthers % epochCapacity == 0) {
-            distributionEndBlock =
-                blockOffset +
-                (deployedEthers / epochCapacity) *
-                epochDuration;
-        } else {
-            distributionEndBlock =
-                blockOffset +
-                ((deployedEthers / epochCapacity) + 1) *
-                epochDuration;
-        }
-        claimEndBlock = distributionEndBlock + _expirationBlocks;
-
         enableWithdraw = _enableWithdraw;
+
+        distributionEndBlock = calculateEndingBlock();
+        claimEndBlock = distributionEndBlock + _expirationBlocks;
     }
+
+    function calculateEndingBlock() internal view virtual returns (uint256);
+
+    function handleTransfer(address _receiver, uint256 _amount)
+        internal
+        virtual;
+
+    function deposit(uint256 _amount) public virtual;
+
+    function withdrawExpired() public virtual;
+
+    function burnExpired() public virtual;
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function.");
         _;
-    }
-
-    function withdrawExpired() public onlyOwner {
-        require(enableWithdraw, "Withdraw is disabled.");
-        require(
-            block.number > claimEndBlock,
-            "Wait for the end of the distribution."
-        );
-        (bool success, ) = msg.sender.call{value: address(this).balance}("");
-        require(success, "Transfer failed.");
-    }
-
-    function burnExpired() public onlyOwner {
-        require(
-            block.number > claimEndBlock,
-            "Wait for the end of the distribution."
-        );
-        selfdestruct(payable(address(0)));
     }
 
     function addPermissionedUser(address payable _addr) public onlyOwner {
@@ -140,7 +118,7 @@ contract NativeDistributor {
         emit Unregister(_addr);
     }
 
-    function demand(uint16 volume) public {
+    function demand(uint16 volume) public virtual {
         require(
             permissionedAddresses[msg.sender].id != 0,
             "User does not have the permission."
@@ -169,7 +147,7 @@ contract NativeDistributor {
         emit Demand(msg.sender, volume);
     }
 
-    function claim(uint256 epochNumber) public {
+    function claim(uint256 epochNumber) public virtual {
         require(
             permissionedAddresses[msg.sender].id != 0,
             "User does not have the permission."
@@ -195,16 +173,13 @@ contract NativeDistributor {
         // first, update the balance of the user
         permissionedAddresses[msg.sender].demandedVolumes[epochNumber] = 0;
 
-        // then, send the ether
-        (bool success, ) = msg.sender.call{
-            value: (min(share, demandedVolume)) * (etherMultiplier * milliether)
-        }("");
-        require(success, "Transfer failed.");
+        // then, send the transfer
+        handleTransfer(msg.sender, min(share, demandedVolume) * (etherMultiplier * milliether));
 
         emit Claim(msg.sender, epochNumber, uint16(min(share, demandedVolume)));
     }
 
-    function claimBulk(uint256[] memory epochNumbers) public {
+    function claimBulk(uint256[] memory epochNumbers) public virtual {
         require(
             permissionedAddresses[msg.sender].id != 0,
             "User does not have the permission."
@@ -247,14 +222,11 @@ contract NativeDistributor {
             );
         }
 
-        // then, send the ether
-        (bool success, ) = msg.sender.call{
-            value: totalClaim * (etherMultiplier * milliether)
-        }("");
-        require(success, "Transfer failed.");
+        // then send the transfer:
+        handleTransfer(msg.sender, totalClaim * (etherMultiplier * milliether));
     }
 
-    function updateState() internal {
+    function updateState() internal virtual {
         uint256 currentEpoch = ((block.number - blockOffset) / epochDuration) +
             1;
         if (epoch < currentEpoch) {
@@ -289,6 +261,7 @@ contract NativeDistributor {
     function calculateShare()
         internal
         view
+        virtual
         returns (uint16 _share, uint256 _amount)
     {
         /*
