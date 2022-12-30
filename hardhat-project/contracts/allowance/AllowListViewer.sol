@@ -2,10 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "./IAllowList.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-// AllowList is a base contract to use AllowList precompile capabilities.
-contract AllowList is Ownable {
+/// A view contract for the precompiled AllowList contract
+contract AllowListViewer {
   // Precompiled Allow List Contract Address
   IAllowList private allowList;
 
@@ -13,7 +12,7 @@ contract AllowList is Ownable {
   uint256 constant STATUS_ENABLED = 1;
   uint256 constant STATUS_ADMIN = 2;
 
-  constructor(address precompileAddr) Ownable() {
+  constructor(address precompileAddr) {
     allowList = IAllowList(precompileAddr);
   }
 
@@ -37,28 +36,4 @@ contract AllowList is Ownable {
     return result != STATUS_NONE;
   }
 
-  function setAdmin(address addr) public virtual onlyOwner {
-    _setAdmin(addr);
-  }
-
-  function _setAdmin(address addr) private {
-    allowList.setAdmin(addr);
-  }
-
-  function setEnabled(address addr) public virtual onlyOwner {
-    _setEnabled(addr);
-  }
-
-  function _setEnabled(address addr) private {
-    allowList.setEnabled(addr);
-  }
-
-  function revoke(address addr) public virtual onlyOwner {
-    _revoke(addr);
-  }
-
-  function _revoke(address addr) private {
-    require(msg.sender != addr, "You cannot revoke your own role");
-    allowList.setNone(addr);
-  }
 }

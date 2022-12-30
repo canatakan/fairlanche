@@ -1,6 +1,10 @@
 const hre = require("hardhat"); // Hardhat Runtime Environment
 
 async function main() {
+
+    // these deployed contracts can only view the allowlists
+    // to manage these lists, use the precompiled contracts
+
     const DeploymentList = await hre.ethers.getContractFactory("DeploymentList");
     const deploymentList = await DeploymentList.deploy();
     await deploymentList.deployed();
