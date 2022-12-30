@@ -116,9 +116,23 @@ task("deploy", "Runs the deploy script")
     await hre.run("run", { script: "./scripts/deploy.js" });
   });
 
-task("interact", "Runs the interact script", async (_, hre) => {
-  await hre.run("run", { script: "./scripts/interact.js" });
-});
+task("interact", "Runs the interact script")
+  .addPositionalParam(
+    "allowance",
+    "Whether the interaction with allowance contracts will be run. \
+    Its value should be 'true' or 'allowance' for running interactWithAllowance.js.",
+    "",
+    types.string
+  )
+  .setAction(async ({ allowance }) => {
+
+    if (allowance.toLowerCase() == "true"
+      || allowance.toLowerCase() == "allowance") {
+      await hre.run("run", { script: "./scripts/interactWithAllowance.js" });
+    } else {
+      await hre.run("run", { script: "./scripts/interact.js" });
+    }
+  });
 
 // with this override, test scripts can be run as follows:
 // npx hardhat test ERC20 ERC1155 Native
