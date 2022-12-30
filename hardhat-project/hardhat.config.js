@@ -7,6 +7,9 @@ const readline = require('readline');
 const dotenv = require("dotenv")
 dotenv.config()
 
+const { nodeIP, nodePort } = require("../subnet/configs/config.js");
+const data = require('../subnet/configs/genesis.json');
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.17",
@@ -28,6 +31,11 @@ module.exports = {
       url: "https://api.avax.network/ext/bc/C/rpc",
       accounts: [process.env.AVALANCHE_PRIVATE_KEY],
       chainId: 43114,
+    },
+    subnet: {
+      url: "http://" + nodeIP + ":" + nodePort + "/ext/bc/" + data["config"]["chainId"] +  +"/rpc",
+      accounts: [process.env.AVALANCHE_TEST_PRIVATE_KEY],
+      chainId: data["config"]["chainId"],
     },
   },
 
