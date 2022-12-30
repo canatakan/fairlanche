@@ -58,7 +58,7 @@ contract AllowList is Ownable {
   }
 
   function _revoke(address addr) private {
-    require(msg.sender != addr, "You cannot revoke own role");
+    require(msg.sender != addr, "You cannot revoke your own role");
     allowList.setNone(addr);
   }
 }
