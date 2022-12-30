@@ -200,8 +200,6 @@ describe("Single user Demand & Claim Bulk", function () {
         let currentEpoch = await nativeDistributor.epoch();
         expect(currentEpoch).to.equal(1);
 
-        let initialBalance = await ethers.provider.getBalance(user.address);
-        expect(initialBalance).to.equal(ethers.utils.parseEther("10000"));
 
         let amount = 1;
         let epochs = 100;

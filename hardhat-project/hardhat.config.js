@@ -17,6 +17,7 @@ module.exports = {
     hardhat: {
       accounts: {
         count: 20,
+        accountsBalance: "100000000000000000000000",
       },
     },
     localhost: {
