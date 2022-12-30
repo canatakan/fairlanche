@@ -8,7 +8,7 @@ const dotenv = require("dotenv")
 dotenv.config()
 
 const { nodeIP, nodePort } = require("../subnet/configs/config.js");
-const data = require('../subnet/configs/genesis.json');
+const data = require('../subnet/configs/precompiled_genesis.json');
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
