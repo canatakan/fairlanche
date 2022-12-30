@@ -101,6 +101,7 @@ task("interact", "Runs the interact script", async (_, hre) => {
 task("test", "Runs the test script", async (taskArgs, hre) => {
 
   let newFileList = [];
+  let redirectToSuper = false;
   for (let i = 0; i < taskArgs.testFiles.length; i++) {
     if (taskArgs.testFiles[i].toLowerCase() == 'erc20') {
       newFileList.push('./test/test_ERC20Distributor/01_basics.js');
@@ -112,9 +113,19 @@ task("test", "Runs the test script", async (taskArgs, hre) => {
       newFileList.push('./test/test_NativeDistributor/01_basics.js');
       newFileList.push('./test/test_NativeDistributor/02_singleUser.js');
       newFileList.push('./test/test_NativeDistributor/03_multipleUsers.js');
+    } else if (taskArgs.testFiles[i].toLowerCase() == 'public') {
+      newFileList.push('./test/test_PublicDistributor/01_basics.js');
+      newFileList.push('./test/test_PublicDistributor/02_singleUser.js');
+      newFileList.push('./test/test_PublicDistributor/03_multipleUsers.js');
+    } else {
+      // if the argument is not one of the above, then it is a file name
+      redirectToSuper = true;
+      break;
     }
   }
 
-  taskArgs.testFiles = newFileList;
+  if (!redirectToSuper) {
+    taskArgs.testFiles = newFileList;
+  }
   await runSuper(taskArgs, hre);
 });
