@@ -1,7 +1,7 @@
-const CONTRACT_ADDRESS = "0x26787610df9161579306f4e3a0deb757d1fd172b";
+const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 const { ethers } = require("hardhat");
-const { RESOURCE_TYPE } = require("./config.js");
+const { RESOURCE_TYPE, IS_PUBLIC } = require("./config.js");
 
 async function main() {
 
@@ -12,15 +12,18 @@ async function main() {
   switch (RESOURCE_TYPE.toLowerCase()) {
     case "native":
       distributorName = "NativeDistributor";
+      if (IS_PUBLIC) distributorName = "PublicNativeDistributor";
       break;
 
     case "erc20":
       distributorName = "ERC20Distributor";
+      if (IS_PUBLIC) distributorName = "PublicERC20Distributor";
       resourceName = "ERC20Resource";
       break;
 
     case "erc1155":
       distributorName = "ERC1155Distributor";
+      if (IS_PUBLIC) distributorName = "PublicERC1155Distributor";
       resourceName = "ERC1155Resource";
       break;
   }

@@ -66,11 +66,25 @@ task("deploy", "Runs the deploy script")
     "native",
     types.string
   )
-  .setAction(async ({ resource }) => {
+  .addPositionalParam(
+    "isPublic",
+    "Whether the distribution contract will be public or not. \
+    Should be 'public' or 'true', any other value will be considered 'restricted'",
+    "",
+    types.string
+  )
+  .setAction(async ({ resource, isPublic }) => {
 
     resource = resource.toLowerCase();
     if (!["native", "erc20", "erc1155"].includes(resource)) {
       throw new Error("Invalid resource type");
+    }
+
+    if (isPublic.toLowerCase() == "public"
+      || isPublic.toLowerCase() == "true") {
+      isPublic = true;
+    } else {
+      isPublic = false;
     }
 
     // the following is a hack to replace the RESOURCE_TYPE variable in the config.js file
@@ -83,6 +97,10 @@ task("deploy", "Runs the deploy script")
     rl.on("line", (line) => {
       if (line.includes("RESOURCE_TYPE")) {
         let newLine = line.replace(/native|erc20|erc1155/, resource);
+        let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
+        fs.writeFileSync('./scripts/config.js', newContent);
+      } else if (line.includes("IS_PUBLIC")) {
+        let newLine = line.replace(/true|false/, isPublic);
         let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
         fs.writeFileSync('./scripts/config.js', newContent);
         rl.close();
