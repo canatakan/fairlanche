@@ -76,8 +76,13 @@ task("deploy", "Runs the deploy script")
   .setAction(async ({ resource, isPublic }) => {
 
     resource = resource.toLowerCase();
-    if (!["native", "erc20", "erc1155"].includes(resource)) {
+    if (!["native", "erc20", "erc1155", "allowance"].includes(resource)) {
       throw new Error("Invalid resource type");
+    }
+
+    if (resource == 'allowance') {
+      await hre.run("run", { script: "./scripts/deployAllowance.js" });
+      return;
     }
 
     if (isPublic.toLowerCase() == "public"
