@@ -15,6 +15,7 @@ const {
 
 async function deployNativeDistributor(
     {
+        _isPublic = false,
         _maxDemandVolume = DEFAULT_MAX_DEMAND_VOLUME,
         _epochCapacity = DEFAULT_EPOCH_CAPACITY,
         _epochDuration = DEFAULT_EPOCH_DURATION,
@@ -24,7 +25,11 @@ async function deployNativeDistributor(
         _value = ethers.utils.parseEther(DEFAULT_DEPLOYMENT_VALUE.toString()),
     } = {}
 ) {
-    NativeDistributor = await ethers.getContractFactory("TestNativeDistributor");
+    if (_isPublic) {
+        NativeDistributor = await ethers.getContractFactory("TestPublicNativeDistributor");
+    } else {
+        NativeDistributor = await ethers.getContractFactory("TestNativeDistributor");
+    }
     nativeDistributor = await NativeDistributor.deploy(
         _maxDemandVolume,
         _epochCapacity,
