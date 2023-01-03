@@ -25,12 +25,24 @@ async function deployNativeDistributor(
         _value = ethers.utils.parseEther(DEFAULT_DEPLOYMENT_VALUE.toString()),
     } = {}
 ) {
+    let NativeDistributor;
+
+    let Lib = await ethers.getContractFactory("ShareCalculator");
+    let lib = await Lib.deploy();
+    await lib.deployed();
+
     if (_isPermissioned) {
-        NativeDistributor = await ethers.getContractFactory("TestPNativeDistributor");
+        NativeDistributor = await ethers.getContractFactory(
+            "TestPNativeDistributor",
+            { libraries: { ShareCalculator: lib.address } }
+        );
     } else {
-        NativeDistributor = await ethers.getContractFactory("TestNativeDistributor");
+        NativeDistributor = await ethers.getContractFactory(
+            "TestNativeDistributor",
+            { libraries: { ShareCalculator: lib.address } }
+        );
     }
-    nativeDistributor = await NativeDistributor.deploy(
+    let nativeDistributor = await NativeDistributor.deploy(
         _maxDemandVolume,
         _epochCapacity,
         _epochDuration,
@@ -54,9 +66,16 @@ async function deployERC20Distributor(
         _enableWithdraw = DEFAULT_ENABLE_WITHDRAW,
     } = {}
 ) {
-    // ERC20Distributor = await ethers.getContractFactory("TestERC20Distributor");
-    ERC20Distributor = await ethers.getContractFactory("PERC20Distributor");
-    erc20Distributor = await ERC20Distributor.deploy(
+    let Lib = await ethers.getContractFactory("ShareCalculator");
+    let lib = await Lib.deploy();
+    await lib.deployed();
+    
+    // let ERC20Distributor = await ethers.getContractFactory("TestPERC20Distributor");
+    let ERC20Distributor = await ethers.getContractFactory(
+        "PERC20Distributor",
+        { libraries: { ShareCalculator: lib.address } }
+    );
+    let erc20Distributor = await ERC20Distributor.deploy(
         _tokenContract,
         _maxDemandVolume,
         _epochCapacity,
@@ -81,9 +100,16 @@ async function deployERC1155Distributor(
         _enableWithdraw = DEFAULT_ENABLE_WITHDRAW,
     } = {}
 ) {
-    // ERC1155Distributor = await ethers.getContractFactory("TestERC1155Distributor");
-    ERC1155Distributor = await ethers.getContractFactory("PERC1155Distributor");
-    erc1155Distributor = await ERC1155Distributor.deploy(
+    let Lib = await ethers.getContractFactory("ShareCalculator");
+    let lib = await Lib.deploy();
+    await lib.deployed();
+    
+    // let ERC1155Distributor = await ethers.getContractFactory("TestERC1155Distributor");
+    let ERC1155Distributor = await ethers.getContractFactory(
+        "PERC1155Distributor",
+        { libraries: { ShareCalculator: lib.address } }
+    );
+    let erc1155Distributor = await ERC1155Distributor.deploy(
         _tokenContract,
         _tokenId,
         _maxDemandVolume,
