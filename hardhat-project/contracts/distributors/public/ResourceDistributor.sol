@@ -4,16 +4,16 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @title PublicResourceDistributor
+ * @title ResourceDistributor
  * @dev In this contract, permissioned addresses do not exist,
  * and anyone can interact with the contract functions. If the 
  * subnet is already permissioned and no additional restrictions
  * are needed, this contract can be used.
  */
 abstract contract ResourceDistributor is Ownable {
-    event Demand(address indexed _from, uint16 _volume);
+    event Demand(address indexed _from, uint256 _epoch, uint16 _volume);
     event Claim(address indexed _from, uint256 _epoch, uint16 _share);
-    event Share(uint256 _epoch, uint16 _share, uint256 _distribution);
+    event Share(uint256 indexed _epoch, uint16 _share, uint256 _distribution);
 
     uint256 public constant milliether = 1e15; // 0.001 ether
 
@@ -116,7 +116,7 @@ abstract contract ResourceDistributor is Ownable {
         permissionedAddresses[msg.sender].demandedVolumes[epoch] = volume;
         permissionedAddresses[msg.sender].lastDemandEpoch = epoch;
 
-        emit Demand(msg.sender, volume);
+        emit Demand(msg.sender, epoch, volume);
     }
 
     function claim(uint256 epochNumber) public virtual {
