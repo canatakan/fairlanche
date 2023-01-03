@@ -1,16 +1,23 @@
 const { ethers } = require("hardhat");
+
+// the resource type is fetched from the config.js file
+// by default, you interact with the latest deployed resource
 const { RESOURCE_TYPE, IS_PERMISSIONED } = require("./config.js");
 
+const INTERACT_CONFIG = {
+  resourceType: RESOURCE_TYPE, // "native", "erc20" or "erc1155"
+  isPermissioned: IS_PERMISSIONED, // true or false
+  contractAddress: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+};
+
 async function interact({
-  resourceType = RESOURCE_TYPE,
-  isPermissioned = IS_PERMISSIONED,
-  contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  resourceType,
+  isPermissioned,
+  contractAddress,
 }) {
 
   let distributorName, resourceName;
 
-  // the contract type is fetched from the config.js file
-  // by default, you interact with the latest deployed resource
   switch (resourceType.toLowerCase()) {
     case "native":
       distributorName = "NativeDistributor";
@@ -25,7 +32,7 @@ async function interact({
 
     case "erc1155":
       distributorName = "ERC1155Distributor";
-      if (IS_PERMisPermissionedISSIONED) distributorName = "PERC1155Distributor";
+      if (isPermissioned) distributorName = "PERC1155Distributor";
       resourceName = "ERC1155Resource";
       break;
 
@@ -56,11 +63,7 @@ async function interact({
 }
 
 async function main() {
-  interact({
-    // resourceType: "ERC20",
-    // isPermissioned: true,
-    contractAddress: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-  });
+  interact(INTERACT_CONFIG);
 }
 
 main().catch((error) => {
