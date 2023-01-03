@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "./PublicResourceDistributor.sol";
+import "./PResourceDistributor.sol";
 
-contract PublicNativeDistributor is PublicResourceDistributor {
+contract PNativeDistributor is PResourceDistributor {
     constructor(
         uint16 _maxDemandVolume,
         uint256 _epochCapacity,
@@ -13,7 +13,7 @@ contract PublicNativeDistributor is PublicResourceDistributor {
         bool _enableWithdraw
     )
         payable
-        PublicResourceDistributor(
+        PResourceDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,

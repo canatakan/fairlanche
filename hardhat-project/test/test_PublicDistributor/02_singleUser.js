@@ -12,7 +12,7 @@ describe("PublicDistributor single user demand & claim", function () {
     let nativeDistributor;
 
     this.beforeAll(async function () {
-        ({ nativeDistributor } = await deployNativeDistributor({ _isPublic: true }));
+        ({ nativeDistributor } = await deployNativeDistributor({ _isPermissioned: false }));
     });
 
     describe("Demand", function () {
@@ -127,7 +127,7 @@ describe("PublicDistributor single user demand & claim", function () {
 describe("PublicDistributor single user demand & claim bulk", function () {
 
     it("Should allow the user to make multiple demands then claim all", async function () {
-        let { nativeDistributor } = await deployNativeDistributor({ _isPublic: true });
+        let { nativeDistributor } = await deployNativeDistributor({ _isPermissioned: false });
         let accounts = await ethers.getSigners();
         let user = accounts[4];
 
@@ -180,7 +180,7 @@ describe("PublicDistributor single user demand & claim bulk", function () {
          */
         let { nativeDistributor } = await deployNativeDistributor(
             {
-                _isPublic: true,
+                _isPermissioned: false,
                 _epochCapacity: 5,
                 _value: ethers.utils.parseEther("500")
             }
@@ -232,7 +232,7 @@ describe("PublicDistributor single user demand & claim bulk", function () {
          */
         let { nativeDistributor } = await deployNativeDistributor(
             {
-                _isPublic: true,
+                _isPermissioned: false,
                 _epochCapacity: 5,
                 _expirationBlocks: 13,
                 _value: ethers.utils.parseEther("10")

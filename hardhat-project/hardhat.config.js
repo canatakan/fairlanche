@@ -67,13 +67,13 @@ task("deploy", "Runs the deploy script")
     types.string
   )
   .addPositionalParam(
-    "isPublic",
+    "isPermissioned",
     "Whether the distribution contract will be public or not. \
-    Should be 'public' or 'true', any other value will be considered 'restricted'",
+    Should be 'public' or 'false', any other value will be considered 'permissioned'",
     "",
     types.string
   )
-  .setAction(async ({ resource, isPublic }) => {
+  .setAction(async ({ resource, isPermissioned }) => {
 
     resource = resource.toLowerCase();
     if (!["native", "erc20", "erc1155", "allowance"].includes(resource)) {
@@ -85,11 +85,11 @@ task("deploy", "Runs the deploy script")
       return;
     }
 
-    if (isPublic.toLowerCase() == "public"
-      || isPublic.toLowerCase() == "true") {
-      isPublic = true;
+    if (isPermissioned.toLowerCase() == "public"
+      || isPermissioned.toLowerCase() == "false") {
+        isPermissioned = false;
     } else {
-      isPublic = false;
+      isPermissioned = true;
     }
 
     // the following is a hack to replace the RESOURCE_TYPE variable in the config.js file
@@ -104,8 +104,8 @@ task("deploy", "Runs the deploy script")
         let newLine = line.replace(/native|erc20|erc1155/, resource);
         let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
         fs.writeFileSync('./scripts/config.js', newContent);
-      } else if (line.includes("IS_PUBLIC")) {
-        let newLine = line.replace(/true|false/, isPublic);
+      } else if (line.includes("IS_PERMISSIONED")) {
+        let newLine = line.replace(/true|false/, isPermissioned);
         let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
         fs.writeFileSync('./scripts/config.js', newContent);
         rl.close();

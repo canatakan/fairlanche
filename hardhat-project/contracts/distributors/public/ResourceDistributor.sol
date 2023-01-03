@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * subnet is already permissioned and no additional restrictions
  * are needed, this contract can be used.
  */
-abstract contract PublicResourceDistributor is Ownable {
+abstract contract ResourceDistributor is Ownable {
     event Demand(address indexed _from, uint16 _volume);
     event Claim(address indexed _from, uint256 _epoch, uint16 _share);
     event Share(uint256 _epoch, uint16 _share, uint256 _distribution);

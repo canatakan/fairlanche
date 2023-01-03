@@ -2,12 +2,9 @@
 pragma solidity ^0.8.13;
 
 import "../../allowance/Permissioned.sol";
-import "../public/PublicResourceDistributor.sol";
+import "../public/ResourceDistributor.sol";
 
-abstract contract ResourceDistributor is
-    Permissioned,
-    PublicResourceDistributor
-{
+abstract contract PResourceDistributor is Permissioned, ResourceDistributor {
     constructor(
         uint16 _maxDemandVolume,
         uint256 _epochCapacity,
@@ -17,7 +14,7 @@ abstract contract ResourceDistributor is
         bool _enableWithdraw
     )
         payable
-        PublicResourceDistributor(
+        ResourceDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,

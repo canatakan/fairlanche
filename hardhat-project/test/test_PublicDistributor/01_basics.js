@@ -18,7 +18,7 @@ describe("PublicDistributor contract basics", function () {
     let nativeDistributor;
 
     this.beforeAll(async function () {
-        ({ nativeDistributor } = await deployNativeDistributor({ _isPublic: true }));
+        ({ nativeDistributor } = await deployNativeDistributor({ _isPermissioned: true }));
     });
 
     describe("Deployment", function () {

@@ -1,35 +1,40 @@
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-
 const { ethers } = require("hardhat");
-const { RESOURCE_TYPE, IS_PUBLIC } = require("./config.js");
+const { RESOURCE_TYPE, IS_PERMISSIONED } = require("./config.js");
 
-async function main() {
+async function interact({
+  resourceType = RESOURCE_TYPE,
+  isPermissioned = IS_PERMISSIONED,
+  contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+}) {
 
   let distributorName, resourceName;
 
   // the contract type is fetched from the config.js file
-  // by default, you interact with the latest deployed contract
-  switch (RESOURCE_TYPE.toLowerCase()) {
+  // by default, you interact with the latest deployed resource
+  switch (resourceType.toLowerCase()) {
     case "native":
       distributorName = "NativeDistributor";
-      if (IS_PUBLIC) distributorName = "PublicNativeDistributor";
+      if (isPermissioned) distributorName = "PNativeDistributor";
       break;
 
     case "erc20":
       distributorName = "ERC20Distributor";
-      if (IS_PUBLIC) distributorName = "PublicERC20Distributor";
+      if (isPermissioned) distributorName = "PERC20Distributor";
       resourceName = "ERC20Resource";
       break;
 
     case "erc1155":
       distributorName = "ERC1155Distributor";
-      if (IS_PUBLIC) distributorName = "PublicERC1155Distributor";
+      if (IS_PERMisPermissionedISSIONED) distributorName = "PERC1155Distributor";
       resourceName = "ERC1155Resource";
       break;
+
+    default:
+      throw new Error("Invalid resource type");
   }
 
   const Distributor = await hre.ethers.getContractFactory(distributorName);
-  const distributor = await Distributor.attach(CONTRACT_ADDRESS);
+  const distributor = await Distributor.attach(contractAddress);
 
   // FOR ERC20 & ERC1155:
   // const resourceAddress = await distributor.token();
@@ -42,12 +47,20 @@ async function main() {
   // FOR ERC20:
   // await approveERC20(resource, accounts[0], ethers.utils.parseEther("100000"));
   // await deposit(distributor, accounts[0], ethers.utils.parseEther("100000"));
-  
+
   // FOR ERC1155:
   // await approveERC1155(resource, accounts[0]);
   // await deposit(distributor, accounts[0], 100_000);
 
   // await demand(distributor, accounts[0], 3);
+}
+
+async function main() {
+  interact({
+    // resourceType: "ERC20",
+    // isPermissioned: true,
+    contractAddress: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+  });
 }
 
 main().catch((error) => {
