@@ -2,7 +2,8 @@ const { ethers } = require("hardhat");
 const { mine } = require("@nomicfoundation/hardhat-network-helpers");
 
 const {
-    DEFAULT_TOKEN_CONTRACT_ADDRESS,
+    DEFAULT_ERC20_CONTRACT_ADDRESS,
+    DEFAULT_ERC1155_CONTRACT_ADDRESS,
     DEFAULT_TOKEN_ID,
     DEFAULT_MAX_DEMAND_VOLUME,
     DEFAULT_EPOCH_CAPACITY,
@@ -57,7 +58,7 @@ async function deployNativeDistributor(
 
 async function deployERC20Distributor(
     {
-        _tokenContract = DEFAULT_TOKEN_CONTRACT_ADDRESS,
+        _tokenContract = DEFAULT_ERC20_CONTRACT_ADDRESS,
         _maxDemandVolume = DEFAULT_MAX_DEMAND_VOLUME,
         _epochCapacity = DEFAULT_EPOCH_CAPACITY,
         _epochDuration = DEFAULT_EPOCH_DURATION,
@@ -90,7 +91,7 @@ async function deployERC20Distributor(
 
 async function deployERC1155Distributor(
     {
-        _tokenContract = DEFAULT_TOKEN_CONTRACT_ADDRESS,
+        _tokenContract = DEFAULT_ERC1155_CONTRACT_ADDRESS,
         _tokenId = DEFAULT_TOKEN_ID,
         _maxDemandVolume = DEFAULT_MAX_DEMAND_VOLUME,
         _epochCapacity = DEFAULT_EPOCH_CAPACITY,

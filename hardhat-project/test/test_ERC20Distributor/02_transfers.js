@@ -6,6 +6,7 @@ const { mine } = require("@nomicfoundation/hardhat-network-helpers");
 const { deployERC20Distributor, deployERC20Resource } = require("../test_utils/utils");
 
 const {
+    DEFAULT_ERC1155_CONTRACT_ADDRESS,
     DEFAULT_EPOCH_DURATION,
     DEFAULT_ETHER_MULTIPLIER,
 } = require("../test_utils/config");
@@ -17,10 +18,19 @@ describe("ERC20Distributor transfers", function () {
     let erc20Distributor;
 
     this.beforeAll(async function () {
-        ({ erc20Resource } = await deployERC20Resource());
-        ({ erc20Distributor } = await deployERC20Distributor(
-            { _tokenContract: erc20Resource.address })
-        )
+        if (DEFAULT_ERC1155_CONTRACT_ADDRESS === null){
+            ({ erc20Resource } = await deployERC20Resource());
+            ({ erc20Distributor } = await deployERC20Distributor(
+                { _tokenContract: erc20Resource.address })
+            )
+        }
+        else {
+            erc20Resource = await ethers.getContractAt(
+                "ERC20Resource",
+                DEFAULT_ERC1155_CONTRACT_ADDRESS
+            );
+            ({ erc20Distributor } = await deployERC20Distributor());
+        }
 
         let accounts = await ethers.getSigners();
         erc20Distributor.addPermissionedUser(accounts[1].address);
