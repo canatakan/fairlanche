@@ -87,7 +87,7 @@ task("deploy", "Runs the deploy script")
 
     if (isPermissioned.toLowerCase() == "public"
       || isPermissioned.toLowerCase() == "false") {
-        isPermissioned = false;
+      isPermissioned = false;
     } else {
       isPermissioned = true;
     }
@@ -120,14 +120,13 @@ task("interact", "Runs the interact script")
   .addPositionalParam(
     "allowance",
     "Whether the interaction with allowance contracts will be run. \
-    Its value should be 'true' or 'allowance' for running interactWithAllowance.js.",
+    Its value should be 'allowance' for running interactWithAllowance.js.",
     "",
     types.string
   )
   .setAction(async ({ allowance }) => {
 
-    if (allowance.toLowerCase() == "true"
-      || allowance.toLowerCase() == "allowance") {
+    if (allowance.toLowerCase() == "allowance") {
       await hre.run("run", { script: "./scripts/interactWithAllowance.js" });
     } else {
       await hre.run("run", { script: "./scripts/interact.js" });
