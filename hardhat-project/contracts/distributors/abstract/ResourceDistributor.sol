@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./IResourceDistributor.sol";
 
 /**
  * @title ResourceDistributor
@@ -10,7 +11,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * subnet is already permissioned and no additional restrictions
  * are needed, this contract can be used.
  */
-abstract contract ResourceDistributor is Ownable {
+abstract contract ResourceDistributor is Ownable, IResourceDistributor {
     event Demand(address indexed _from, uint256 _epoch, uint16 _volume);
     event Claim(address indexed _from, uint256 _epoch, uint16 _share);
     event Share(uint256 indexed _epoch, uint16 _share, uint256 _distribution);

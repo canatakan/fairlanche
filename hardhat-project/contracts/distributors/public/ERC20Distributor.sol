@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./ResourceDistributor.sol";
+import "../abstract/ResourceDistributor.sol";
 
 contract ERC20Distributor is ResourceDistributor {
     IERC20 public token;
