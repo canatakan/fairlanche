@@ -48,8 +48,6 @@ contract TestNativeDistributor is NativeDistributor {
         public
         view
         returns (
-            uint256,
-            address,
             uint16[] memory,
             uint256
         )
@@ -61,7 +59,7 @@ contract TestNativeDistributor is NativeDistributor {
             demandedVolumeList[i] = (user.demandedVolumes[_epochNumbers[i]]);
         }
 
-        return (user.id, user.addr, demandedVolumeList, user.lastDemandEpoch);
+        return (demandedVolumeList, user.lastDemandEpoch);
     }
 
     function getShares() public view returns (uint16[] memory) {

@@ -24,7 +24,7 @@ describe("PublicDistributor single user demand & claim", function () {
             await nativeDistributor.connect(user).demand(amount);
             let currentEpoch = await nativeDistributor.epoch();
             let userInfo = await nativeDistributor.getUser(user.address, [currentEpoch]);
-            expect(userInfo[2][0]).to.equal(amount);
+            expect(userInfo[0][0]).to.equal(amount);
         });
 
         // A registered user makes a demand with a value greater than the maxDemandVolume
@@ -64,7 +64,7 @@ describe("PublicDistributor single user demand & claim", function () {
             await nativeDistributor.connect(user).demand(amount);
             let currentEpoch = await nativeDistributor.epoch();
             let userInfo = await nativeDistributor.getUser(user.address, [currentEpoch]);
-            expect(userInfo[2][0]).to.equal(amount);
+            expect(userInfo[0][0]).to.equal(amount);
         });
     });
 
@@ -82,7 +82,7 @@ describe("PublicDistributor single user demand & claim", function () {
             await nativeDistributor._updateState();
             let userInfo = await nativeDistributor.getUser(user.address, [claimEpoch]);
             let epochShare = await nativeDistributor.shares(claimEpoch);
-            let claimAmount = Math.min(userInfo[2][0], epochShare);
+            let claimAmount = Math.min(userInfo[0][0], epochShare);
 
             // claim and get the transaction receipt
             let tx = await nativeDistributor.connect(user).claim(claimEpoch);
@@ -93,7 +93,7 @@ describe("PublicDistributor single user demand & claim", function () {
             let gasCost = gasUsed.mul(gasPrice);
 
             let userInfoAfterClaim = await nativeDistributor.getUser(user.address, [claimEpoch]);
-            expect(userInfoAfterClaim[2][0]).to.equal(0);
+            expect(userInfoAfterClaim[0][0]).to.equal(0);
 
             // convert claim amount to wei
             let claimAmountWei = ethers.utils.parseEther(claimAmount.toString());
@@ -159,7 +159,7 @@ describe("PublicDistributor single user demand & claim bulk", function () {
 
         let userInfoAfterClaim = await nativeDistributor.getUser(user.address, claimEpochs);
         for (let i = 0; i < epochs; i++) {
-            expect(userInfoAfterClaim[2][i]).to.equal(0);
+            expect(userInfoAfterClaim[0][i]).to.equal(0);
         }
         // convert claim amount to wei
         var claimAmountWei = ethers.utils.parseEther("0");

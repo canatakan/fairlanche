@@ -78,29 +78,29 @@ describe("NativeDistributor contract basics", function () {
 
             // check that 5 users are registered with the correct data
             for (i = 1; i < 6; i++) {
-                let user = await nativeDistributor.permissionedAddresses((accounts[i].address))
-                expect(user.id).to.equal(i);
-                expect(user.addr).to.equal(accounts[i].address);
+                expect(
+                    await nativeDistributor.registeredIds((accounts[i].address))
+                ).to.equal(i);
             }
 
             // check that some random accounts are not registered
             for (i = 6; i < 10; i++) {
-                let user = await nativeDistributor.permissionedAddresses((accounts[i].address))
-                expect(user.id).to.equal(0);
-                expect(user.addr).to.equal("0x0000000000000000000000000000000000000000");
+                expect(
+                    await nativeDistributor.registeredIds((accounts[i].address))
+                ).to.equal(0);
             }
         });
 
         it("Should fail while adding a user that is already registered", async function () {
             let accounts = await ethers.getSigners();
             await expect(nativeDistributor.addPermissionedUser(accounts[1].address)).
-                to.be.revertedWith("User already exists.");
+                to.be.revertedWith("Permissioned: User already exists");
         });
 
         it("Should fail when someone other than the owner tries to register a user", async function () {
             let accounts = await ethers.getSigners();
             await expect(nativeDistributor.connect(accounts[1]).addPermissionedUser(accounts[9].address)).
-                to.be.revertedWith("Only owner can call this function.");
+                to.be.revertedWith("Ownable: caller is not the owner");
         });
     });
 

@@ -277,7 +277,7 @@ describe("Multiple users", function () {
           let share = await nativeDistributor.shares(claimEpoch);
 
           let userInfo = await nativeDistributor.getUser(accounts[i].address, [claimEpoch]);
-          let userDemand = userInfo[2][0];
+          let userDemand = userInfo[0][0];
           expect(userDemand).to.equal(demandArray[i - 1]); // demand is correct
 
           let userShare = Math.min(share, userDemand);
@@ -293,7 +293,7 @@ describe("Multiple users", function () {
           let gasCost = gasUsed.mul(gasPrice);
 
           let userInfoAfterClaim = await nativeDistributor.getUser(accounts[i].address, [claimEpoch]);
-          expect(userInfoAfterClaim[2][0]).to.equal(0); // demand is reset to 0
+          expect(userInfoAfterClaim[0][0]).to.equal(0); // demand is reset to 0
 
           let claimAmountWei = ethers.utils.parseEther(userShare.toString());
           expect(userBalance).to.equal(initialBalance.add(
@@ -305,7 +305,7 @@ describe("Multiple users", function () {
       it("Should not allow anyone without a share to claim", async function () {
         let accounts = await ethers.getSigners();
         let userInfo = await nativeDistributor.getUser(accounts[19].address, [1]);
-        let userDemand = userInfo[2][0];
+        let userDemand = userInfo[0][0];
         expect(userDemand).to.equal(0); // demand is 0
         await expect(nativeDistributor.connect(accounts[19]).claim(1))
           .to.be.revertedWith("You do not have a demand for this epoch.");
@@ -352,7 +352,7 @@ describe("Multiple users", function () {
         for (i = 1; i <= 10; i++) {
           let userInfo = await nativeDistributor.getUser(accounts[i].address, claimEpochs);
           for (j = 1; j <= 10; j++) {
-            expect(userInfo[2][j - 1]).to.equal(demandArray[(i + j - 2) % 10]);
+            expect(userInfo[0][j - 1]).to.equal(demandArray[(i + j - 2) % 10]);
           }
         }
 

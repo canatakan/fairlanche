@@ -25,13 +25,10 @@ abstract contract PublicResourceDistributor is Ownable {
     bool public enableWithdraw;
 
     struct User {
-        uint256 id; // ids starting from 1
-        address payable addr;
         mapping(uint256 => uint16) demandedVolumes; // volume demanded for each epoch
         uint256 lastDemandEpoch;
     }
 
-    uint256 public numberOfUsers;
     mapping(address => User) public permissionedAddresses;
 
     uint256 public epochCapacity;
@@ -67,7 +64,6 @@ abstract contract PublicResourceDistributor is Ownable {
             "Epoch capacity and duration must be greater than 0."
         );
 
-        numberOfUsers = 0;
         blockOffset = block.number;
 
         maxDemandVolume = _maxDemandVolume;
