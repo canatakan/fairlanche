@@ -29,7 +29,7 @@ abstract contract ResourceDistributor is Ownable {
         uint256 lastDemandEpoch;
     }
 
-    mapping(address => User) public permissionedAddresses;
+    mapping(address => User) public users;
 
     uint256 public epochCapacity;
     uint256 public cumulativeCapacity;
@@ -107,14 +107,14 @@ abstract contract ResourceDistributor is Ownable {
 
         updateState();
         require(
-            permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
+            users[msg.sender].lastDemandEpoch < epoch,
             "Wait for the next epoch."
         );
         numberOfDemands[volume]++;
         totalDemand++;
 
-        permissionedAddresses[msg.sender].demandedVolumes[epoch] = volume;
-        permissionedAddresses[msg.sender].lastDemandEpoch = epoch;
+        users[msg.sender].demandedVolumes[epoch] = volume;
+        users[msg.sender].lastDemandEpoch = epoch;
 
         emit Demand(msg.sender, epoch, volume);
     }
@@ -126,7 +126,7 @@ abstract contract ResourceDistributor is Ownable {
         updateState();
         require(epochNumber < epoch, "You can only claim past epochs.");
 
-        uint16 demandedVolume = permissionedAddresses[msg.sender]
+        uint16 demandedVolume = users[msg.sender]
             .demandedVolumes[epochNumber];
 
         require(
@@ -138,7 +138,7 @@ abstract contract ResourceDistributor is Ownable {
         uint16 share = shares[epochNumber];
 
         // first, update the balance of the user
-        permissionedAddresses[msg.sender].demandedVolumes[epochNumber] = 0;
+        users[msg.sender].demandedVolumes[epochNumber] = 0;
 
         // then, send the transfer
         handleTransfer(msg.sender, min(share, demandedVolume) * (etherMultiplier * milliether));
@@ -163,7 +163,7 @@ abstract contract ResourceDistributor is Ownable {
             uint256 currentEpoch = epochNumbers[i];
             require(currentEpoch < epoch, "You can only claim past epochs.");
 
-            demandedVolume = permissionedAddresses[msg.sender].demandedVolumes[
+            demandedVolume = users[msg.sender].demandedVolumes[
                 currentEpoch
             ];
             require(
@@ -174,7 +174,7 @@ abstract contract ResourceDistributor is Ownable {
             share = shares[currentEpoch];
 
             // first, update the balance of the user (in case of reentrancy)
-            permissionedAddresses[msg.sender].demandedVolumes[currentEpoch] = 0;
+            users[msg.sender].demandedVolumes[currentEpoch] = 0;
             totalClaim += min(share, demandedVolume);
 
             emit Claim(

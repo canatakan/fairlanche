@@ -52,7 +52,7 @@ contract TestNativeDistributor is NativeDistributor {
             uint256
         )
     {
-        User storage user = permissionedAddresses[_addr];
+        User storage user = users[_addr];
         uint256 epochCount = _epochNumbers.length;
         uint16[] memory demandedVolumeList = new uint16[](epochCount);
         for (uint256 i = 0; i < _epochNumbers.length; i++) {
