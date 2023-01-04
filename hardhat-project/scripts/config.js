@@ -1,9 +1,8 @@
 const { ethers } = require("hardhat");
 
 // "native", "erc20", "erc1155"
-const RESOURCE_TYPE = "erc1155";
+const RESOURCE_TYPE = "native";
 const IS_PERMISSIONED = true;
-const SHARE_CALCULATOR_ADDRESS = "0x8dD1edEfb745314dA6892aB6b27907719f561860";
 
 const NATIVE_DEPLOYMENT_PARAMS = {
     _maxDemandVolume: 3,
@@ -64,7 +63,6 @@ const ERC1155_RESOURCE_PARAMS = {
 module.exports = {
     RESOURCE_TYPE,
     IS_PERMISSIONED,
-    SHARE_CALCULATOR_ADDRESS,
     NATIVE_DEPLOYMENT_PARAMS,
     ERC20_DEPLOYMENT_PARAMS,
     ERC1155_DEPLOYMENT_PARAMS,

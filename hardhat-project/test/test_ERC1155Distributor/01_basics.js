@@ -6,7 +6,6 @@ const { mine } = require("@nomicfoundation/hardhat-network-helpers");
 const { deployERC1155Distributor, deployERC1155Resource } = require("../test_utils/utils");
 
 const {
-    DEFAULT_ERC1155_CONTRACT_ADDRESS,
     DEFAULT_EPOCH_CAPACITY,
     DEFAULT_EPOCH_DURATION,
     DEFAULT_EXPIRATION_BLOCKS,
@@ -19,19 +18,10 @@ describe("ERC1155Distributor basics", function () {
     let erc1155Distributor;
 
     this.beforeAll(async function () {
-        if (DEFAULT_ERC1155_CONTRACT_ADDRESS === null){
-            ({ erc1155Resource } = await deployERC1155Resource());
-            ({ erc1155Distributor } = await deployERC1155Distributor(
-                { _tokenContract: erc1155Resource.address })
-            )
-        }
-        else {
-            erc1155Resource = await ethers.getContractAt(
-                "ERC20Resource",
-                DEFAULT_ERC1155_CONTRACT_ADDRESS
-            );
-            ({ erc1155Distributor } = await deployERC1155Distributor());
-        }
+        ({ erc1155Resource } = await deployERC1155Resource());
+        ({ erc1155Distributor } = await deployERC1155Distributor(
+            { _tokenContract: erc1155Resource.address })
+        )
     });
 
     describe("Resource Contract Deployment", function () {

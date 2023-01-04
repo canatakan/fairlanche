@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "../../allowance/Permissioned.sol";
-import "./ResourceDistributor.sol";
+import "../public/ResourceDistributor.sol";
 
 abstract contract PResourceDistributor is Permissioned, ResourceDistributor {
     constructor(

@@ -76,15 +76,12 @@ task("deploy", "Runs the deploy script")
   .setAction(async ({ resource, isPermissioned }) => {
 
     resource = resource.toLowerCase();
-    if (!["native", "erc20", "erc1155", "allowance", "lib"].includes(resource)) {
+    if (!["native", "erc20", "erc1155", "allowance"].includes(resource)) {
       throw new Error("Invalid resource type");
     }
 
     if (resource == 'allowance') {
       await hre.run("run", { script: "./scripts/deployAllowance.js" });
-      return;
-    } else if (resource == 'lib') {
-      await hre.run("run", { script: "./scripts/deployLib.js" });
       return;
     }
 

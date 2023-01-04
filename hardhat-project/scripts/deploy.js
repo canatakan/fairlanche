@@ -3,7 +3,6 @@ const hre = require("hardhat"); // Hardhat Runtime Environment
 const {
   RESOURCE_TYPE,
   IS_PERMISSIONED,
-  SHARE_CALCULATOR_ADDRESS,
   NATIVE_DEPLOYMENT_PARAMS,
   ERC20_DEPLOYMENT_PARAMS,
   ERC1155_DEPLOYMENT_PARAMS,
@@ -11,21 +10,7 @@ const {
   ERC1155_RESOURCE_PARAMS,
 } = require("./config.js");
 
-async function deploy(
-  {
-    contractName = "NativeDistributor",
-    isPermissioned = true,
-    shareCalculatorAddress = null,
-  }
-) {
-
-  if (shareCalculatorAddress === null) {
-    let Lib = await hre.ethers.getContractFactory("ShareCalculator");
-    let lib = await Lib.deploy();
-    await lib.deployed();
-    console.log("ShareCalculator deployed to:", lib.address);
-    shareCalculatorAddress = lib.address;
-  }
+async function deploy(contractName = "NativeDistributor", isPermissioned = true) {
 
   let Distributor, distributor, tokenContractAddress;
 
@@ -33,10 +18,7 @@ async function deploy(
     case "nativedistributor":
       contractName = "NativeDistributor";
       if (isPermissioned) { contractName = "PNativeDistributor"; }
-      Distributor = await hre.ethers.getContractFactory(
-        contractName,
-        { libraries: { ShareCalculator: shareCalculatorAddress } }
-      );
+      Distributor = await hre.ethers.getContractFactory(contractName);
       distributor = await Distributor.deploy(
         NATIVE_DEPLOYMENT_PARAMS._maxDemandVolume,
         NATIVE_DEPLOYMENT_PARAMS._epochCapacity,
@@ -65,10 +47,7 @@ async function deploy(
       }
       contractName = "ERC20Distributor";
       if (isPermissioned) { contractName = "PERC20Distributor"; }
-      Distributor = await hre.ethers.getContractFactory(
-        contractName,
-        { libraries: { ShareCalculator: shareCalculatorAddress } }
-      );
+      Distributor = await hre.ethers.getContractFactory(contractName);
       distributor = await Distributor.deploy(
         tokenContractAddress,
         ERC20_DEPLOYMENT_PARAMS._maxDemandVolume,
@@ -99,10 +78,7 @@ async function deploy(
       }
       contractName = "ERC1155Distributor";
       if (isPermissioned) { contractName = "PERC1155Distributor"; }
-      Distributor = await hre.ethers.getContractFactory(
-        contractName,
-        { libraries: { ShareCalculator: shareCalculatorAddress } }
-      );
+      Distributor = await hre.ethers.getContractFactory(contractName);
       distributor = await Distributor.deploy(
         tokenContractAddress,
         ERC1155_DEPLOYMENT_PARAMS._tokenId,
@@ -128,13 +104,7 @@ async function deploy(
 }
 
 async function main() {
-  await deploy(
-    {
-      contractName: RESOURCE_TYPE + "Distributor",
-      isPermissioned: IS_PERMISSIONED,
-      shareCalculatorAddress: SHARE_CALCULATOR_ADDRESS
-    }
-  );
+  await deploy(RESOURCE_TYPE + "Distributor", IS_PERMISSIONED);
 }
 
 main().catch((error) => {
