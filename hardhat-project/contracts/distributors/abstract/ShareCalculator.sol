@@ -57,23 +57,26 @@ library ShareCalculator {
     function calculateSMFShare(
         uint16[] memory epochDemands,
         uint256 cumulativeCapacity
-    ) external returns (uint16 _share, uint256 _amount) {
-        Heapified heapified = new Heapified(epochDemands);
-        uint16[] memory heap = heapified.getHeap();
+    ) external pure returns (uint16 _share, uint256 _amount) {
+        Heapified.Heap memory heap = Heapified.Heap({
+            heap: epochDemands
+        });
+        Heapified.heapify(heap, epochDemands);
+
         uint256 simulatedCapacity = cumulativeCapacity;
         uint16 simulatedShare = 0;
         uint16 result = 0;
-        while (heap.length > 0 && simulatedCapacity >= heap.length) {
-            while(heap[0] < simulatedShare) {
-                simulatedCapacity -= heap[0];
-                heapified.extractMin();
+        while (heap.heap.length > 0 && simulatedCapacity >= heap.heap.length) {
+            while(heap.heap[0] < simulatedShare) {
+                simulatedCapacity -= heap.heap[0];
+                Heapified.extractMin(heap);
             }
-            simulatedCapacity -= simulatedShare * heap.length;
-            for (uint256 i = 0; i < heap.length; i++) {
-                heap[i] -= simulatedShare;
+            simulatedCapacity -= simulatedShare * heap.heap.length;
+            for (uint256 i = 0; i < heap.heap.length; i++) {
+                heap.heap[i] -= simulatedShare;
             }
             result = simulatedShare;
-            simulatedShare = uint16(simulatedCapacity / heap.length);
+            simulatedShare = uint16(simulatedCapacity / heap.heap.length);
         }
         return (result, cumulativeCapacity - simulatedCapacity);
     }
