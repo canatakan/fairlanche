@@ -77,3 +77,38 @@ Arguments can also be provided in JavaScript files. Enter the correct constructo
 ```bash
 npx hardhat verify --constructor-args ./scripts/verify/erc20Args.js --network fuji <CONTRACT_ADDRESS>
 ```
+
+## Custom Tasks
+
+You can use the custom tasks in order to easily deploy/interact with different resource and distributor contracts. Here is the list of commands to use custom tasks that are defined in the `hardhat.config.js` file:
+
+### Deployment
+
+`npx hardhat deploy`: deploys the Permissioned Native Distributor contract by default. You can use below:
+
+* `npx hardhat deploy native`
+* `npx hardhat deploy erc20`
+* `npx hardhat deploy erc1155`
+
+
+It is also possible to deploy the public version of the contracts as below:
+
+* `npx hardhat deploy native public`
+* `npx hardhat deploy native erc20`
+* `npx hardhat deploy native erc1155`
+
+
+### Interacting
+
+* `npx hardhat interact`: runs the `interact.js` script by default.
+* `npx hardhat interact allowance`: runs the `interactWithAllowance.js` script.
+
+
+### Testing
+
+The builtin Hardhat test task is overriden. You can use the following commands to run the tests in addition to the default Hardhat test task:
+
+* `npx hardhat test native`
+* `npx hardhat test erc20`
+* `npx hardhat test erc1155`
+* `npx hardhat test public`

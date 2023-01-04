@@ -8,8 +8,9 @@ const { nodeIP, nodePort, protocol, networkID, hrt,
 // For encoding and decoding to CB58 and buffers.
 const bintools = BinTools.getInstance()
 
-// Avalanche instance with 3rd party API endpoints
 const skip = (num) => new Array(num);
+
+// <<<<<< Avalanche instance with 3rd party API endpoints
 // const avalanche = new Avalanche(...skip(3), networkID, ...skip(2), hrt)
 
 // const platform = avalanche.PChain()
@@ -20,8 +21,10 @@ const skip = (num) => new Array(num);
 // cchain.setBaseURL(cAnkrBase)
 
 //info.setBaseURL(cAnkrBase)
+// >>>>>>
 
-// Avalanche instance with independent node
+
+// <<<<<< Avalanche instance with independent node
 const avalanche = new Avalanche(
   nodeIP,
   nodePort,
@@ -36,6 +39,8 @@ const xchain = avalanche.XChain()
 const cchain = avalanche.CChain()
 
 const info = avalanche.Info()
+// >>>>>>
+
 
 // Keychain for signing transactions
 const pKeyChain = platform.keyChain()

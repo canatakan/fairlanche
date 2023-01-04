@@ -7,26 +7,15 @@ const {
     DEFAULT_ETHER_MULTIPLIER,
 } = require("../test_utils/config");
 
-describe("Single user Demand & Claim", function () {
+describe("PublicDistributor single user demand & claim", function () {
 
     let nativeDistributor;
 
     this.beforeAll(async function () {
-        ({ nativeDistributor } = await deployNativeDistributor());
-        let accounts = await ethers.getSigners();
-        await nativeDistributor.addPermissionedUser(accounts[1].address);
+        ({ nativeDistributor } = await deployNativeDistributor({ _isPermissioned: false }));
     });
 
     describe("Demand", function () {
-        // A non registered user makes a simple demand (should fail)
-        it("Should fail when non-permissioned user tries to demand", async function () {
-            let accounts = await ethers.getSigners();
-            let user = accounts[2];
-            let amount = 10;
-            await expect(nativeDistributor.connect(user).demand(amount))
-                .to.be.revertedWith("Permissioned: User is not registered");
-        });
-
         // A registered user makes a simple demand
         it("Should make simple demand", async function () {
             let accounts = await ethers.getSigners();
@@ -135,13 +124,12 @@ describe("Single user Demand & Claim", function () {
 
 });
 
-describe("Single user Demand & Claim Bulk", function () {
+describe("PublicDistributor single user demand & claim bulk", function () {
 
     it("Should allow the user to make multiple demands then claim all", async function () {
-        let { nativeDistributor } = await deployNativeDistributor();
+        let { nativeDistributor } = await deployNativeDistributor({ _isPermissioned: false });
         let accounts = await ethers.getSigners();
         let user = accounts[4];
-        await nativeDistributor.addPermissionedUser(user.address);
 
         let currentEpoch = await nativeDistributor.epoch();
         expect(currentEpoch).to.equal(1);
@@ -191,15 +179,17 @@ describe("Single user Demand & Claim Bulk", function () {
          * 1000 ETH / 5 unit per epoch = 100 epochs
          */
         let { nativeDistributor } = await deployNativeDistributor(
-            { _epochCapacity: 5, _value: ethers.utils.parseEther("500") }
+            {
+                _isPermissioned: false,
+                _epochCapacity: 5,
+                _value: ethers.utils.parseEther("500")
+            }
         );
         let accounts = await ethers.getSigners();
         let user = accounts[8];
-        await nativeDistributor.addPermissionedUser(user.address);
 
         let currentEpoch = await nativeDistributor.epoch();
         expect(currentEpoch).to.equal(1);
-
 
         let amount = 1;
         let epochs = 100;
@@ -240,10 +230,16 @@ describe("Single user Demand & Claim Bulk", function () {
         /**
          * 10 ETH / 5 unit per epoch = 2 epochs
          */
-        let { nativeDistributor } = await deployNativeDistributor({ _epochCapacity: 5, _expirationBlocks: 13, _value: ethers.utils.parseEther("10") });
+        let { nativeDistributor } = await deployNativeDistributor(
+            {
+                _isPermissioned: false,
+                _epochCapacity: 5,
+                _expirationBlocks: 13,
+                _value: ethers.utils.parseEther("10")
+            }
+        );
         let accounts = await ethers.getSigners();
         let user = accounts[9];
-        await nativeDistributor.addPermissionedUser(user.address);
 
         await nativeDistributor.connect(user).demand(1);
         await mine(await nativeDistributor.epochDuration());

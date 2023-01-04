@@ -1,6 +1,6 @@
 const args = require("yargs").argv
 
-const genesisJSON = require("../configs/genesis.json")
+const genesisJSON = require("../configs/precompiledGenesis.json")
 const {
   platform,
   pKeyChain,

@@ -13,12 +13,12 @@ const {
     DEFAULT_DEPLOYMENT_VALUE,
 } = require("../test_utils/config");
 
-describe("NativeDistributor contract basics", function () {
+describe("PublicDistributor contract basics", function () {
 
     let nativeDistributor;
 
     this.beforeAll(async function () {
-        ({ nativeDistributor } = await deployNativeDistributor());
+        ({ nativeDistributor } = await deployNativeDistributor({ _isPermissioned: true }));
     });
 
     describe("Deployment", function () {
@@ -61,46 +61,6 @@ describe("NativeDistributor contract basics", function () {
                 .to.equal(distributionEndBlock);
             expect(await nativeDistributor.claimEndBlock())
                 .to.equal(distributionEndBlock.add(DEFAULT_EXPIRATION_BLOCKS));
-        });
-    });
-
-    describe("User Registration", function () {
-        it("Should add 5 permissioned users", async function () {
-            let accounts = await ethers.getSigners();
-
-            // register accounts 1-5, 0 is the owner
-            for (i = 1; i < 6; i++) {
-                await nativeDistributor.addPermissionedUser(accounts[i].address);
-            }
-
-            // check that 5 users are registered
-            expect(await nativeDistributor.numberOfUsers()).to.equal(5);
-
-            // check that 5 users are registered with the correct data
-            for (i = 1; i < 6; i++) {
-                expect(
-                    await nativeDistributor.registeredIds((accounts[i].address))
-                ).to.equal(i);
-            }
-
-            // check that some random accounts are not registered
-            for (i = 6; i < 10; i++) {
-                expect(
-                    await nativeDistributor.registeredIds((accounts[i].address))
-                ).to.equal(0);
-            }
-        });
-
-        it("Should fail while adding a user that is already registered", async function () {
-            let accounts = await ethers.getSigners();
-            await expect(nativeDistributor.addPermissionedUser(accounts[1].address)).
-                to.be.revertedWith("Permissioned: User already exists");
-        });
-
-        it("Should fail when someone other than the owner tries to register a user", async function () {
-            let accounts = await ethers.getSigners();
-            await expect(nativeDistributor.connect(accounts[1]).addPermissionedUser(accounts[9].address)).
-                to.be.revertedWith("Ownable: caller is not the owner");
         });
     });
 

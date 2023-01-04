@@ -2,6 +2,7 @@ const hre = require("hardhat"); // Hardhat Runtime Environment
 
 const {
   RESOURCE_TYPE,
+  IS_PERMISSIONED,
   NATIVE_DEPLOYMENT_PARAMS,
   ERC20_DEPLOYMENT_PARAMS,
   ERC1155_DEPLOYMENT_PARAMS,
@@ -9,13 +10,14 @@ const {
   ERC1155_RESOURCE_PARAMS,
 } = require("./config.js");
 
-async function deploy(contractName = "NativeDistributor") {
+async function deploy(contractName = "NativeDistributor", isPermissioned = true) {
 
   let Distributor, distributor, tokenContractAddress;
 
   switch (contractName.toLowerCase()) {
     case "nativedistributor":
       contractName = "NativeDistributor";
+      if (isPermissioned) { contractName = "PNativeDistributor"; }
       Distributor = await hre.ethers.getContractFactory(contractName);
       distributor = await Distributor.deploy(
         NATIVE_DEPLOYMENT_PARAMS._maxDemandVolume,
@@ -44,6 +46,7 @@ async function deploy(contractName = "NativeDistributor") {
         console.log("ERC20Resource is deployed to: " + tokenContractAddress);
       }
       contractName = "ERC20Distributor";
+      if (isPermissioned) { contractName = "PERC20Distributor"; }
       Distributor = await hre.ethers.getContractFactory(contractName);
       distributor = await Distributor.deploy(
         tokenContractAddress,
@@ -74,6 +77,7 @@ async function deploy(contractName = "NativeDistributor") {
         console.log("ERC1155Resource is deployed to: " + tokenContractAddress);
       }
       contractName = "ERC1155Distributor";
+      if (isPermissioned) { contractName = "PERC1155Distributor"; }
       Distributor = await hre.ethers.getContractFactory(contractName);
       distributor = await Distributor.deploy(
         tokenContractAddress,
@@ -100,7 +104,7 @@ async function deploy(contractName = "NativeDistributor") {
 }
 
 async function main() {
-  await deploy(RESOURCE_TYPE + "Distributor");
+  await deploy(RESOURCE_TYPE + "Distributor", IS_PERMISSIONED);
 }
 
 main().catch((error) => {

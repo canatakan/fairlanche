@@ -15,6 +15,7 @@ const {
 
 async function deployNativeDistributor(
     {
+        _isPermissioned = true,
         _maxDemandVolume = DEFAULT_MAX_DEMAND_VOLUME,
         _epochCapacity = DEFAULT_EPOCH_CAPACITY,
         _epochDuration = DEFAULT_EPOCH_DURATION,
@@ -24,7 +25,11 @@ async function deployNativeDistributor(
         _value = ethers.utils.parseEther(DEFAULT_DEPLOYMENT_VALUE.toString()),
     } = {}
 ) {
-    NativeDistributor = await ethers.getContractFactory("TestNativeDistributor");
+    if (_isPermissioned) {
+        NativeDistributor = await ethers.getContractFactory("TestPNativeDistributor");
+    } else {
+        NativeDistributor = await ethers.getContractFactory("TestNativeDistributor");
+    }
     nativeDistributor = await NativeDistributor.deploy(
         _maxDemandVolume,
         _epochCapacity,
@@ -50,7 +55,7 @@ async function deployERC20Distributor(
     } = {}
 ) {
     // ERC20Distributor = await ethers.getContractFactory("TestERC20Distributor");
-    ERC20Distributor = await ethers.getContractFactory("ERC20Distributor");
+    ERC20Distributor = await ethers.getContractFactory("PERC20Distributor");
     erc20Distributor = await ERC20Distributor.deploy(
         _tokenContract,
         _maxDemandVolume,
@@ -77,7 +82,7 @@ async function deployERC1155Distributor(
     } = {}
 ) {
     // ERC1155Distributor = await ethers.getContractFactory("TestERC1155Distributor");
-    ERC1155Distributor = await ethers.getContractFactory("ERC1155Distributor");
+    ERC1155Distributor = await ethers.getContractFactory("PERC1155Distributor");
     erc1155Distributor = await ERC1155Distributor.deploy(
         _tokenContract,
         _tokenId,

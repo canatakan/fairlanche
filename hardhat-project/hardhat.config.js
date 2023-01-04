@@ -7,6 +7,9 @@ const readline = require('readline');
 const dotenv = require("dotenv")
 dotenv.config()
 
+const { nodeIP, nodePort } = require("../subnet/configs/config.js");
+const data = require('../subnet/configs/precompiledGenesis.json');
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.17",
@@ -14,6 +17,7 @@ module.exports = {
     hardhat: {
       accounts: {
         count: 20,
+        accountsBalance: "100000000000000000000000",
       },
     },
     localhost: {
@@ -28,6 +32,12 @@ module.exports = {
       url: "https://api.avax.network/ext/bc/C/rpc",
       accounts: [process.env.AVALANCHE_PRIVATE_KEY],
       chainId: 43114,
+    },
+    subnet: {
+      url: "http://" + nodeIP + ":" + nodePort + "/ext/bc/" +
+        "RDetPA9sXKTyrao84aJ3MgmiDna6DZhuWsgAMkFM7wU1LFfa1" + "/rpc",
+      accounts: [process.env.AVALANCHE_TEST_PRIVATE_KEY],
+      chainId: data["config"]["chainId"],
     },
   },
 
@@ -56,11 +66,30 @@ task("deploy", "Runs the deploy script")
     "native",
     types.string
   )
-  .setAction(async ({ resource }) => {
+  .addPositionalParam(
+    "isPermissioned",
+    "Whether the distribution contract will be public or not. \
+    Should be 'public' or 'false', any other value will be considered 'permissioned'",
+    "",
+    types.string
+  )
+  .setAction(async ({ resource, isPermissioned }) => {
 
     resource = resource.toLowerCase();
-    if (!["native", "erc20", "erc1155"].includes(resource)) {
+    if (!["native", "erc20", "erc1155", "allowance"].includes(resource)) {
       throw new Error("Invalid resource type");
+    }
+
+    if (resource == 'allowance') {
+      await hre.run("run", { script: "./scripts/deployAllowance.js" });
+      return;
+    }
+
+    if (isPermissioned.toLowerCase() == "public"
+      || isPermissioned.toLowerCase() == "false") {
+      isPermissioned = false;
+    } else {
+      isPermissioned = true;
     }
 
     // the following is a hack to replace the RESOURCE_TYPE variable in the config.js file
@@ -75,6 +104,10 @@ task("deploy", "Runs the deploy script")
         let newLine = line.replace(/native|erc20|erc1155/, resource);
         let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
         fs.writeFileSync('./scripts/config.js', newContent);
+      } else if (line.includes("IS_PERMISSIONED")) {
+        let newLine = line.replace(/true|false/, isPermissioned);
+        let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
+        fs.writeFileSync('./scripts/config.js', newContent);
         rl.close();
         return;
       }
@@ -83,15 +116,29 @@ task("deploy", "Runs the deploy script")
     await hre.run("run", { script: "./scripts/deploy.js" });
   });
 
-task("interact", "Runs the interact script", async (_, hre) => {
-  await hre.run("run", { script: "./scripts/interact.js" });
-});
+task("interact", "Runs the interact script")
+  .addPositionalParam(
+    "allowance",
+    "Whether the interaction with allowance contracts will be run. \
+    Its value should be 'allowance' for running interactWithAllowance.js.",
+    "",
+    types.string
+  )
+  .setAction(async ({ allowance }) => {
+
+    if (allowance.toLowerCase() == "allowance") {
+      await hre.run("run", { script: "./scripts/interactWithAllowance.js" });
+    } else {
+      await hre.run("run", { script: "./scripts/interact.js" });
+    }
+  });
 
 // with this override, test scripts can be run as follows:
 // npx hardhat test ERC20 ERC1155 Native
 task("test", "Runs the test script", async (taskArgs, hre) => {
 
   let newFileList = [];
+  let redirectToSuper = false;
   for (let i = 0; i < taskArgs.testFiles.length; i++) {
     if (taskArgs.testFiles[i].toLowerCase() == 'erc20') {
       newFileList.push('./test/test_ERC20Distributor/01_basics.js');
@@ -103,9 +150,19 @@ task("test", "Runs the test script", async (taskArgs, hre) => {
       newFileList.push('./test/test_NativeDistributor/01_basics.js');
       newFileList.push('./test/test_NativeDistributor/02_singleUser.js');
       newFileList.push('./test/test_NativeDistributor/03_multipleUsers.js');
+    } else if (taskArgs.testFiles[i].toLowerCase() == 'public') {
+      newFileList.push('./test/test_PublicDistributor/01_basics.js');
+      newFileList.push('./test/test_PublicDistributor/02_singleUser.js');
+      newFileList.push('./test/test_PublicDistributor/03_multipleUsers.js');
+    } else {
+      // if the argument is not one of the above, then it is a file name
+      redirectToSuper = true;
+      break;
     }
   }
 
-  taskArgs.testFiles = newFileList;
+  if (!redirectToSuper) {
+    taskArgs.testFiles = newFileList;
+  }
   await runSuper(taskArgs, hre);
 });
