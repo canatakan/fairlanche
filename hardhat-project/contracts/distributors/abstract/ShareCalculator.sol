@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
+import "../../util/Heapified.sol";
+
 library ShareCalculator {
     function calculateQMFShare(
         uint16 maxDemandVolume,
@@ -50,5 +52,29 @@ library ShareCalculator {
 
         // cumulative capacity was enough for all demands
         return (maxDemandVolume, necessaryCapacity);
+    }
+
+    function calculateSMFShare(
+        uint16[] memory epochDemands,
+        uint256 cumulativeCapacity
+    ) external returns (uint16 _share, uint256 _amount) {
+        Heapified heapified = new Heapified(epochDemands);
+        uint16[] memory heap = heapified.getHeap();
+        uint256 simulatedCapacity = cumulativeCapacity;
+        uint16 simulatedShare = 0;
+        uint16 result = 0;
+        while (heap.length > 0 && simulatedCapacity >= heap.length) {
+            while(heap[0] < simulatedShare) {
+                simulatedCapacity -= heap[0];
+                heapified.extractMin();
+            }
+            simulatedCapacity -= simulatedShare * heap.length;
+            for (uint256 i = 0; i < heap.length; i++) {
+                heap[i] -= simulatedShare;
+            }
+            result = simulatedShare;
+            simulatedShare = uint16(simulatedCapacity / heap.length);
+        }
+        return (result, cumulativeCapacity - simulatedCapacity);
     }
 }
