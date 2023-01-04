@@ -1,12 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-abstract contract ResourceDistributor {
-    event Register(address indexed _user);
-    event Unregister(address indexed _user);
-    event Demand(address indexed _from, uint16 _volume);
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+/**
+ * @title ResourceDistributor
+ * @dev In this contract, permissioned addresses do not exist,
+ * and anyone can interact with the contract functions. If the 
+ * subnet is already permissioned and no additional restrictions
+ * are needed, this contract can be used.
+ */
+abstract contract ResourceDistributor is Ownable {
+    event Demand(address indexed _from, uint256 _epoch, uint16 _volume);
     event Claim(address indexed _from, uint256 _epoch, uint16 _share);
-    event Share(uint256 _epoch, uint16 _share, uint256 _distribution);
+    event Share(uint256 indexed _epoch, uint16 _share, uint256 _distribution);
 
     uint256 public constant milliether = 1e15; // 0.001 ether
 
@@ -18,15 +25,11 @@ abstract contract ResourceDistributor {
     bool public enableWithdraw;
 
     struct User {
-        uint256 id; // ids starting from 1
-        address payable addr;
         mapping(uint256 => uint16) demandedVolumes; // volume demanded for each epoch
         uint256 lastDemandEpoch;
     }
 
-    address public owner;
-    uint256 public numberOfUsers;
-    mapping(address => User) public permissionedAddresses;
+    mapping(address => User) public users;
 
     uint256 public epochCapacity;
     uint256 public cumulativeCapacity;
@@ -61,8 +64,6 @@ abstract contract ResourceDistributor {
             "Epoch capacity and duration must be greater than 0."
         );
 
-        owner = msg.sender;
-        numberOfUsers = 0;
         blockOffset = block.number;
 
         maxDemandVolume = _maxDemandVolume;
@@ -93,36 +94,7 @@ abstract contract ResourceDistributor {
 
     function burnExpired() public virtual;
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can call this function.");
-        _;
-    }
-
-    function addPermissionedUser(address payable _addr) public onlyOwner {
-        // if the user does not exist, the id field should return the default value 0
-        require(permissionedAddresses[_addr].id == 0, "User already exists.");
-        numberOfUsers++; // user ids start from 1
-
-        User storage currentUser = permissionedAddresses[_addr];
-        currentUser.id = numberOfUsers;
-        currentUser.addr = _addr;
-
-        emit Register(_addr);
-    }
-
-    function removePermissionedUser(address _addr) public onlyOwner {
-        require(permissionedAddresses[_addr].id != 0, "User does not exist.");
-        delete permissionedAddresses[_addr];
-        numberOfUsers--;
-
-        emit Unregister(_addr);
-    }
-
     function demand(uint16 volume) public virtual {
-        require(
-            permissionedAddresses[msg.sender].id != 0,
-            "User does not have the permission."
-        );
         require(
             (volume > 0) &&
                 (volume <= maxDemandVolume) &&
@@ -135,31 +107,26 @@ abstract contract ResourceDistributor {
 
         updateState();
         require(
-            permissionedAddresses[msg.sender].lastDemandEpoch < epoch,
+            users[msg.sender].lastDemandEpoch < epoch,
             "Wait for the next epoch."
         );
         numberOfDemands[volume]++;
         totalDemand++;
 
-        permissionedAddresses[msg.sender].demandedVolumes[epoch] = volume;
-        permissionedAddresses[msg.sender].lastDemandEpoch = epoch;
+        users[msg.sender].demandedVolumes[epoch] = volume;
+        users[msg.sender].lastDemandEpoch = epoch;
 
-        emit Demand(msg.sender, volume);
+        emit Demand(msg.sender, epoch, volume);
     }
 
     function claim(uint256 epochNumber) public virtual {
-        require(
-            permissionedAddresses[msg.sender].id != 0,
-            "User does not have the permission."
-        );
-
         // stop allowing claims after the distribution's ending + expirationBlocks
         require(block.number < claimEndBlock, "Claim period is over.");
 
         updateState();
         require(epochNumber < epoch, "You can only claim past epochs.");
 
-        uint16 demandedVolume = permissionedAddresses[msg.sender]
+        uint16 demandedVolume = users[msg.sender]
             .demandedVolumes[epochNumber];
 
         require(
@@ -171,7 +138,7 @@ abstract contract ResourceDistributor {
         uint16 share = shares[epochNumber];
 
         // first, update the balance of the user
-        permissionedAddresses[msg.sender].demandedVolumes[epochNumber] = 0;
+        users[msg.sender].demandedVolumes[epochNumber] = 0;
 
         // then, send the transfer
         handleTransfer(msg.sender, min(share, demandedVolume) * (etherMultiplier * milliether));
@@ -180,11 +147,6 @@ abstract contract ResourceDistributor {
     }
 
     function claimBulk(uint256[] memory epochNumbers) public virtual {
-        require(
-            permissionedAddresses[msg.sender].id != 0,
-            "User does not have the permission."
-        );
-
         require(
             epochNumbers.length <= 255,
             "You can only claim up to 255 epochs at once."
@@ -201,7 +163,7 @@ abstract contract ResourceDistributor {
             uint256 currentEpoch = epochNumbers[i];
             require(currentEpoch < epoch, "You can only claim past epochs.");
 
-            demandedVolume = permissionedAddresses[msg.sender].demandedVolumes[
+            demandedVolume = users[msg.sender].demandedVolumes[
                 currentEpoch
             ];
             require(
@@ -212,7 +174,7 @@ abstract contract ResourceDistributor {
             share = shares[currentEpoch];
 
             // first, update the balance of the user (in case of reentrancy)
-            permissionedAddresses[msg.sender].demandedVolumes[currentEpoch] = 0;
+            users[msg.sender].demandedVolumes[currentEpoch] = 0;
             totalClaim += min(share, demandedVolume);
 
             emit Claim(

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "./NativeDistributor.sol";
+import "./PNativeDistributor.sol";
 
-contract TestNativeDistributor is NativeDistributor {
+contract TestPNativeDistributor is PNativeDistributor {
     /*
      * Inherits the main contract and exposes internal functions for testing.
      * There is also an additional function to see the user struct fields.
@@ -18,7 +18,7 @@ contract TestNativeDistributor is NativeDistributor {
         bool _enableWithdraw
     )
         payable
-        NativeDistributor(
+        PNativeDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,
@@ -48,20 +48,18 @@ contract TestNativeDistributor is NativeDistributor {
         public
         view
         returns (
-            uint256,
-            address,
             uint16[] memory,
             uint256
         )
     {
-        User storage user = permissionedAddresses[_addr];
+        User storage user = users[_addr];
         uint256 epochCount = _epochNumbers.length;
         uint16[] memory demandedVolumeList = new uint16[](epochCount);
         for (uint256 i = 0; i < _epochNumbers.length; i++) {
             demandedVolumeList[i] = (user.demandedVolumes[_epochNumbers[i]]);
         }
 
-        return (user.id, user.addr, demandedVolumeList, user.lastDemandEpoch);
+        return (demandedVolumeList, user.lastDemandEpoch);
     }
 
     function getShares() public view returns (uint16[] memory) {

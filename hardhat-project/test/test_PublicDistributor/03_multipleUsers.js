@@ -1,11 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { mine, loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
+const { mine } = require("@nomicfoundation/hardhat-network-helpers");
 
 const {
   deployNativeDistributor,
   demandBulk,
-  permissionedDeploymentFixture
 } = require("../test_utils/utils");
 
 const {
@@ -13,7 +12,7 @@ const {
   DEFAULT_ETHER_MULTIPLIER,
 } = require("../test_utils/config");
 
-describe("Multiple users", function () {
+describe("PublicDistributor multiple users", function () {
 
   describe("Demand", function () {
 
@@ -22,7 +21,7 @@ describe("Multiple users", function () {
       describe("Share updates", function () {
 
         it("Should be able to update the share 1 epoch later", async function () {
-          let { nativeDistributor } = await loadFixture(permissionedDeploymentFixture);
+          let { nativeDistributor } = await deployNativeDistributor({ _isPermissioned: false });
           await demandBulk(nativeDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
           await mine(DEFAULT_EPOCH_DURATION);
           await nativeDistributor._updateState();
@@ -33,7 +32,7 @@ describe("Multiple users", function () {
         });
 
         it("Should be able to update the share multiple epochs later", async function () {
-          let { nativeDistributor } = await loadFixture(permissionedDeploymentFixture);
+          let { nativeDistributor } = await deployNativeDistributor({ _isPermissioned: false });
           await demandBulk(nativeDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
           await mine(DEFAULT_EPOCH_DURATION * 5);
           await nativeDistributor._updateState();
@@ -44,7 +43,7 @@ describe("Multiple users", function () {
         });
 
         it("Should not update the share before the epoch is over", async function () {
-          let { nativeDistributor } = await loadFixture(permissionedDeploymentFixture);
+          let { nativeDistributor } = await deployNativeDistributor({ _isPermissioned: false });
           await demandBulk(nativeDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
           await mine(22);
           await nativeDistributor._updateState();
@@ -61,12 +60,12 @@ describe("Multiple users", function () {
 
         it("50: [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]", async function () {
           let customEpochCapacity = customEpochCapacities[0];
-          let { nativeDistributor } = await deployNativeDistributor({ _epochCapacity: customEpochCapacity });
-          let accounts = await ethers.getSigners();
-          for (i = 1; i <= 13; i++) {
-            nativeDistributor.addPermissionedUser(accounts[i].address);
-          }
-          await mine(1);
+          let { nativeDistributor } = await deployNativeDistributor(
+            { 
+              _isPermissioned: false,
+              _epochCapacity: customEpochCapacity 
+            }
+          );
 
           await demandBulk(nativeDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
           await mine(DEFAULT_EPOCH_DURATION);
@@ -82,12 +81,13 @@ describe("Multiple users", function () {
 
         it("48: [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]", async function () {
           let customEpochCapacity = customEpochCapacities[1];
-          let { nativeDistributor } = await deployNativeDistributor({ _epochCapacity: customEpochCapacity });
-          let accounts = await ethers.getSigners();
-          for (i = 1; i <= 13; i++) {
-            nativeDistributor.addPermissionedUser(accounts[i].address);
-          }
-          await mine(1);
+          let { nativeDistributor } = await deployNativeDistributor(
+            { 
+              _isPermissioned: false,
+              _epochCapacity: customEpochCapacity 
+            }
+          );
+          
           await demandBulk(nativeDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
           await mine(DEFAULT_EPOCH_DURATION);
           await nativeDistributor._updateState();
@@ -102,13 +102,13 @@ describe("Multiple users", function () {
 
         it("90: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]", async function () {
           let customEpochCapacity = customEpochCapacities[2];
-          let { nativeDistributor } = await deployNativeDistributor({ _epochCapacity: customEpochCapacity });
-          let accounts = await ethers.getSigners();
-          for (i = 1; i <= 10; i++) {
-            nativeDistributor.addPermissionedUser(accounts[i].address);
-          }
-          await mine(1);
-
+          let { nativeDistributor } = await deployNativeDistributor(
+            { 
+              _isPermissioned: false,
+              _epochCapacity: customEpochCapacity 
+            }
+          );
+          
           await demandBulk(nativeDistributor, await ethers.getSigners(), [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]);
           await mine(DEFAULT_EPOCH_DURATION);
           await nativeDistributor._updateState();
@@ -123,12 +123,12 @@ describe("Multiple users", function () {
 
         it("5: [5, 2, 2, 5, 1]", async function () {
           let customEpochCapacity = customEpochCapacities[3];
-          let { nativeDistributor } = await deployNativeDistributor({ _epochCapacity: customEpochCapacity });
-          let accounts = await ethers.getSigners();
-          for (i = 1; i <= 5; i++) {
-            nativeDistributor.addPermissionedUser(accounts[i].address);
-          }
-          await mine(1);
+          let { nativeDistributor } = await deployNativeDistributor(
+            { 
+              _isPermissioned: false,
+              _epochCapacity: customEpochCapacity 
+            }
+          );
 
           await demandBulk(nativeDistributor, await ethers.getSigners(), [5, 2, 2, 5, 1]);
           await mine(DEFAULT_EPOCH_DURATION);
@@ -144,12 +144,12 @@ describe("Multiple users", function () {
 
         it("1: [1, 1, 1, ... , 1]", async function () {
           let customEpochCapacity = customEpochCapacities[3];
-          let { nativeDistributor } = await deployNativeDistributor({ _epochCapacity: customEpochCapacity });
-          let accounts = await ethers.getSigners();
-          for (i = 1; i <= 19; i++) {
-            nativeDistributor.addPermissionedUser(accounts[i].address);
-          }
-          await mine(1);
+          let { nativeDistributor } = await deployNativeDistributor(
+            { 
+              _isPermissioned: false,
+              _epochCapacity: customEpochCapacity 
+            }
+          );
 
           let demandArray = [];
           for (i = 0; i < 19; i++) {
@@ -173,12 +173,12 @@ describe("Multiple users", function () {
     describe("Multiple epochs (Cumulative)", function () {
       it("Should apply Calculation 1 for 2 epochs", async function () {
         let customEpochCapacity = 50;
-        let { nativeDistributor } = await deployNativeDistributor({ _epochCapacity: customEpochCapacity });
-        let accounts = await ethers.getSigners();
-        for (i = 1; i <= 13; i++) {
-          nativeDistributor.addPermissionedUser(accounts[i].address);
-        }
-        await mine(1);
+        let { nativeDistributor } = await deployNativeDistributor(
+          { 
+            _isPermissioned: false,
+            _epochCapacity: customEpochCapacity 
+          }
+        );
 
         await demandBulk(nativeDistributor, await ethers.getSigners(), [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7]);
         await mine(DEFAULT_EPOCH_DURATION);
@@ -203,12 +203,12 @@ describe("Multiple users", function () {
 
       it("Should apply Calculation 2 for 5 epochs", async function () {
         let customEpochCapacity = 48;
-        let { nativeDistributor } = await deployNativeDistributor({ _epochCapacity: customEpochCapacity });
-        let accounts = await ethers.getSigners();
-        for (i = 1; i <= 13; i++) {
-          nativeDistributor.addPermissionedUser(accounts[i].address);
-        }
-        await mine(1);
+        let { nativeDistributor } = await deployNativeDistributor(
+          { 
+            _isPermissioned: false,
+            _epochCapacity: customEpochCapacity 
+          }
+        );
 
         /*
         * Epoch 1: cumulativeCapacity = 48, share = 5, distribution = 45, excess = 3
@@ -233,12 +233,13 @@ describe("Multiple users", function () {
 
       it("Should apply Calculation 3 for 50 epochs", async function () {
         let customEpochCapacity = 90;
-        let { nativeDistributor } = await deployNativeDistributor({ _epochCapacity: customEpochCapacity, _value: ethers.utils.parseEther("4500") });
-        let accounts = await ethers.getSigners();
-        for (i = 1; i <= 10; i++) {
-          nativeDistributor.addPermissionedUser(accounts[i].address);
-        }
-        await mine(1);
+        let { nativeDistributor } = await deployNativeDistributor(
+          { 
+            _isPermissioned: false,
+            _epochCapacity: customEpochCapacity, 
+            _value: ethers.utils.parseEther("4500") 
+          }
+        );
 
         // the capacity is never sufficient, so there is never an excess
         for (j = 0; j < 50; j++) {
@@ -263,7 +264,7 @@ describe("Multiple users", function () {
       let demandArray = [1, 1, 1, 2, 2, 3, 5, 5, 5, 7, 7, 7, 7];
       let nativeDistributor;
       this.beforeAll(async function () {
-        ({ nativeDistributor } = await loadFixture(permissionedDeploymentFixture));
+        ({ nativeDistributor } = await deployNativeDistributor({ _isPermissioned: false }));
         await demandBulk(nativeDistributor, await ethers.getSigners(), demandArray);
       });
 
@@ -317,12 +318,13 @@ describe("Multiple users", function () {
 
       it("Should allow everyone to call claimBulk() after 10 epochs of demanding", async function () {
         let { nativeDistributor } = await deployNativeDistributor(
-          { _epochCapacity: 55, _value: ethers.utils.parseEther("2000") }
+          { 
+            _isPermissioned: false,
+            _epochCapacity: 55, 
+            _value: ethers.utils.parseEther("2000") 
+          }
         );
         let accounts = await ethers.getSigners();
-        for (i = 1; i <= 10; i++) {
-          nativeDistributor.addPermissionedUser(accounts[i].address);
-        }
 
         let demandArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         let claimEpochs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
