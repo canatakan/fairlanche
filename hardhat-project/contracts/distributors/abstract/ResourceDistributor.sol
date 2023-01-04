@@ -197,14 +197,15 @@ abstract contract ResourceDistributor is Ownable, IResourceDistributor {
             1;
         if (epoch < currentEpoch) {
             // if the current epoch is over
-            uint256 epochDifference = currentEpoch - epoch;
-            epoch = currentEpoch;
 
             uint16 share;
             uint256 distribution;
             (share, distribution) = calculateShare();
-
+            
             emit Share(currentEpoch, share, distribution);
+
+            uint256 epochDifference = currentEpoch - epoch;
+            epoch = currentEpoch;
 
             shares.push(share);
 
