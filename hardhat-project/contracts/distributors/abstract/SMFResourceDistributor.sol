@@ -40,6 +40,7 @@ abstract contract SMFResourceDistributor is PResourceDistributor {
     {
         return
             ShareCalculator.calculateSMFShare(
+                maxDemandVolume,
                 epochDemands[epoch],
                 cumulativeCapacity
             );
