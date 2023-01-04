@@ -16,9 +16,6 @@ export default function ContractPageTransactions() {
       setBlockchainExists(false);
     }
 
-    if (!subnets.find((subnet) => subnet.blockchainId === id)) {
-      setBlockchainExists(false);
-    }
   }, [id]);
 
   useEffect(() => {

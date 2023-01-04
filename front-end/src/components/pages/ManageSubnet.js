@@ -17,10 +17,6 @@ export default function ManagePageTransactions() {
         if (!subnets) {
             setBlockchainExists(false);
         }
-
-        if (!subnets.find((subnet) => subnet.blockchainId === id)) {
-            setBlockchainExists(false);
-        }
     }, [id]);
 
     useEffect(() => {

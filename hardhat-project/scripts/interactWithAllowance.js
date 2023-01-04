@@ -10,15 +10,15 @@ async function main() {
     const txAllowList = await hre.ethers.getContractAt("IAllowList", TX_ALLOWLIST);
 
     const accounts = await ethers.getSigners();
-    
-    // console.log(await isAdmin(deployerList, accounts[0].address));
-    // console.log(await isAdmin(txAllowList, accounts[0].address));
-    
-    // console.log(await isAdmin(deployerList, "0x0b5e872A84D28C440775681f054EF7B00a178fa3"));
-    // console.log(await isEnabled(deployerList, "0x0b5e872A84D28C440775681f054EF7B00a178fa3"));
 
-    // await setNone(deployerList, accounts[0], "0x0b5e872A84D28C440775681f054EF7B00a178fa3");
-    // await setAdmin(txAllowList, accounts[0], "0x0b5e872A84D28C440775681f054EF7B00a178fa3");
+    console.log(await isAdmin(deployerList, accounts[0].address));
+    console.log(await isAdmin(txAllowList, accounts[0].address));
+
+    console.log(await isAdmin(deployerList, accounts[0].address));
+    console.log(await isEnabled(deployerList, accounts[0].address));
+
+    //await setNone(deployerList, accounts[0], "0x0b5e872A84D28C440775681f054EF7B00a178fa3");
+    //await setAdmin(txAllowList, accounts[0], "0x0b5e872A84D28C440775681f054EF7B00a178fa3");
 }
 
 main().catch((error) => {

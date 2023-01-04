@@ -41,7 +41,7 @@ class ManagementPage extends React.Component {
     const subnetId = event.target.elements.subnetId.value;
     const blockchainId = event.target.elements.blockchainId.value;
 
-    if (subnetId.length !== 50 || blockchainId.length !== 50) {
+    if (subnetId.length !== 49 || blockchainId.length !== 49) {
       alert('Invalid Subnet ID or Blockchain ID');
       return false;
     }
@@ -76,7 +76,7 @@ class ManagementPage extends React.Component {
     return (
       <div className="flex flex-col items-center justify-center">
         <div className="flex justify-center">
-          <h1 className="text-3xl font-bold text-center mb-2 mt-4">Transaction Page</h1>
+          <h1 className="text-3xl font-bold text-center mb-2 mt-4">Management Page</h1>
         </div>
         <div className="form">
           <form onSubmit={this.saveSubnet}>
