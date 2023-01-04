@@ -35,9 +35,9 @@ module.exports = {
     },
     subnet: {
       url: "http://" + nodeIP + ":" + nodePort + "/ext/bc/" +
-        "2ACndrNifpdJzvBJz1jtkfWxQ759ZQ3hLCT5n72mpPybZmAsVy" + "/rpc",
+        "RDetPA9sXKTyrao84aJ3MgmiDna6DZhuWsgAMkFM7wU1LFfa1" + "/rpc",
       accounts: [process.env.AVALANCHE_TEST_PRIVATE_KEY],
-      chainId: 31122022
+      chainId: data["config"]["chainId"],
     },
   },
 
