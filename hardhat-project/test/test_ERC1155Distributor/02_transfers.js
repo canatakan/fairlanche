@@ -6,6 +6,7 @@ const { mine } = require("@nomicfoundation/hardhat-network-helpers");
 const { deployERC1155Distributor, deployERC1155Resource } = require("../test_utils/utils");
 
 const {
+    DEFAULT_ERC1155_CONTRACT_ADDRESS,
     DEFAULT_EPOCH_DURATION,
 } = require("../test_utils/config");
 
@@ -14,10 +15,19 @@ describe("ERC1155 transfers", function () {
     let erc1155Distributor;
 
     this.beforeAll(async function () {
-        ({ erc1155Resource } = await deployERC1155Resource());
-        ({ erc1155Distributor } = await deployERC1155Distributor(
-            { _tokenContract: erc1155Resource.address })
-        );
+        if (DEFAULT_ERC1155_CONTRACT_ADDRESS === null){
+            ({ erc1155Resource } = await deployERC1155Resource());
+            ({ erc1155Distributor } = await deployERC1155Distributor(
+                { _tokenContract: erc1155Resource.address })
+            )
+        }
+        else {
+            erc1155Resource = await ethers.getContractAt(
+                "ERC20Resource",
+                DEFAULT_ERC1155_CONTRACT_ADDRESS
+            );
+            ({ erc1155Distributor } = await deployERC1155Distributor());
+        }
 
         let accounts = await ethers.getSigners();
         erc1155Distributor.addPermissionedUser(accounts[1].address);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "./PResourceDistributor.sol";
+import "../abstract/PResourceDistributor.sol";
 
 contract PNativeDistributor is PResourceDistributor {
     constructor(
