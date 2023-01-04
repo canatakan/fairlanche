@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "./PResourceDistributor.sol";
-import "./ShareCalculator.sol";
+import "../../util/ShareCalculator.sol";
 
 abstract contract SMFResourceDistributor is PResourceDistributor {
     mapping(uint256 => uint16[]) epochDemands;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "../../util/Heapified.sol";
+import "./Heapified.sol";
 
 library ShareCalculator {
     function calculateQMFShare(
