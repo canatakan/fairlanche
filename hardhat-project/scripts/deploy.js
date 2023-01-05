@@ -3,6 +3,7 @@ const hre = require("hardhat"); // Hardhat Runtime Environment
 const {
   RESOURCE_TYPE,
   IS_PERMISSIONED,
+  ALGORITHM,
   SHARE_CALCULATOR_ADDRESS,
   NATIVE_DEPLOYMENT_PARAMS,
   ERC20_DEPLOYMENT_PARAMS,
@@ -15,24 +16,31 @@ async function deploy(
   {
     contractName = "NativeDistributor",
     isPermissioned = true,
+    algorithm = "QMF",
     shareCalculatorAddress = null,
   }
 ) {
 
   if (shareCalculatorAddress === null) {
-    let Lib = await hre.ethers.getContractFactory("ShareCalculator");
-    let lib = await Lib.deploy();
-    await lib.deployed();
-    console.log("ShareCalculator deployed to:", lib.address);
-    shareCalculatorAddress = lib.address;
+    let Heapified = await ethers.getContractFactory("Heapified");
+    let heapified = await Heapified.deploy();
+    await heapified.deployed();
+
+    let SC = await ethers.getContractFactory(
+        "ShareCalculator",
+        { libraries: { Heapified: heapified.address } }
+    );
+    let sc = await SC.deploy();
+    await sc.deployed();
+    shareCalculatorAddress = sc.address;
   }
 
   let Distributor, distributor, tokenContractAddress;
 
   switch (contractName.toLowerCase()) {
     case "nativedistributor":
-      contractName = "NativeDistributor";
-      if (isPermissioned) { contractName = "PNativeDistributor"; }
+      contractName = algorithm.toUpperCase() + "NativeDistributor";
+      if (isPermissioned) { contractName = "P" + contractName; }
       Distributor = await hre.ethers.getContractFactory(
         contractName,
         { libraries: { ShareCalculator: shareCalculatorAddress } }
@@ -63,8 +71,8 @@ async function deploy(
         tokenContractAddress = erc20.address;
         console.log("ERC20Resource is deployed to: " + tokenContractAddress);
       }
-      contractName = "ERC20Distributor";
-      if (isPermissioned) { contractName = "PERC20Distributor"; }
+      contractName = algorithm.toUpperCase() + "ERC20Distributor";
+      if (isPermissioned) { contractName = "P" + contractName; }
       Distributor = await hre.ethers.getContractFactory(
         contractName,
         { libraries: { ShareCalculator: shareCalculatorAddress } }
@@ -97,8 +105,8 @@ async function deploy(
         tokenContractAddress = erc1155.address;
         console.log("ERC1155Resource is deployed to: " + tokenContractAddress);
       }
-      contractName = "ERC1155Distributor";
-      if (isPermissioned) { contractName = "PERC1155Distributor"; }
+      contractName = algorithm.toUpperCase() + "ERC1155Distributor";
+      if (isPermissioned) { contractName = "P" + contractName; }
       Distributor = await hre.ethers.getContractFactory(
         contractName,
         { libraries: { ShareCalculator: shareCalculatorAddress } }
@@ -132,6 +140,7 @@ async function main() {
     {
       contractName: RESOURCE_TYPE + "Distributor",
       isPermissioned: IS_PERMISSIONED,
+      algorithm: ALGORITHM,
       shareCalculatorAddress: SHARE_CALCULATOR_ADDRESS
     }
   );
