@@ -1,10 +1,20 @@
 const hre = require("hardhat"); // Hardhat Runtime Environment
 
 async function main() {
-    let Lib = await hre.ethers.getContractFactory("ShareCalculator");
-    let lib = await Lib.deploy();
-    await lib.deployed();
-    console.log("ShareCalculator deployed to:", lib.address);
+    let Heapified = await hre.ethers.getContractFactory("Heapified");
+    let heapified = await Heapified.deploy();
+    await heapified.deployed();
+
+    console.log("Heapified deployed to:", heapified.address);
+
+    let SC = await hre.ethers.getContractFactory(
+        "ShareCalculator",
+        { libraries: { Heapified: heapified.address } }
+    );
+    let sc = await SC.deploy();
+    await sc.deployed();
+
+    console.log("ShareCalculator deployed to:", sc.address);
 }
 
 main().catch((error) => {
