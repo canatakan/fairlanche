@@ -41,6 +41,7 @@ abstract contract EqualResourceDistributor is ResourceDistributor {
     {
         return
             ShareCalculator.calculateEqualShare(
+                maxDemandVolume,
                 totalDemand,
                 cumulativeCapacity
             );

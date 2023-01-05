@@ -41,6 +41,7 @@ abstract contract PEqualResourceDistributor is PResourceDistributor {
     {
         return
             ShareCalculator.calculateEqualShare(
+                maxDemandVolume,
                 totalDemand,
                 cumulativeCapacity
             );

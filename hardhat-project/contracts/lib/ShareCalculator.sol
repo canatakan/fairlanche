@@ -95,10 +95,17 @@ library ShareCalculator {
     }
 
     function calculateEqualShare(
+        uint16 maxDemandVolume,
         uint256 totalDemand,
         uint256 cumulativeCapacity
     ) external pure returns (uint16 _share, uint256 _amount) {
+        if (totalDemand == 0) {
+            return (maxDemandVolume, 0);
+        }
         uint256 share = cumulativeCapacity / totalDemand;
+        if (share > maxDemandVolume) {
+            return (maxDemandVolume, maxDemandVolume * totalDemand);
+        }
         return (uint16(share), share * totalDemand);
     }
 }
