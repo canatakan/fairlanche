@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IResourceDistributor.sol";
 import "../../lib/ShareCalculator.sol";
+import "../../miscellaneous/GasRefunder.sol";
 
 /**
  * @title ResourceDistributor
@@ -12,7 +13,11 @@ import "../../lib/ShareCalculator.sol";
  * subnet is already permissioned and no additional restrictions
  * are needed, this contract can be used.
  */
-abstract contract ResourceDistributor is Ownable, IResourceDistributor {
+abstract contract ResourceDistributor is
+    Ownable,
+    IResourceDistributor,
+    GasRefunder
+{
     event Demand(address indexed _from, uint256 _epoch, uint16 _volume);
     event Claim(address indexed _from, uint256 _epoch, uint16 _share);
     event Share(uint256 indexed _epoch, uint16 _share, uint256 _distribution);
@@ -197,6 +202,8 @@ abstract contract ResourceDistributor is Ownable, IResourceDistributor {
             1;
         if (epoch < currentEpoch) {
             // if the current epoch is over
+            
+            uint256 startGas = gasleft();
 
             uint16 share;
             uint256 distribution;
@@ -221,8 +228,15 @@ abstract contract ResourceDistributor is Ownable, IResourceDistributor {
             for (uint256 i = 0; i <= maxDemandVolume; i++) {
                 numberOfDemands[i] = 0;
             }
+
+            uint256 gasUsed = startGas - gasleft();
+            uint256 gasPrice = tx.gasprice;
+            
+            // +500 for the gas used in the calculations
+            uint256 gasCost = (500 + gasUsed) * gasPrice;
+            
+            refunds[msg.sender] += gasCost;
         }
-        // TODO: refund the remaining gas to the caller
     }
 
     function calculateShare()
