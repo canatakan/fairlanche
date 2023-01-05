@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IResourceDistributor.sol";
-import "../../util/ShareCalculator.sol";
+import "../../lib/ShareCalculator.sol";
 
 /**
  * @title ResourceDistributor

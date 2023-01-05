@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "./PResourceDistributor.sol";
-import "../../util/ShareCalculator.sol";
+import "./ResourceDistributor.sol";
+import "../../lib/ShareCalculator.sol";
 
-abstract contract SMFResourceDistributor is PResourceDistributor {
+abstract contract SMFResourceDistributor is ResourceDistributor {
     mapping(uint256 => uint16[]) epochDemands;
 
     constructor(
@@ -16,7 +16,7 @@ abstract contract SMFResourceDistributor is PResourceDistributor {
         bool _enableWithdraw
     )
         payable
-        PResourceDistributor(
+        ResourceDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,

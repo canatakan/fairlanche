@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
-import "../abstract/ResourceDistributor.sol";
+import "../../abstract/ResourceDistributor.sol";
 
 contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
     IERC1155 public token;
