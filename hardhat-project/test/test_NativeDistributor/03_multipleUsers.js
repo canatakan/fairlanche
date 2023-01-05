@@ -13,7 +13,7 @@ const {
   DEFAULT_ETHER_MULTIPLIER,
 } = require("../test_utils/config");
 
-describe("Multiple users", function () {
+describe("NativeDistributor multiple users", function () {
 
   describe("Demand", function () {
 
