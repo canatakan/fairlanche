@@ -2,9 +2,9 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./ResourceDistributor.sol";
+import "../../abstract/SMFResourceDistributor.sol";
 
-contract ERC20Distributor is ResourceDistributor {
+contract SMFERC20Distributor is SMFResourceDistributor {
     IERC20 public token;
     uint256 public expirationBlocks;
     bool public hasDeposited;
@@ -18,7 +18,7 @@ contract ERC20Distributor is ResourceDistributor {
         uint256 _expirationBlocks,
         bool _enableWithdraw
     )
-        ResourceDistributor(
+        SMFResourceDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,

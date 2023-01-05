@@ -3,9 +3,9 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
-import "./PResourceDistributor.sol";
+import "../../abstract/permissioned/PQMFResourceDistributor.sol";
 
-contract PERC1155Distributor is PResourceDistributor, ERC1155Receiver {
+contract PQMFERC1155Distributor is PQMFResourceDistributor, ERC1155Receiver {
     IERC1155 public token;
     uint256 public tokenId;
     uint256 public expirationBlocks;
@@ -21,7 +21,7 @@ contract PERC1155Distributor is PResourceDistributor, ERC1155Receiver {
         uint256 _expirationBlocks,
         bool _enableWithdraw
     )
-        PResourceDistributor(
+        PQMFResourceDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,

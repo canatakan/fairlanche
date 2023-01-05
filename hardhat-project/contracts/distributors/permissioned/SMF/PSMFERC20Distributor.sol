@@ -1,19 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
-import "./ResourceDistributor.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../../abstract/permissioned/PSMFResourceDistributor.sol";
 
-contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
-    IERC1155 public token;
-    uint256 public tokenId;
+contract PSMFERC20Distributor is PSMFResourceDistributor {
+    IERC20 public token;
     uint256 public expirationBlocks;
     bool public hasDeposited;
 
     constructor(
         address _tokenContract,
-        uint256 _tokenId,
         uint16 _maxDemandVolume,
         uint256 _epochCapacity,
         uint256 _epochDuration,
@@ -21,7 +18,7 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
         uint256 _expirationBlocks,
         bool _enableWithdraw
     )
-        ResourceDistributor(
+        PSMFResourceDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,
@@ -30,11 +27,9 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
             _enableWithdraw
         )
     {
-        token = IERC1155(_tokenContract);
-        tokenId = _tokenId;
+        token = IERC20(_tokenContract);
         expirationBlocks = _expirationBlocks;
         hasDeposited = false;
-        etherMultiplier = 1000; // disable ether multiplier
     }
 
     modifier depositCompleted() {
@@ -48,24 +43,25 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
     function deposit(uint256 _amount) public virtual override onlyOwner {
         require(!hasDeposited, "Token deposit is already done.");
         require(
-            _amount >= epochCapacity,
+            _amount >= epochCapacity * (etherMultiplier * milliether),
             "The contract must be funded with at least one epoch capacity."
         );
 
-        token.safeTransferFrom(msg.sender, address(this), tokenId, _amount, "");
+        token.transferFrom(msg.sender, address(this), _amount);
 
         blockOffset = block.number; // the distribution will now start!
         hasDeposited = true;
-        updateEndingBlock();
+        _updateEndingBlock();
     }
 
-    function updateEndingBlock() private {
+    function _updateEndingBlock() private {
         /**
          * This function is called after the token deposit by the owner.
          * This process is done only once.
          */
 
-        uint256 deployedTokens = token.balanceOf(address(this), tokenId);
+        uint256 deployedTokens = token.balanceOf(address(this)) /
+            (etherMultiplier * milliether);
         if (deployedTokens % epochCapacity == 0) {
             distributionEndBlock = (block.number +
                 (deployedTokens / epochCapacity) *
@@ -96,21 +92,9 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
 
     function handleTransfer(
         address _receiver,
-        uint256 _weiAmount
-    ) internal virtual override {
-        /** 
-         * This function will be called by the parent contract,
-         * after the share calculation. The call amount will be
-         * in wei, so it needs to be converted for the ERC1155 token.
-         */
-        _handleTransfer(_receiver, _weiAmount / (1 ether));
-    }
-
-    function _handleTransfer(
-        address _receiver,
         uint256 _amount
-    ) private {
-        token.safeTransferFrom(address(this), _receiver, tokenId, _amount, "");
+    ) internal virtual override {
+        token.transfer(_receiver, _amount);
     }
 
     function withdrawExpired() public override onlyOwner {
@@ -119,7 +103,7 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
             block.number > claimEndBlock,
             "Wait for the end of the distribution."
         );
-        _handleTransfer(msg.sender, token.balanceOf(address(this), tokenId));
+        handleTransfer(msg.sender, token.balanceOf(address(this)));
     }
 
     function burnExpired() public override onlyOwner {
@@ -127,7 +111,7 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
             block.number > claimEndBlock,
             "Wait for the end of the distribution."
         );
-        _handleTransfer(address(0), token.balanceOf(address(this), tokenId));
+        handleTransfer(address(0), token.balanceOf(address(this)));
     }
 
     /**
@@ -164,26 +148,5 @@ contract ERC1155Distributor is ResourceDistributor, ERC1155Receiver {
         returns (uint16 _share, uint256 _amount)
     {
         return super.calculateShare();
-    }
-
-    // overrides for accepting ERC1155 tokens
-    function onERC1155Received(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes memory
-    ) public virtual override returns (bytes4) {
-        return this.onERC1155Received.selector;
-    }
-
-    function onERC1155BatchReceived(
-        address,
-        address,
-        uint256[] memory,
-        uint256[] memory,
-        bytes memory
-    ) public virtual override returns (bytes4) {
-        return this.onERC1155BatchReceived.selector;
     }
 }

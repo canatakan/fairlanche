@@ -2,9 +2,9 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./PResourceDistributor.sol";
+import "../../abstract/permissioned/PQMFResourceDistributor.sol";
 
-contract PERC20Distributor is PResourceDistributor {
+contract PQMFERC20Distributor is PQMFResourceDistributor {
     IERC20 public token;
     uint256 public expirationBlocks;
     bool public hasDeposited;
@@ -18,7 +18,7 @@ contract PERC20Distributor is PResourceDistributor {
         uint256 _expirationBlocks,
         bool _enableWithdraw
     )
-        PResourceDistributor(
+        PQMFResourceDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "./ResourceDistributor.sol";
+import "../../abstract/permissioned/PQMFResourceDistributor.sol";
 
-contract NativeDistributor is ResourceDistributor {
+contract PQMFNativeDistributor is PQMFResourceDistributor {
     constructor(
         uint16 _maxDemandVolume,
         uint256 _epochCapacity,
@@ -13,7 +13,7 @@ contract NativeDistributor is ResourceDistributor {
         bool _enableWithdraw
     )
         payable
-        ResourceDistributor(
+        PQMFResourceDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,
