@@ -93,4 +93,12 @@ library ShareCalculator {
         }
         return (result, cumulativeCapacity - simulatedCapacity);
     }
+
+    function calculateEqualShare(
+        uint256 totalDemand,
+        uint256 cumulativeCapacity
+    ) external pure returns (uint16 _share, uint256 _amount) {
+        uint256 share = cumulativeCapacity / totalDemand;
+        return (uint16(share), share * totalDemand);
+    }
 }
