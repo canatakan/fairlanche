@@ -24,7 +24,6 @@ describe("SMFDistributor multiple users", function () {
           let { nativeDistributor } = await deployNativeDistributor(
             {
               _isPermissioned: false,
-              _algorithm: "SMF",
               _algorithm: "SMF"
             }
           );
