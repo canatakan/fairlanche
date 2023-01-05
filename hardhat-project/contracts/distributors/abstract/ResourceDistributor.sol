@@ -8,7 +8,7 @@ import "../../lib/ShareCalculator.sol";
 /**
  * @title ResourceDistributor
  * @dev In this contract, permissioned addresses do not exist,
- * and anyone can interact with the contract functions. If the 
+ * and anyone can interact with the contract functions. If the
  * subnet is already permissioned and no additional restrictions
  * are needed, this contract can be used.
  */
@@ -229,16 +229,7 @@ abstract contract ResourceDistributor is Ownable, IResourceDistributor {
         internal
         view
         virtual
-        returns (uint16 _share, uint256 _amount)
-    {
-        return
-            ShareCalculator.calculateQMFShare(
-                maxDemandVolume,
-                totalDemand,
-                numberOfDemands,
-                cumulativeCapacity
-            );
-    }
+        returns (uint16 _share, uint256 _amount);
 
     function min(uint256 a, uint256 b) internal pure returns (uint256) {
         return a < b ? a : b;

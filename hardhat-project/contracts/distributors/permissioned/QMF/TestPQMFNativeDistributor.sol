@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "./PNativeDistributor.sol";
+import "./PQMFNativeDistributor.sol";
 
-contract TestPNativeDistributor is PNativeDistributor {
+contract TestPQMFNativeDistributor is PQMFNativeDistributor {
     /*
      * Inherits the main contract and exposes internal functions for testing.
      * There is also an additional function to see the user struct fields.
@@ -18,7 +18,7 @@ contract TestPNativeDistributor is PNativeDistributor {
         bool _enableWithdraw
     )
         payable
-        PNativeDistributor(
+        PQMFNativeDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,

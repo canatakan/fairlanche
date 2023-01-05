@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../../abstract/PResourceDistributor.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
+import "../../abstract/QMFResourceDistributor.sol";
 
-contract PERC20Distributor is PResourceDistributor {
-    IERC20 public token;
+contract QMFERC1155Distributor is QMFResourceDistributor, ERC1155Receiver {
+    IERC1155 public token;
+    uint256 public tokenId;
     uint256 public expirationBlocks;
     bool public hasDeposited;
 
     constructor(
         address _tokenContract,
+        uint256 _tokenId,
         uint16 _maxDemandVolume,
         uint256 _epochCapacity,
         uint256 _epochDuration,
@@ -18,7 +21,7 @@ contract PERC20Distributor is PResourceDistributor {
         uint256 _expirationBlocks,
         bool _enableWithdraw
     )
-        PResourceDistributor(
+        QMFResourceDistributor(
             _maxDemandVolume,
             _epochCapacity,
             _epochDuration,
@@ -27,9 +30,11 @@ contract PERC20Distributor is PResourceDistributor {
             _enableWithdraw
         )
     {
-        token = IERC20(_tokenContract);
+        token = IERC1155(_tokenContract);
+        tokenId = _tokenId;
         expirationBlocks = _expirationBlocks;
         hasDeposited = false;
+        etherMultiplier = 1000; // disable ether multiplier
     }
 
     modifier depositCompleted() {
@@ -43,25 +48,24 @@ contract PERC20Distributor is PResourceDistributor {
     function deposit(uint256 _amount) public virtual override onlyOwner {
         require(!hasDeposited, "Token deposit is already done.");
         require(
-            _amount >= epochCapacity * (etherMultiplier * milliether),
+            _amount >= epochCapacity,
             "The contract must be funded with at least one epoch capacity."
         );
 
-        token.transferFrom(msg.sender, address(this), _amount);
+        token.safeTransferFrom(msg.sender, address(this), tokenId, _amount, "");
 
         blockOffset = block.number; // the distribution will now start!
         hasDeposited = true;
-        _updateEndingBlock();
+        updateEndingBlock();
     }
 
-    function _updateEndingBlock() private {
+    function updateEndingBlock() private {
         /**
          * This function is called after the token deposit by the owner.
          * This process is done only once.
          */
 
-        uint256 deployedTokens = token.balanceOf(address(this)) /
-            (etherMultiplier * milliether);
+        uint256 deployedTokens = token.balanceOf(address(this), tokenId);
         if (deployedTokens % epochCapacity == 0) {
             distributionEndBlock = (block.number +
                 (deployedTokens / epochCapacity) *
@@ -92,9 +96,21 @@ contract PERC20Distributor is PResourceDistributor {
 
     function handleTransfer(
         address _receiver,
-        uint256 _amount
+        uint256 _weiAmount
     ) internal virtual override {
-        token.transfer(_receiver, _amount);
+        /** 
+         * This function will be called by the parent contract,
+         * after the share calculation. The call amount will be
+         * in wei, so it needs to be converted for the ERC1155 token.
+         */
+        _handleTransfer(_receiver, _weiAmount / (1 ether));
+    }
+
+    function _handleTransfer(
+        address _receiver,
+        uint256 _amount
+    ) private {
+        token.safeTransferFrom(address(this), _receiver, tokenId, _amount, "");
     }
 
     function withdrawExpired() public override onlyOwner {
@@ -103,7 +119,7 @@ contract PERC20Distributor is PResourceDistributor {
             block.number > claimEndBlock,
             "Wait for the end of the distribution."
         );
-        handleTransfer(msg.sender, token.balanceOf(address(this)));
+        _handleTransfer(msg.sender, token.balanceOf(address(this), tokenId));
     }
 
     function burnExpired() public override onlyOwner {
@@ -111,7 +127,7 @@ contract PERC20Distributor is PResourceDistributor {
             block.number > claimEndBlock,
             "Wait for the end of the distribution."
         );
-        handleTransfer(address(0), token.balanceOf(address(this)));
+        _handleTransfer(address(0), token.balanceOf(address(this), tokenId));
     }
 
     /**
@@ -148,5 +164,26 @@ contract PERC20Distributor is PResourceDistributor {
         returns (uint16 _share, uint256 _amount)
     {
         return super.calculateShare();
+    }
+
+    // overrides for accepting ERC1155 tokens
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
     }
 }

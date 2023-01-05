@@ -14,9 +14,31 @@ const {
     DEFAULT_DEPLOYMENT_VALUE,
 } = require("./config");
 
+let sc;
+
+async function init() {
+    ({ sc } = await deployLibs());
+}
+
+async function deployLibs() {
+    let Heapified = await ethers.getContractFactory("Heapified");
+    let heapified = await Heapified.deploy();
+    await heapified.deployed();
+
+    let SC = await ethers.getContractFactory(
+        "ShareCalculator",
+        { libraries: { Heapified: heapified.address } }
+    );
+    let sc = await SC.deploy();
+    await sc.deployed();
+
+    return { Heapified, heapified, SC, sc };
+}
+
 async function deployNativeDistributor(
     {
         _isPermissioned = true,
+        _algorithm = "QMF",
         _maxDemandVolume = DEFAULT_MAX_DEMAND_VOLUME,
         _epochCapacity = DEFAULT_EPOCH_CAPACITY,
         _epochDuration = DEFAULT_EPOCH_DURATION,
@@ -26,21 +48,22 @@ async function deployNativeDistributor(
         _value = ethers.utils.parseEther(DEFAULT_DEPLOYMENT_VALUE.toString()),
     } = {}
 ) {
-    let NativeDistributor;
 
-    let Lib = await ethers.getContractFactory("ShareCalculator");
-    let lib = await Lib.deploy();
-    await lib.deployed();
+    if (sc === undefined) {
+        await init();
+    }
+
+    let NativeDistributor;
 
     if (_isPermissioned) {
         NativeDistributor = await ethers.getContractFactory(
-            "TestPNativeDistributor",
-            { libraries: { ShareCalculator: lib.address } }
+            "TestP" + _algorithm.toUpperCase() + "NativeDistributor",
+            { libraries: { ShareCalculator: sc.address } }
         );
     } else {
         NativeDistributor = await ethers.getContractFactory(
-            "TestNativeDistributor",
-            { libraries: { ShareCalculator: lib.address } }
+            "Test" + _algorithm.toUpperCase() + "NativeDistributor",
+            { libraries: { ShareCalculator: sc.address } }
         );
     }
     let nativeDistributor = await NativeDistributor.deploy(
@@ -67,14 +90,13 @@ async function deployERC20Distributor(
         _enableWithdraw = DEFAULT_ENABLE_WITHDRAW,
     } = {}
 ) {
-    let Lib = await ethers.getContractFactory("ShareCalculator");
-    let lib = await Lib.deploy();
-    await lib.deployed();
-    
+    if (sc === undefined) {
+        await init();
+    }
     // let ERC20Distributor = await ethers.getContractFactory("TestPERC20Distributor");
     let ERC20Distributor = await ethers.getContractFactory(
-        "PERC20Distributor",
-        { libraries: { ShareCalculator: lib.address } }
+        "PQMFERC20Distributor",
+        { libraries: { ShareCalculator: sc.address } }
     );
     let erc20Distributor = await ERC20Distributor.deploy(
         _tokenContract,
@@ -101,14 +123,13 @@ async function deployERC1155Distributor(
         _enableWithdraw = DEFAULT_ENABLE_WITHDRAW,
     } = {}
 ) {
-    let Lib = await ethers.getContractFactory("ShareCalculator");
-    let lib = await Lib.deploy();
-    await lib.deployed();
-    
+    if (sc === undefined) {
+        await init();
+    }
     // let ERC1155Distributor = await ethers.getContractFactory("TestERC1155Distributor");
     let ERC1155Distributor = await ethers.getContractFactory(
-        "PERC1155Distributor",
-        { libraries: { ShareCalculator: lib.address } }
+        "PQMFERC1155Distributor",
+        { libraries: { ShareCalculator: sc.address } }
     );
     let erc1155Distributor = await ERC1155Distributor.deploy(
         _tokenContract,
@@ -195,6 +216,7 @@ async function demandBulk(nativeDistributor, accounts, demandArray) {
 }
 
 module.exports = {
+    deployLibs,
     deployNativeDistributor,
     deployERC20Distributor,
     deployERC1155Distributor,

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "../../allowance/Permissioned.sol";
 import "./ResourceDistributor.sol";
+import "../../lib/ShareCalculator.sol";
 
-abstract contract PResourceDistributor is Permissioned, ResourceDistributor {
+abstract contract QMFResourceDistributor is ResourceDistributor {
     constructor(
         uint16 _maxDemandVolume,
         uint256 _epochCapacity,
@@ -24,17 +24,19 @@ abstract contract PResourceDistributor is Permissioned, ResourceDistributor {
         )
     {}
 
-    function demand(uint16 volume) public virtual override onlyRegistered {
-        super.demand(volume);
-    }
-
-    function claim(uint256 epochNumber) public virtual override onlyRegistered {
-        super.claim(epochNumber);
-    }
-
-    function claimBulk(
-        uint256[] memory epochNumbers
-    ) public virtual override onlyRegistered {
-        super.claimBulk(epochNumbers);
+    function calculateShare()
+        internal
+        view
+        virtual
+        override
+        returns (uint16 _share, uint256 _amount)
+    {
+        return
+            ShareCalculator.calculateQMFShare(
+                maxDemandVolume,
+                totalDemand,
+                numberOfDemands,
+                cumulativeCapacity
+            );
     }
 }
