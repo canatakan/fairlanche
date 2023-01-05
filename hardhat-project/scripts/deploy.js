@@ -21,6 +21,12 @@ async function deploy(
   }
 ) {
 
+  if (algorithm.toLowerCase() === "equal") {
+    algorithm = "Equal";
+  } else {
+    algorithm = algorithm.toUpperCase();
+  }
+
   if (shareCalculatorAddress === null) {
     let Heapified = await ethers.getContractFactory("Heapified");
     let heapified = await Heapified.deploy();
@@ -39,7 +45,7 @@ async function deploy(
 
   switch (contractName.toLowerCase()) {
     case "nativedistributor":
-      contractName = algorithm.toUpperCase() + "NativeDistributor";
+      contractName = algorithm + "NativeDistributor";
       if (isPermissioned) { contractName = "P" + contractName; }
       Distributor = await hre.ethers.getContractFactory(
         contractName,
@@ -71,7 +77,7 @@ async function deploy(
         tokenContractAddress = erc20.address;
         console.log("ERC20Resource is deployed to: " + tokenContractAddress);
       }
-      contractName = algorithm.toUpperCase() + "ERC20Distributor";
+      contractName = algorithm + "ERC20Distributor";
       if (isPermissioned) { contractName = "P" + contractName; }
       Distributor = await hre.ethers.getContractFactory(
         contractName,
@@ -105,7 +111,7 @@ async function deploy(
         tokenContractAddress = erc1155.address;
         console.log("ERC1155Resource is deployed to: " + tokenContractAddress);
       }
-      contractName = algorithm.toUpperCase() + "ERC1155Distributor";
+      contractName = algorithm + "ERC1155Distributor";
       if (isPermissioned) { contractName = "P" + contractName; }
       Distributor = await hre.ethers.getContractFactory(
         contractName,
