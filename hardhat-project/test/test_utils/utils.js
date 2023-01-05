@@ -57,12 +57,12 @@ async function deployNativeDistributor(
 
     if (_isPermissioned) {
         NativeDistributor = await ethers.getContractFactory(
-            "TestP" + _algorithm.toUpperCase() + "NativeDistributor",
+            "TestP" + _algorithm + "NativeDistributor",
             { libraries: { ShareCalculator: sc.address } }
         );
     } else {
         NativeDistributor = await ethers.getContractFactory(
-            "Test" + _algorithm.toUpperCase() + "NativeDistributor",
+            "Test" + _algorithm + "NativeDistributor",
             { libraries: { ShareCalculator: sc.address } }
         );
     }
