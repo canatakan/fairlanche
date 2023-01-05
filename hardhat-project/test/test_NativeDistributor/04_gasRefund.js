@@ -14,9 +14,7 @@ describe("NativeDistributor gas refunds", function () {
     let nativeDistributor;
 
     this.beforeAll(async function () {
-        ({ nativeDistributor } = await deployNativeDistributor(
-            { _isPermissioned: false }
-        ));
+        ({ nativeDistributor } = await deployNativeDistributor());
     });
 
     describe("Deposit & withdrawals", function () {
@@ -97,6 +95,7 @@ describe("NativeDistributor gas refunds", function () {
 
         it("Should allow a user to claim their gas refund", async function () {
             let [_, user] = await ethers.getSigners();
+            await nativeDistributor.addPermissionedUser(user.address);
             mine(DEFAULT_EPOCH_DURATION); // move to the next epoch
 
             let balanceBefore = await ethers.provider.getBalance(user.address);
