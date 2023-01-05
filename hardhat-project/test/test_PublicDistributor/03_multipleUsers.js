@@ -143,7 +143,7 @@ describe("PublicDistributor multiple users", function () {
         });
 
         it("1: [1, 1, 1, ... , 1]", async function () {
-          let customEpochCapacity = customEpochCapacities[3];
+          let customEpochCapacity = customEpochCapacities[4];
           let { nativeDistributor } = await deployNativeDistributor(
             { 
               _isPermissioned: false,
