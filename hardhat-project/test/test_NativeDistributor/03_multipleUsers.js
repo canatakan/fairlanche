@@ -143,7 +143,7 @@ describe("Multiple users", function () {
         });
 
         it("1: [1, 1, 1, ... , 1]", async function () {
-          let customEpochCapacity = customEpochCapacities[3];
+          let customEpochCapacity = customEpochCapacities[4];
           let { nativeDistributor } = await deployNativeDistributor({ _epochCapacity: customEpochCapacity });
           let accounts = await ethers.getSigners();
           for (i = 1; i <= 19; i++) {
