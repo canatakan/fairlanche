@@ -160,6 +160,9 @@ task("test", "Runs the test script", async (taskArgs, hre) => {
     } else if (taskArgs.testFiles[i].toLowerCase() == 'smf') {
       newFileList.push('./test/test_SMFDistributor/01_singleUser.js');
       newFileList.push('./test/test_SMFDistributor/02_multipleUsers.js');
+    } else if (taskArgs.testFiles[i].toLowerCase() == 'equal') {
+      newFileList.push('./test/test_EqualDistributor/01_singleUser.js');
+      newFileList.push('./test/test_EqualDistributor/02_multipleUsers.js');
     } else {
       // if the argument is not one of the above, then it is a file name
       redirectToSuper = true;
