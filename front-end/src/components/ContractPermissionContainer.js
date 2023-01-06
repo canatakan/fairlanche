@@ -16,16 +16,14 @@ export default function ContractContainer({
   const [unpermissionedAddress, setUnpermissionedAddress] = useState("");
   const [contractInstance, setContractInstance] = useState(null);
 
-  const { state: givePermissionState, send: addPermissionedUser } = useContractFunction(
-    contractInstance,
-    "addPermissionedUser",
-    { transactionName: "Add Permissioned User" }
-  );
-  const { state: removePermissionState, send: removePermissionedUser } = useContractFunction(
-    contractInstance,
-    "removePermissionedUser",
-    { transactionName: "Remove Permissioned User" }
-  );
+  const { state: givePermissionState, send: addPermissionedUser } =
+    useContractFunction(contractInstance, "addPermissionedUser", {
+      transactionName: "Add Permissioned User",
+    });
+  const { state: removePermissionState, send: removePermissionedUser } =
+    useContractFunction(contractInstance, "removePermissionedUser", {
+      transactionName: "Remove Permissioned User",
+    });
 
   useEffect(() => {
     if (contractAddress) {
@@ -70,6 +68,12 @@ export default function ContractContainer({
     removePermissionedUser(contractAddress);
   };
 
+  const [wdb, setWdb] = useState({
+    deposit: 1000,
+    withdraw: 0,
+    burn: 100,
+  });
+
   return (
     <div className="mb-6 border-2 border-gray-300 mb-2 rounded-xl">
       <Collapsible
@@ -103,28 +107,87 @@ export default function ContractContainer({
         <div className="flex flex-col items-end justify-end">
           <div className="flex flex-row items-center justify-center mb-1">
             <input
-              className="w-80"
+              className="border-2 px-2 py-1 rounded-md w-56"
+              type="number"
+              placeholder="Amount"
+              value={wdb.deposit}
+              onChange={(e) =>
+                setWdb((prev) => ({ ...prev, deposit: e.target.value }))
+              }
+            />
+            <button
+              className="w-48"
+              onClick={(event) => handleGivePermission(event)}
+            >
+              Deposit
+            </button>
+          </div>
+          <div className="flex flex-row items-center justify-center mb-1">
+            <input
+              className="border-2 px-2 py-1 rounded-md w-56"
+              type="number"
+              name="permissionedAddress"
+              placeholder="Amount"
+              value={wdb.withdraw}
+              onChange={(e) =>
+                setWdb((prev) => ({ ...prev, withdraw: e.target.value }))
+              }
+            />
+            <button
+              className="w-48"
+              onClick={(event) => handleGivePermission(event)}
+            >
+              Withdraw
+            </button>
+          </div>
+          <div className="flex flex-row items-center justify-center mb-1">
+            <input
+              className="border-2 px-2 py-1 rounded-md w-56"
               type="string"
               name="permissionedAddress"
               placeholder="Address"
               value={permissionedAddress}
               onChange={handlePermissionedAddressChange}
             />
-            <button className="w-48" onClick={(event) => handleGivePermission(event)}>
+            <button
+              className="w-48"
+              onClick={(event) => handleGivePermission(event)}
+            >
               Give Permission
             </button>
           </div>
           <div className="flex flex-row items-center justify-center mb-1">
             <input
-              className="w-80"
+              className="border-2 px-2 py-1 rounded-md w-56"
               type="string"
               name="unpermissionedAddress"
               placeholder="Address"
               value={unpermissionedAddress}
               onChange={handleUnpermissionedAddressChange}
             />
-            <button className="w-48" onClick={(event) => handleRemovePermission(event)}>
+            <button
+              className="w-48"
+              onClick={(event) => handleRemovePermission(event)}
+            >
               Remove Permission
+            </button>
+          </div>
+          <div className="flex flex-row items-center justify-center mb-1">
+            <input
+              className="border-2 px-2 py-1 rounded-md w-56"
+              type="number"
+              name="permissionedAddress"
+              placeholder="Amount"
+              value={wdb.burn}
+              onChange={(e) =>
+                setWdb((prev) => ({ ...prev, burn: e.target.value }))
+              }
+            />
+            <button
+              className="w-48"
+              onClick={(event) => handleGivePermission(event)}
+            >
+              Burn
             </button>
           </div>
         </div>
