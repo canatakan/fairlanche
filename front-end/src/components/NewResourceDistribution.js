@@ -3,9 +3,43 @@ import Radio from "./forms/Radio";
 import Input from "./forms/Input";
 import { ContractFactory, ethers } from "ethers";
 
-//import here permissioned qmf erc20
 import PQMFERC20Distributor from "../constants/PQMFERC20Distributor";
 import PQMFERC20DistributorBYTE from "../constants/PQMFERC20DistributorBYTE";
+import PQMFERC1155Distributor from "../constants/PQMFERC1155Distributor";
+import PQMFERC1155DistributorBYTE from "../constants/PQMFERC1155DistributorBYTE";
+import PQMFNativeDistributor from "../constants/PQMFNativeDistributor";
+import PQMFNativeDistributorBYTE from "../constants/PQMFNativeDistributorBYTE";
+import PSMFERC20Distributor from "../constants/PSMFERC20Distributor";
+import PSMFERC20DistributorBYTE from "../constants/PSMFERC20DistributorBYTE";
+import PSMFERC1155Distributor from "../constants/PSMFERC1155Distributor";
+import PSMFERC1155DistributorBYTE from "../constants/PSMFERC1155DistributorBYTE";
+import PSMFNativeDistributor from "../constants/PSMFNativeDistributor";
+import PSMFNativeDistributorBYTE from "../constants/PSMFNativeDistributorBYTE";
+import PEqualERC20Distributor from "../constants/PEqualERC20Distributor";
+import PEqualERC20DistributorBYTE from "../constants/PEqualERC20DistributorBYTE";
+import PEqualERC1155Distributor from "../constants/PEqualERC1155Distributor";
+import PEqualERC1155DistributorBYTE from "../constants/PEqualERC1155DistributorBYTE";
+import PEqualNativeDistributor from "../constants/PEqualNativeDistributor";
+import PEqualNativeDistributorBYTE from "../constants/PEqualNativeDistributorBYTE";
+import QMFERC20Distributor from "../constants/QMFERC20Distributor";
+import QMFERC20DistributorBYTE from "../constants/QMFERC20DistributorBYTE";
+import QMFERC1155Distributor from "../constants/QMFERC1155Distributor";
+import QMFERC1155DistributorBYTE from "../constants/QMFERC1155DistributorBYTE";
+import QMFNativeDistributor from "../constants/QMFNativeDistributor";
+import QMFNativeDistributorBYTE from "../constants/QMFNativeDistributorBYTE";
+import SMFERC20Distributor from "../constants/SMFERC20Distributor";
+import SMFERC20DistributorBYTE from "../constants/SMFERC20DistributorBYTE";
+import SMFERC1155Distributor from "../constants/SMFERC1155Distributor";
+import SMFERC1155DistributorBYTE from "../constants/SMFERC1155DistributorBYTE";
+import SMFNativeDistributor from "../constants/SMFNativeDistributor";
+import SMFNativeDistributorBYTE from "../constants/SMFNativeDistributorBYTE";
+import EqualERC20Distributor from "../constants/EqualERC20Distributor";
+import EqualERC20DistributorBYTE from "../constants/EqualERC20DistributorBYTE";
+import EqualERC1155Distributor from "../constants/EqualERC1155Distributor";
+import EqualERC1155DistributorBYTE from "../constants/EqualERC1155DistributorBYTE";
+import EqualNativeDistributor from "../constants/EqualNativeDistributor";
+import EqualNativeDistributorBYTE from "../constants/EqualNativeDistributorBYTE";
+
 
 //import here public smf erc115
 
@@ -61,13 +95,14 @@ const tokenCreateDeployer = async (tokenType, args) => {
 };
 
 const deployer = async (isPermissioned, resourceType, algorithm, state) => {
+
   //Permissioned contracts
   if (JSON.parse(isPermissioned)) {
     switch (resourceType) {
       case "erc20":
         switch (algorithm) {
           case "qmf":
-            const args = [
+            const argsqmferc20 = [
               state._tokenContract,
               state._maxDemandVolume,
               state._epochCapacity,
@@ -79,14 +114,40 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
             await contractDeployer(
               PQMFERC20Distributor,
               PQMFERC20DistributorBYTE,
-              args
+              argsqmferc20
             );
             break;
           case "smf":
-            console.log("permissoned smf erc20");
+            const argssmferc20 = [
+              state._tokenContract,
+              state._maxDemandVolume,
+              state._epochCapacity,
+              state._epochDuration,
+              state._etherMultiplier,
+              state._expirationBlocks,
+              JSON.parse(state._enableWithdraw),
+            ];
+            await contractDeployer(
+              PSMFERC20Distributor,
+              PSMFERC20DistributorBYTE,
+              argssmferc20
+            );
             break;
           case "equal":
-            console.log("permissoned equal erc20");
+            const argsequalerc20 = [
+              state._tokenContract,
+              state._maxDemandVolume,
+              state._epochCapacity,
+              state._epochDuration,
+              state._etherMultiplier,
+              state._expirationBlocks,
+              JSON.parse(state._enableWithdraw),
+            ];
+            await contractDeployer(
+              PEqualERC20Distributor,
+              PEqualERC20DistributorBYTE,
+              argsequalerc20
+            );
             break;
           default:
             break;
@@ -95,14 +156,53 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
       case "erc1155":
         switch (algorithm) {
           case "qmf":
-            console.log("permissoned qmf erc1155");
+            const argsqmferc1155 = [
+              state._tokenContract,
+              state._maxDemandVolume,
+              state._epochCapacity,
+              state._epochDuration,
+              state._etherMultiplier,
+              state._expirationBlocks,
+              JSON.parse(state._enableWithdraw),
+            ];
+            await contractDeployer(
+              PQMFERC1155Distributor,
+              PQMFERC1155DistributorBYTE,
+              argsqmferc1155
+            );
             break;
           case "smf":
-            console.log("permissoned smf erc1155");
+            const argssmferc1155 = [
+              state._tokenContract,
+              state._maxDemandVolume,
+              state._epochCapacity,
+              state._epochDuration,
+              state._etherMultiplier,
+              state._expirationBlocks,
+              JSON.parse(state._enableWithdraw),
+            ];
+            await contractDeployer(
+              PSMFERC1155Distributor,
+              PSMFERC1155DistributorBYTE,
+              argssmferc1155
+            );
 
             break;
           case "equal":
-            console.log("permissoned equal erc1155");
+            const argsequalerc1155 = [
+              state._tokenContract,
+              state._maxDemandVolume,
+              state._epochCapacity,
+              state._epochDuration,
+              state._etherMultiplier,
+              state._expirationBlocks,
+              JSON.parse(state._enableWithdraw),
+            ];
+            await contractDeployer(
+              PEqualERC1155Distributor,
+              PEqualERC1155DistributorBYTE,
+              argsequalerc1155
+            );
             break;
           default:
             break;
@@ -111,15 +211,53 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
       case "native":
         switch (algorithm) {
           case "qmf":
-            console.log("permissoned qmf native");
-
+            const argsqmfnative = [
+              state._tokenContract,
+              state._maxDemandVolume,
+              state._epochCapacity,
+              state._epochDuration,
+              state._etherMultiplier,
+              state._expirationBlocks,
+              JSON.parse(state._enableWithdraw),
+            ];
+            await contractDeployer(
+              PQMFNativeDistributor,
+              PQMFNativeDistributorBYTE,
+              argsqmfnative
+            );
             break;
           case "smf":
-            console.log("permissoned smf native");
+            const argssmfnative = [
+              state._tokenContract,
+              state._maxDemandVolume,
+              state._epochCapacity,
+              state._epochDuration,
+              state._etherMultiplier,
+              state._expirationBlocks,
+              JSON.parse(state._enableWithdraw),
+            ];
+            await contractDeployer(
+              PSMFNativeDistributor,
+              PSMFNativeDistributorBYTE,
+              argssmfnative
+            );
 
             break;
           case "equal":
-            console.log("permissoned equal native");
+            const argsequalnative = [
+              state._tokenContract,
+              state._maxDemandVolume,
+              state._epochCapacity,
+              state._epochDuration,
+              state._etherMultiplier,
+              state._expirationBlocks,
+              JSON.parse(state._enableWithdraw),
+            ];
+            await contractDeployer(
+              PEqualNativeDistributor,
+              PEqualNativeDistributorBYTE,
+              argsequalnative
+            );
 
             break;
           default:
@@ -138,7 +276,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
     case "erc20":
       switch (algorithm) {
         case "qmf":
-          const args = [
+          const argsqmferc20p = [
             state._tokenContract,
             state._maxDemandVolume,
             state._epochCapacity,
@@ -148,16 +286,42 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
             JSON.parse(state._enableWithdraw),
           ];
           await contractDeployer(
-            PQMFERC20Distributor,
-            PQMFERC20DistributorBYTE,
-            args
+            QMFERC20Distributor,
+            QMFERC20DistributorBYTE,
+            argsqmferc20p
           );
           break;
         case "smf":
-          console.log("permissoned smf erc20");
+          const argssmferc20p = [
+            state._tokenContract,
+            state._maxDemandVolume,
+            state._epochCapacity,
+            state._epochDuration,
+            state._etherMultiplier,
+            state._expirationBlocks,
+            JSON.parse(state._enableWithdraw),
+          ];
+          await contractDeployer(
+            SMFERC20Distributor,
+            SMFERC20DistributorBYTE,
+            argssmferc20p
+          );
           break;
         case "equal":
-          console.log("permissoned equal erc20");
+          const argsequalerc20p = [
+            state._tokenContract,
+            state._maxDemandVolume,
+            state._epochCapacity,
+            state._epochDuration,
+            state._etherMultiplier,
+            state._expirationBlocks,
+            JSON.parse(state._enableWithdraw),
+          ];
+          await contractDeployer(
+            EqualERC20Distributor,
+            EqualERC20DistributorBYTE,
+            argsequalerc20p
+          );
           break;
         default:
           break;
@@ -166,14 +330,53 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
     case "erc1155":
       switch (algorithm) {
         case "qmf":
-          console.log("permissoned qmf erc1155");
+          const argsqmferc1155p = [
+            state._tokenContract,
+            state._maxDemandVolume,
+            state._epochCapacity,
+            state._epochDuration,
+            state._etherMultiplier,
+            state._expirationBlocks,
+            JSON.parse(state._enableWithdraw),
+          ];
+          await contractDeployer(
+            QMFERC1155Distributor,
+            QMFERC1155DistributorBYTE,
+            argsqmferc1155p
+          );
           break;
         case "smf":
-          console.log("permissoned smf erc1155");
+          const argssmferc1155p = [
+            state._tokenContract,
+            state._maxDemandVolume,
+            state._epochCapacity,
+            state._epochDuration,
+            state._etherMultiplier,
+            state._expirationBlocks,
+            JSON.parse(state._enableWithdraw),
+          ];
+          await contractDeployer(
+            SMFERC1155Distributor,
+            SMFERC1155DistributorBYTE,
+            argssmferc1155p
+          );
 
           break;
         case "equal":
-          console.log("permissoned equal erc1155");
+          const argsequalerc1155p = [
+            state._tokenContract,
+            state._maxDemandVolume,
+            state._epochCapacity,
+            state._epochDuration,
+            state._etherMultiplier,
+            state._expirationBlocks,
+            JSON.parse(state._enableWithdraw),
+          ];
+          await contractDeployer(
+            EqualERC1155Distributor,
+            EqualERC1155DistributorBYTE,
+            argsequalerc1155p
+          );
           break;
         default:
           break;
@@ -182,15 +385,54 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
     case "native":
       switch (algorithm) {
         case "qmf":
-          console.log("permissoned qmf native");
+          const argsqmfnativep = [
+            state._tokenContract,
+            state._maxDemandVolume,
+            state._epochCapacity,
+            state._epochDuration,
+            state._etherMultiplier,
+            state._expirationBlocks,
+            JSON.parse(state._enableWithdraw),
+          ];
+          await contractDeployer(
+            QMFNativeDistributor,
+            QMFNativeDistributorBYTE,
+            argsqmfnativep
+          );
 
           break;
         case "smf":
-          console.log("permissoned smf native");
+          const argssmfnativep = [
+            state._tokenContract,
+            state._maxDemandVolume,
+            state._epochCapacity,
+            state._epochDuration,
+            state._etherMultiplier,
+            state._expirationBlocks,
+            JSON.parse(state._enableWithdraw),
+          ];
+          await contractDeployer(
+            SMFNativeDistributor,
+            SMFNativeDistributorBYTE,
+            argssmfnativep
+          );
 
           break;
         case "equal":
-          console.log("permissoned equal native");
+          const argsequalnativep = [
+            state._tokenContract,
+            state._maxDemandVolume,
+            state._epochCapacity,
+            state._epochDuration,
+            state._etherMultiplier,
+            state._expirationBlocks,
+            JSON.parse(state._enableWithdraw),
+          ];
+          await contractDeployer(
+            EqualNativeDistributor,
+            EqualNativeDistributorBYTE,
+            argsequalnativep
+          );
 
           break;
         default:
@@ -240,7 +482,6 @@ const NewResourceDistribution = () => {
 
   const handleTokenCreation = async (tokenType) => {
     if (tokenType === "erc20") {
-      //todo
 
       const address = await tokenCreateDeployer("erc20", [
         erc20token._name,
@@ -381,7 +622,7 @@ const NewResourceDistribution = () => {
                     className="mt-4"
                     onClick={() => handleTokenCreation("erc20")}
                   >
-                    Create erc20 token
+                    Create ERC20 Token
                   </button>
                 </div>
               </div>
@@ -451,7 +692,7 @@ const NewResourceDistribution = () => {
                     className="mt-4"
                     onClick={() => handleTokenCreation("erc1155")}
                   >
-                    Create erc1155 token
+                    Create ERC1155 Token
                   </button>
                 </div>
               </div>
@@ -567,113 +808,3 @@ const NewResourceDistribution = () => {
 };
 
 export default NewResourceDistribution;
-
-{
-  /* <ul>
-<div className="flex justify-center"> 
-  <h1 className="text-xl font-bold mb-2 mt-4 text-gray-700">
-    Generate New Distribution
-  </h1>
-</div>
-<div className="flex flex-col items-center">
-  <div className="mb-4 ml-2 mr-2">
-    <label
-      className="text-gray-500 text-sm font-bold mb-2"
-      htmlFor="subnetId"
-    >
-      Token Symbol
-    </label>
-    <input
-      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      id="subnetId"
-      type="string"
-      placeholder="Enter your subnet's ChainId. It can be any positive integer."
-    />
-  </div>
-  <div className="mb-4 ml-2 mr-2">
-    <label
-      className="text-gray-500 text-sm font-bold mb-2"
-      htmlFor="epochCapacity"
-    >
-      Epoch Capacity
-    </label>
-    <input
-      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      id="epochCapacity"
-      type="number"
-      placeholder="Enter epoch capacity. (ie. 1000)"
-    />
-  </div>
-  <div className="mb-4 ml-2 mr-2">
-    <label
-      className="text-gray-500 text-sm font-bold mb-2"
-      htmlFor="epochDuration"
-    >
-      Epoch Duration
-    </label>
-    <input
-      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      id="epochDuration"
-      type="number"
-      placeholder="Enter epoch duration. (ie. 1000)"
-    />
-  </div>
-
-  <div className="mb-4 ml-2 mr-2">
-    <label
-      className="text-gray-500 text-sm font-bold mb-2"
-      htmlFor="DistributionAlgorithm"
-    >
-      Distribution Algorithm
-    </label>
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <select
-        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline align-middle"
-        id="DistributionAlgorithm"
-        value={distributionAlgorithm}
-        onChange={handleDistributionAlgorithmChange}
-      >
-        <option>Quantized Max-Min Fairness</option>
-        <option>Dominant Resource Fairness</option>
-      </select>
-    </div>
-  </div>
-
-  <div className="mb-4 ml-2 mr-2">
-    <label
-      className="text-gray-500 text-sm font-bold mb-2"
-      htmlFor="feeRate"
-    >
-      Token Standard
-    </label>
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <select
-        // fix: Design change
-        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        id="tokenStandard"
-        value={tokenStandard}
-        onChange={handleTokenStandardChange}
-      >
-        <option>ERC-20 Token Standard</option>
-        <option>ERC-721 Token Standard</option>
-      </select>
-    </div>
-  </div>
-</div>
-
-</ul> */
-}
