@@ -1,5 +1,7 @@
 import React from 'react';
 
+const { getBlockchainName } = require('subnet/scripts/getBlockchainName.js');
+
 class TransactionPage extends React.Component {
 
   constructor(props) {
@@ -21,7 +23,7 @@ class TransactionPage extends React.Component {
     this.setState({ subnets });
   }
 
-  saveSubnet = (event) => {
+  saveSubnet = async (event) => {
     event.preventDefault();
     if (!this.validateSubnet(event)) {
       return;
@@ -29,7 +31,9 @@ class TransactionPage extends React.Component {
     const subnet = {
       subnetId: event.target.elements.subnetId.value,
       blockchainId: event.target.elements.blockchainId.value,
-      subnetName: "<GET SUBNET'S NAME WITH API CALL>"
+      subnetName: await getBlockchainName(
+        event.target.elements.blockchainId.value
+      )
     };
     const subnets = [...this.state.subnets, subnet];
     this.setState({ subnets });
@@ -41,7 +45,7 @@ class TransactionPage extends React.Component {
     const subnetId = event.target.elements.subnetId.value;
     const blockchainId = event.target.elements.blockchainId.value;
 
-    if (subnetId.length !== 50 || blockchainId.length !== 50) {
+    if (subnetId.length !== 49 || blockchainId.length !== 49) {
       alert('Invalid Subnet ID or Blockchain ID');
       return false;
     }

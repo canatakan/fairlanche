@@ -2,6 +2,24 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Webpack Configuration
+
+To run this app, you need to configure your webpack. You can find the configuration file at `fair-distribution-subnet/front-end/node_modules/react-scripts/config/webpack.config.js`. Add this to your `webpack.config.js` file, under the `resolve` section:
+
+```js
+resolve: {
+    // ...
+    fallback: {
+        "fs": false,
+        "os": false,
+        "path": require.resolve("path-browserify"),
+        "stream": require.resolve("stream-browserify"),
+        "crypto": require.resolve("crypto-browserify"),
+    },
+    // ...
+}
+```
+
 ## Available Scripts
 
 In the project directory, you can run:
