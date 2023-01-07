@@ -31,6 +31,7 @@ async function deploy(
     let Heapified = await ethers.getContractFactory("Heapified");
     let heapified = await Heapified.deploy();
     await heapified.deployed();
+    console.log("Heapified is deployed to:", heapified.address);
 
     let SC = await ethers.getContractFactory(
         "ShareCalculator",
@@ -38,6 +39,7 @@ async function deploy(
     );
     let sc = await SC.deploy();
     await sc.deployed();
+    console.log("ShareCalculator is deployed to:", sc.address);
     shareCalculatorAddress = sc.address;
   }
 

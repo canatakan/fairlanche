@@ -4,7 +4,7 @@ const { ethers } = require("hardhat");
 const RESOURCE_TYPE = "erc1155";
 const IS_PERMISSIONED = true;
 const ALGORITHM = "QMF";
-const SHARE_CALCULATOR_ADDRESS = "0x8dD1edEfb745314dA6892aB6b27907719f561860";
+const SHARE_CALCULATOR_ADDRESS = "0x7230B01E6ca4338b45835F78751990b120dA898C";
 
 const NATIVE_DEPLOYMENT_PARAMS = {
     _maxDemandVolume: 3,
