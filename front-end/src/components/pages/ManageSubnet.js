@@ -92,16 +92,16 @@ export default function ManagePageTransactions() {
           Subnet Management Portal
         </h1>
       </div>
-      <div className="w-full max-w-xl px-2 py-16 sm:px-0">
+      <div className="w-full max-w-xl mt-4">
         <Tab.Group>
-          <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/60 p-1">
+          <Tab.List className="flex rounded-xl bg-blue-900/60 p-1">
             <Tab
               className={({ selected }) =>
                 classNames(
                   "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700",
                   "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400  ",
                   selected
-                    ? "bg-white shadow hover:bg-white"
+                    ? "bg-white shadow hover:bg-white mt-1 mb-1"
                     : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
                 )
               }
@@ -114,7 +114,7 @@ export default function ManagePageTransactions() {
                   "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700",
                   "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400  ",
                   selected
-                    ? "bg-white shadow hover:bg-white"
+                    ? "bg-white shadow hover:bg-white mt-1 mb-1"
                     : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
                 )
               }
@@ -127,7 +127,7 @@ export default function ManagePageTransactions() {
                   "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700",
                   "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400  ",
                   selected
-                    ? "bg-white shadow hover:bg-white"
+                    ? "bg-white shadow hover:bg-white mt-1 mb-1"
                     : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
                 )
               }
@@ -142,7 +142,7 @@ export default function ManagePageTransactions() {
                 "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
               )}
             >
-              Panel 1
+              TODO - Blockchain Permission buraya
             </Tab.Panel>
             <Tab.Panel
               className={classNames(

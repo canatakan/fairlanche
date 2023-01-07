@@ -206,7 +206,7 @@ const NewResourceDistribution = () => {
   });
   const [createToken, setCreateToken] = useState(false);
   return (
-    <div className="w-full flex flex-col gap-3">
+    <div className="w-full flex flex-col gap-3 p-3 bg-white rounded-md shadow-md border border-gray-200">
       <Radio
         name={"resource-publicity"}
         options={[
@@ -275,7 +275,7 @@ const NewResourceDistribution = () => {
             </button>
           ) : (
             <button className="w-56" onClick={() => setCreateToken(true)}>
-              Create {config.RESOURCE_TYPE} token
+              Create {config.RESOURCE_TYPE} Token
             </button>
           )}
 
@@ -283,7 +283,7 @@ const NewResourceDistribution = () => {
             <div className="border p-4 rounded-lg ">
               <Input
                 id="_name"
-                title={"_name"}
+                title={"Name"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc20Token((prev) => ({ ...prev, _name: val }))
@@ -292,7 +292,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_symbol"
-                title={"_symbol"}
+                title={"Symbol"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc20Token((prev) => ({ ...prev, _symbol: val }))
@@ -301,7 +301,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_premintSupply"
-                title={"_premintSupply"}
+                title={"Premint Supply"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc20Token((prev) => ({ ...prev, _premintSupply: val }))
@@ -310,7 +310,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_maximumSupply"
-                title={"_maximumSupply"}
+                title={"Maximum Supply"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc20Token((prev) => ({ ...prev, _maximumSupply: val }))
@@ -324,7 +324,7 @@ const NewResourceDistribution = () => {
             <div className="border p-4 rounded-lg ">
               <Input
                 id="_name"
-                title={"_name"}
+                title={"Name"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc1155Token((prev) => ({ ...prev, _name: val }))
@@ -333,7 +333,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_symbol"
-                title={"_symbol"}
+                title={"Symbol"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc1155Token((prev) => ({ ...prev, _symbol: val }))
@@ -342,7 +342,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_uri"
-                title={"_uri"}
+                title={"Uri"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc1155Token((prev) => ({ ...prev, _uri: val }))
@@ -351,7 +351,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_premintIds"
-                title={"_premintIds"}
+                title={"Premint Ids"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc1155Token((prev) => ({ ...prev, _premintIds: val }))
@@ -360,7 +360,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_premintSupplies"
-                title={"_premintSupplies"}
+                title={"Premint Supplies"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc1155Token((prev) => ({ ...prev, _premintSupply: val }))
@@ -369,7 +369,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_maximumSupplies"
-                title={"_maximumSupplies"}
+                title={"Maximum Supplies"}
                 placeholder="300"
                 on={(val) =>
                   seterc1155Token((prev) => ({
@@ -386,7 +386,7 @@ const NewResourceDistribution = () => {
       <div>
         <Input
           id="_maxDemandVolume"
-          title={"_maxDemandVolume"}
+          title={"Max Demand Volume"}
           placeholder="300"
           type={"number"}
           onChange={(val) =>
@@ -397,7 +397,7 @@ const NewResourceDistribution = () => {
         {config.RESOURCE_TYPE === "erc1155" && (
           <Input
             id="_tokenId"
-            title={"_tokenId"}
+            title={"Token Id"}
             type={"number"}
             placeholder="0"
             onChange={(val) => setState((prev) => ({ ...prev, _tokenId: val }))}
@@ -406,7 +406,7 @@ const NewResourceDistribution = () => {
         )}
         <Input
           id="_epochCapacity"
-          title={"_epochCapacity"}
+          title={"Epoch Capacity"}
           type={"number"}
           placeholder="500"
           onChange={(val) =>
@@ -416,7 +416,7 @@ const NewResourceDistribution = () => {
         />
         <Input
           id="_epochDuration"
-          title={"_epochDuration"}
+          title={"Epoch Duration"}
           type={"number"}
           placeholder="600"
           onChange={(val) =>
@@ -426,7 +426,7 @@ const NewResourceDistribution = () => {
         />
         <Input
           id="_etherMultiplier"
-          title={"_etherMultiplier"}
+          title={"Ether Multiplier"}
           type={"number"}
           placeholder="1000"
           onChange={(val) =>
@@ -436,7 +436,7 @@ const NewResourceDistribution = () => {
         />
         <Input
           id="_expirationBlocks"
-          title={"_expirationBlocks"}
+          title={"Expiration Blocks"}
           type={"number"}
           placeholder="3000"
           onChange={(val) =>
@@ -454,7 +454,7 @@ const NewResourceDistribution = () => {
             setState((prev) => ({ ...prev, _enableWithdraw: val }))
           }
           isInline={true}
-          title={"_enableWithdraw"}
+          title={"Enable Withdraw"}
           value={state._enableWithdraw}
         />
         {config.RESOURCE_TYPE === "native" && (
@@ -471,6 +471,7 @@ const NewResourceDistribution = () => {
 
       <div className="flex flex-row items-center justify-center">
         <div className="flex justify-center mb-2">
+        
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="button"
