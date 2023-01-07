@@ -6,7 +6,7 @@ import Collapsible from "./Collapsible";
 import { useContractFunction } from "@usedapp/core";
 import { Contract } from "ethers";
 
-import { abi } from "../constants";
+import PQMFERC20Distributor from "../constants/PQMFERC20Distributor";
 
 export default function ContractContainer({
   contractAddress,
@@ -14,16 +14,49 @@ export default function ContractContainer({
 }) {
   const [permissionedAddress, setPermissionedAddress] = useState("");
   const [unpermissionedAddress, setUnpermissionedAddress] = useState("");
+  const [depositAmount, setDepositAmount] = useState(0);
   const [contractInstance, setContractInstance] = useState(null);
 
-  const { state: givePermissionState, send: addPermissionedUser } =
-    useContractFunction(contractInstance, "addPermissionedUser", {
+
+  const { state: givePermissionState, send: addPermissionedUser } = useContractFunction(
+    contractInstance,
+    "addPermissionedUser",
+    {
       transactionName: "Add Permissioned User",
-    });
-  const { state: removePermissionState, send: removePermissionedUser } =
-    useContractFunction(contractInstance, "removePermissionedUser", {
+    }
+  );
+
+  const { state: removePermissionState, send: removePermissionedUser } = useContractFunction(
+    contractInstance,
+    "removePermissionedUser",
+    {
       transactionName: "Remove Permissioned User",
-    });
+    }
+  );
+
+  const { state: burnState, send: burn } = useContractFunction(
+    contractInstance,
+    "burn",
+    {
+      transactionName: "Burn",
+    }
+  );
+
+  const { state: depositState, send: deposit } = useContractFunction(
+    contractInstance,
+    "deposit",
+    {
+      transactionName: "Deposit",
+    }
+  );
+
+  const { state: withdrawState, send: withdraw } = useContractFunction(
+    contractInstance,
+    "withdraw",
+    {
+      transactionName: "Withdraw",
+    }
+  );
 
   useEffect(() => {
     if (contractAddress) {
@@ -33,7 +66,7 @@ export default function ContractContainer({
   }, [contractAddress]);
 
   const generateContractInstance = (address) => {
-    const instance = new Contract(address, abi, ethers.getDefaultProvider());
+    const instance = new Contract(address, PQMFERC20Distributor, ethers.getDefaultProvider());
     return instance;
   };
 
@@ -68,13 +101,26 @@ export default function ContractContainer({
     removePermissionedUser(contractAddress);
   };
 
+  const handleBurn = (event) => {
+    event.preventDefault();
+    burn();
+  };
+
+  const handleDepositAmountChange = (event) => {
+    setDepositAmount(event.target.value);
+  };
+
+  const handleDeposit = (event) => {
+    event.preventDefault();
+    deposit(depositAmount);
+  };
+
+  const handleWithdrawAll = (event) => {
+    event.preventDefault();
+    withdraw();
+  };
 
 
-  const [wdb, setWdb] = useState({
-    deposit: 1000,
-    withdraw: 0,
-    burn: 100,
-  });
 
   return (
     <div className="mb-6 border-2 border-gray-300 mb-2 rounded-xl">
@@ -107,49 +153,16 @@ export default function ContractContainer({
       >
         <div className="flex flex-row items-center justify-center mb-1"></div>
         <div className="flex flex-col items-end justify-end">
-          <div className="flex flex-row items-center justify-center mb-1">
-            <input
-              className="border-2 px-2 py-1 rounded-md w-56"
-              type="number"
-              placeholder="Amount"
-              value={wdb.deposit}
-              onChange={(e) =>
-                setWdb((prev) => ({ ...prev, deposit: e.target.value }))
-              }
-            />
-            <button
-              className="w-48"
-              onClick={(event) => handleGivePermission(event)}
-            >
-              Deposit
-            </button>
-          </div>
-          <div className="flex flex-row items-center justify-center mb-1">
-            <input
-              className="border-2 px-2 py-1 rounded-md w-56"
-              type="number"
-              name="permissionedAddress"
-              placeholder="Amount"
-              value={wdb.withdraw}
-              onChange={(e) =>
-                setWdb((prev) => ({ ...prev, withdraw: e.target.value }))
-              }
-            />
-            <button
-              className="w-48"
-              onClick={(event) => handleGivePermission(event)}
-            >
-              Withdraw
-            </button>
-          </div>
+
           <div className="flex flex-row items-center justify-center mb-1">
             <input
               className="border-2 px-2 py-1 rounded-md w-56"
               type="string"
               name="permissionedAddress"
-              placeholder="Address"
               value={permissionedAddress}
               onChange={handlePermissionedAddressChange}
+              placeholder="Address"
+
             />
             <button
               className="w-48"
@@ -178,16 +191,30 @@ export default function ContractContainer({
             <input
               className="border-2 px-2 py-1 rounded-md w-56"
               type="number"
-              name="permissionedAddress"
+              name="depositAmount"
               placeholder="Amount"
-              value={wdb.burn}
-              onChange={(e) =>
-                setWdb((prev) => ({ ...prev, burn: e.target.value }))
-              }
+              value={depositAmount}
+              onChange={handleDepositAmountChange}
             />
             <button
               className="w-48"
-              onClick={(event) => handleGivePermission(event)}
+              onClick={(event) => handleDeposit(event)}
+            >
+              Deposit
+            </button>
+          </div>
+          <div className="flex flex-row items-center justify-center mb-1">
+            <button
+              className="w-48"
+              onClick={(event) => handleWithdrawAll(event)}
+            >
+              Withdraw All
+            </button>
+          </div>
+          <div className="flex flex-row items-center justify-center mb-1">
+            <button
+              className="w-48"
+              onClick={(event) => handleBurn(event)}
             >
               Burn
             </button>
