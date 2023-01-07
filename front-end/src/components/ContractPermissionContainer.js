@@ -34,11 +34,11 @@ export default function ContractContainer({
     }
   );
 
-  const { state: burnState, send: burn } = useContractFunction(
+  const { state: burnState, send: burnExpired } = useContractFunction(
     contractInstance,
-    "burn",
+    "burnExpired",
     {
-      transactionName: "Burn",
+      transactionName: "Burn Expired",
     }
   );
 
@@ -50,11 +50,11 @@ export default function ContractContainer({
     }
   );
 
-  const { state: withdrawState, send: withdraw } = useContractFunction(
+  const { state: withdrawState, send: withdrawExpired } = useContractFunction(
     contractInstance,
-    "withdraw",
+    "withdrawExpired",
     {
-      transactionName: "Withdraw",
+      transactionName: "Withdraw Expired",
     }
   );
 
@@ -103,7 +103,7 @@ export default function ContractContainer({
 
   const handleBurn = (event) => {
     event.preventDefault();
-    burn();
+    burnExpired();
   };
 
   const handleDepositAmountChange = (event) => {
@@ -117,7 +117,7 @@ export default function ContractContainer({
 
   const handleWithdrawAll = (event) => {
     event.preventDefault();
-    withdraw();
+    withdrawExpired();
   };
 
 
