@@ -68,6 +68,8 @@ export default function ContractContainer({
     removePermissionedUser(contractAddress);
   };
 
+
+
   const [wdb, setWdb] = useState({
     deposit: 1000,
     withdraw: 0,

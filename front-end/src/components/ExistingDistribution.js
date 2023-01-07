@@ -7,6 +7,7 @@ const ExistingDistribution = () => {
   const [contractAddresses, setContractAddresses] = useState([]);
   const [onDeleteRefreshState, onDeleteRefresh] = useState(true);
   const [blockchainExists, setBlockchainExists] = useState(true);
+
   const { id } = useParams();
 
   useEffect(() => {
@@ -57,16 +58,18 @@ const ExistingDistribution = () => {
       <div className="flex flex-col items-center">
         <div className="flex justify-center">
           <h1 className="text-xl font-bold mb-2 mt-4 text-gray-700">
-            Distribution contract address
+            Distribution Contract Address
           </h1>
         </div>
         <form
           onSubmit={(event) => {
             event.preventDefault();
             const contractAddress = event.target.elements.contractAddress.value;
+
             saveContractAddress(contractAddress);
           }}
         >
+
           <input
             type="string"
             name="contractAddress"
@@ -75,6 +78,7 @@ const ExistingDistribution = () => {
           />
           <button className="mt-2 mb-5">Add Distribution</button>
         </form>
+
         <ul>
           {contractAddresses.map((contractAddress) => (
             <ContractPermissionContainer

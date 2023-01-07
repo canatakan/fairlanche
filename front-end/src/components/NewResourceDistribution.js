@@ -9,16 +9,20 @@ import PQMFERC20DistributorBYTE from "../constants/PQMFERC20DistributorBYTE";
 
 //import here public smf erc115
 
+//Token contract
+
+import erc20abi from "../constants/ERC20Resource";
+import erc20byte from "../constants/ERC20ResourceBYTE";
+import erc1155abi from "../constants/ERC1155Resource";
+import erc1155byte from "../constants/ERC1155ResourceBYTE";
+
+
 const contractDeployer = async (abi, byteCode, args) => {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
   const signer = provider.getSigner();
 
-  const factory = new ContractFactory(
-    PQMFERC20Distributor,
-    PQMFERC20DistributorBYTE,
-    signer
-  );
+  const factory = new ContractFactory(abi, byteCode, signer);
   const contract = await factory.deploy(...args);
 
   const status = await contract.deployTransaction.wait();
@@ -26,6 +30,34 @@ const contractDeployer = async (abi, byteCode, args) => {
   if (status.confirmations >= 1) {
     alert(`Contract created, contract address is ${status.contractAddress}`);
   }
+};
+
+const tokenCreateDeployer = async (tokenType, args) => {
+  if (tokenType === "erc20") {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+
+    const factory = new ContractFactory(erc20abi, erc20byte, signer);
+    const contract = await factory.deploy(...args);
+
+    const status = await contract.deployTransaction.wait();
+
+    alert(`erc20 token created, contract address is ${status.contractAddress}`);
+    return status.contractAddress;
+  }
+
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  const signer = provider.getSigner();
+
+  const factory = new ContractFactory(erc1155abi, erc1155byte, signer);
+  const contract = await factory.deploy(...args);
+
+  const status = await contract.deployTransaction.wait();
+
+  alert(`erc1155 token created, contract address is ${status.contractAddress}`);
+  return status.contractAddress;
 };
 
 const deployer = async (isPermissioned, resourceType, algorithm, state) => {
@@ -205,8 +237,35 @@ const NewResourceDistribution = () => {
     _maximumSupplies: "1_000_000, 1_000_000, 1_000_000",
   });
   const [createToken, setCreateToken] = useState(false);
+
+  const handleTokenCreation = async (tokenType) => {
+    if (tokenType === "erc20") {
+      //todo
+
+      const address = await tokenCreateDeployer("erc20", [
+        erc20token._name,
+        erc20token._symbol,
+        erc20token._premintSupply,
+        erc20token._maximumSupply,
+      ]);
+      setState((prev) => ({ ...prev, _tokenContract: address }));
+      setCreateToken((prev) => false);
+      return;
+    }
+
+    const address = await tokenCreateDeployer("erc1155", [
+      erc1155._name,
+      erc1155._symbol,
+      erc1155._uri,
+      erc1155._premintIds.split(",").map((numstr) => parseInt(numstr)),
+      erc1155._premintSupplies.split(",").map((numstr) => parseInt(numstr)),
+      erc1155._maximumSupplies.split(",").map((numstr) => parseInt(numstr)),
+    ]);
+    setState((prev) => ({ ...prev, _tokenContract: address }));
+    setCreateToken((prev) => false);
+  };
   return (
-    <div className="w-full flex flex-col gap-3 p-3 bg-white rounded-md shadow-md border border-gray-200">
+    <div className="w-full flex flex-col gap-3">
       <Radio
         name={"resource-publicity"}
         options={[
@@ -275,7 +334,7 @@ const NewResourceDistribution = () => {
             </button>
           ) : (
             <button className="w-56" onClick={() => setCreateToken(true)}>
-              Create {config.RESOURCE_TYPE} Token
+              Create {config.RESOURCE_TYPE} token
             </button>
           )}
 
@@ -283,7 +342,7 @@ const NewResourceDistribution = () => {
             <div className="border p-4 rounded-lg ">
               <Input
                 id="_name"
-                title={"Name"}
+                title={"_name"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc20Token((prev) => ({ ...prev, _name: val }))
@@ -292,7 +351,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_symbol"
-                title={"Symbol"}
+                title={"_symbol"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc20Token((prev) => ({ ...prev, _symbol: val }))
@@ -301,7 +360,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_premintSupply"
-                title={"Premint Supply"}
+                title={"_premintSupply"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc20Token((prev) => ({ ...prev, _premintSupply: val }))
@@ -310,13 +369,21 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_maximumSupply"
-                title={"Maximum Supply"}
+                title={"_maximumSupply"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc20Token((prev) => ({ ...prev, _maximumSupply: val }))
                 }
                 value={erc20token._maximumSupply}
               />
+              <div className="flex w-full justify-start">
+                <button
+                  className="mt-4"
+                  onClick={() => handleTokenCreation("erc20")}
+                >
+                  Create erc20 token
+                </button>
+              </div>
             </div>
           )}
 
@@ -324,7 +391,7 @@ const NewResourceDistribution = () => {
             <div className="border p-4 rounded-lg ">
               <Input
                 id="_name"
-                title={"Name"}
+                title={"_name"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc1155Token((prev) => ({ ...prev, _name: val }))
@@ -333,7 +400,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_symbol"
-                title={"Symbol"}
+                title={"_symbol"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc1155Token((prev) => ({ ...prev, _symbol: val }))
@@ -342,7 +409,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_uri"
-                title={"Uri"}
+                title={"_uri"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc1155Token((prev) => ({ ...prev, _uri: val }))
@@ -351,7 +418,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_premintIds"
-                title={"Premint Ids"}
+                title={"_premintIds"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc1155Token((prev) => ({ ...prev, _premintIds: val }))
@@ -360,7 +427,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_premintSupplies"
-                title={"Premint Supplies"}
+                title={"_premintSupplies"}
                 placeholder="300"
                 onChange={(val) =>
                   seterc1155Token((prev) => ({ ...prev, _premintSupply: val }))
@@ -369,7 +436,7 @@ const NewResourceDistribution = () => {
               />
               <Input
                 id="_maximumSupplies"
-                title={"Maximum Supplies"}
+                title={"_maximumSupplies"}
                 placeholder="300"
                 on={(val) =>
                   seterc1155Token((prev) => ({
@@ -379,6 +446,14 @@ const NewResourceDistribution = () => {
                 }
                 value={erc1155._maximumSupplies}
               />
+              <div className="flex w-full justify-start">
+                <button
+                  className="mt-4"
+                  onClick={() => handleTokenCreation("erc1155")}
+                >
+                  Create erc1155 token
+                </button>
+              </div>
             </div>
           )}
         </>
@@ -386,7 +461,7 @@ const NewResourceDistribution = () => {
       <div>
         <Input
           id="_maxDemandVolume"
-          title={"Max Demand Volume"}
+          title={"_maxDemandVolume"}
           placeholder="300"
           type={"number"}
           onChange={(val) =>
@@ -397,7 +472,7 @@ const NewResourceDistribution = () => {
         {config.RESOURCE_TYPE === "erc1155" && (
           <Input
             id="_tokenId"
-            title={"Token Id"}
+            title={"_tokenId"}
             type={"number"}
             placeholder="0"
             onChange={(val) => setState((prev) => ({ ...prev, _tokenId: val }))}
@@ -406,7 +481,7 @@ const NewResourceDistribution = () => {
         )}
         <Input
           id="_epochCapacity"
-          title={"Epoch Capacity"}
+          title={"_epochCapacity"}
           type={"number"}
           placeholder="500"
           onChange={(val) =>
@@ -416,7 +491,7 @@ const NewResourceDistribution = () => {
         />
         <Input
           id="_epochDuration"
-          title={"Epoch Duration"}
+          title={"_epochDuration"}
           type={"number"}
           placeholder="600"
           onChange={(val) =>
@@ -426,7 +501,7 @@ const NewResourceDistribution = () => {
         />
         <Input
           id="_etherMultiplier"
-          title={"Ether Multiplier"}
+          title={"_etherMultiplier"}
           type={"number"}
           placeholder="1000"
           onChange={(val) =>
@@ -436,7 +511,7 @@ const NewResourceDistribution = () => {
         />
         <Input
           id="_expirationBlocks"
-          title={"Expiration Blocks"}
+          title={"_expirationBlocks"}
           type={"number"}
           placeholder="3000"
           onChange={(val) =>
@@ -454,7 +529,7 @@ const NewResourceDistribution = () => {
             setState((prev) => ({ ...prev, _enableWithdraw: val }))
           }
           isInline={true}
-          title={"Enable Withdraw"}
+          title={"_enableWithdraw"}
           value={state._enableWithdraw}
         />
         {config.RESOURCE_TYPE === "native" && (
@@ -471,7 +546,6 @@ const NewResourceDistribution = () => {
 
       <div className="flex flex-row items-center justify-center">
         <div className="flex justify-center mb-2">
-        
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="button"
