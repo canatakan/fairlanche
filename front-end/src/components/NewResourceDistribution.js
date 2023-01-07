@@ -40,16 +40,10 @@ import EqualERC1155DistributorBYTE from "../constants/EqualERC1155DistributorBYT
 import EqualNativeDistributor from "../constants/EqualNativeDistributor";
 import EqualNativeDistributorBYTE from "../constants/EqualNativeDistributorBYTE";
 
-
-//import here public smf erc115
-
-//Token contract
-
 import erc20abi from "../constants/ERC20Resource";
 import erc20byte from "../constants/ERC20ResourceBYTE";
 import erc1155abi from "../constants/ERC1155Resource";
 import erc1155byte from "../constants/ERC1155ResourceBYTE";
-
 
 const contractDeployer = async (abi, byteCode, args) => {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -80,6 +74,7 @@ const tokenCreateDeployer = async (tokenType, args) => {
     alert(`erc20 token created, contract address is ${status.contractAddress}`);
     return status.contractAddress;
   }
+
 
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
@@ -158,6 +153,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
           case "qmf":
             const argsqmferc1155 = [
               state._tokenContract,
+              state._tokenId,
               state._maxDemandVolume,
               state._epochCapacity,
               state._epochDuration,
@@ -174,6 +170,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
           case "smf":
             const argssmferc1155 = [
               state._tokenContract,
+              state._tokenId,
               state._maxDemandVolume,
               state._epochCapacity,
               state._epochDuration,
@@ -191,6 +188,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
           case "equal":
             const argsequalerc1155 = [
               state._tokenContract,
+              state._tokenId,
               state._maxDemandVolume,
               state._epochCapacity,
               state._epochDuration,
@@ -212,13 +210,13 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
         switch (algorithm) {
           case "qmf":
             const argsqmfnative = [
-              state._tokenContract,
               state._maxDemandVolume,
               state._epochCapacity,
               state._epochDuration,
               state._etherMultiplier,
               state._expirationBlocks,
               JSON.parse(state._enableWithdraw),
+              state._value,
             ];
             await contractDeployer(
               PQMFNativeDistributor,
@@ -228,13 +226,13 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
             break;
           case "smf":
             const argssmfnative = [
-              state._tokenContract,
               state._maxDemandVolume,
               state._epochCapacity,
               state._epochDuration,
               state._etherMultiplier,
               state._expirationBlocks,
               JSON.parse(state._enableWithdraw),
+              state._value,
             ];
             await contractDeployer(
               PSMFNativeDistributor,
@@ -245,13 +243,13 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
             break;
           case "equal":
             const argsequalnative = [
-              state._tokenContract,
               state._maxDemandVolume,
               state._epochCapacity,
               state._epochDuration,
               state._etherMultiplier,
               state._expirationBlocks,
               JSON.parse(state._enableWithdraw),
+              state._value,
             ];
             await contractDeployer(
               PEqualNativeDistributor,
@@ -332,6 +330,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
         case "qmf":
           const argsqmferc1155p = [
             state._tokenContract,
+            state._tokenId,
             state._maxDemandVolume,
             state._epochCapacity,
             state._epochDuration,
@@ -348,6 +347,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
         case "smf":
           const argssmferc1155p = [
             state._tokenContract,
+            state._tokenId,
             state._maxDemandVolume,
             state._epochCapacity,
             state._epochDuration,
@@ -365,6 +365,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
         case "equal":
           const argsequalerc1155p = [
             state._tokenContract,
+            state._tokenId,
             state._maxDemandVolume,
             state._epochCapacity,
             state._epochDuration,
@@ -386,13 +387,13 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
       switch (algorithm) {
         case "qmf":
           const argsqmfnativep = [
-            state._tokenContract,
             state._maxDemandVolume,
             state._epochCapacity,
             state._epochDuration,
             state._etherMultiplier,
             state._expirationBlocks,
             JSON.parse(state._enableWithdraw),
+            state._value,
           ];
           await contractDeployer(
             QMFNativeDistributor,
@@ -403,13 +404,13 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
           break;
         case "smf":
           const argssmfnativep = [
-            state._tokenContract,
             state._maxDemandVolume,
             state._epochCapacity,
             state._epochDuration,
             state._etherMultiplier,
             state._expirationBlocks,
             JSON.parse(state._enableWithdraw),
+            state._value,
           ];
           await contractDeployer(
             SMFNativeDistributor,
@@ -420,13 +421,13 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
           break;
         case "equal":
           const argsequalnativep = [
-            state._tokenContract,
             state._maxDemandVolume,
             state._epochCapacity,
             state._epochDuration,
             state._etherMultiplier,
             state._expirationBlocks,
             JSON.parse(state._enableWithdraw),
+            state._value,
           ];
           await contractDeployer(
             EqualNativeDistributor,
