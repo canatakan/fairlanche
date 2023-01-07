@@ -2,18 +2,16 @@ const {
     platform,
 } = require("./importAPI.js")
 
-async function getBlockchainName(subnetId, blockchainId) {
-    const blockchains = await platform.validates(subnetId)
+async function getBlockchainName(blockchainId) {
+    const blockchains = await platform.getBlockchains()
     for (let i = 0; i < blockchains.length; i++) {
         const blockchain = blockchains[i]
-        if (blockchain === blockchainId) {
-            return blockchain
+        if (blockchain.id === blockchainId) {
+            return blockchain.name
         }
     }
 }
 
-// getBlockchainName(
-//     "nPbdoDFdf9i4N8kjRwkU6QcfgTWPAtGijEd4b3osoZWhibdRy",
-//     "RDetPA9sXKTyrao84aJ3MgmiDna6DZhuWsgAMkFM7wU1LFfa1")
+// getBlockchainName("RDetPA9sXKTyrao84aJ3MgmiDna6DZhuWsgAMkFM7wU1LFfa1")
 
 module.exports = { getBlockchainName }
