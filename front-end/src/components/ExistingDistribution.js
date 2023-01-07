@@ -3,12 +3,10 @@ import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
 import ContractPermissionContainer from "./ContractPermissionContainer";
 
-
 const ExistingDistribution = () => {
   const [contractAddresses, setContractAddresses] = useState([]);
   const [onDeleteRefreshState, onDeleteRefresh] = useState(true);
   const [blockchainExists, setBlockchainExists] = useState(true);
-
   const { id } = useParams();
 
   useEffect(() => {
@@ -58,7 +56,7 @@ const ExistingDistribution = () => {
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center">
         <div className="flex justify-center">
-          <h1 className="text-xl font-bold mb-2 mt-4 text-gray-700">
+          <h1 className="text-xl font-bold mb-2 text-gray-700">
             Distribution Contract Address
           </h1>
         </div>
@@ -66,7 +64,6 @@ const ExistingDistribution = () => {
           onSubmit={(event) => {
             event.preventDefault();
             const contractAddress = event.target.elements.contractAddress.value;
-
             saveContractAddress(contractAddress);
           }}
         >

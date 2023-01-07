@@ -11,6 +11,7 @@ import PQMFERC20Distributor from "../constants/PQMFERC20Distributor";
 export default function ContractContainer({
   contractAddress,
   onDeleteRefresh,
+  
 }) {
   const [permissionedAddress, setPermissionedAddress] = useState("");
   const [unpermissionedAddress, setUnpermissionedAddress] = useState("");
@@ -122,7 +123,10 @@ export default function ContractContainer({
 
 
 
+
   return (
+
+  
     <div className="mb-6 border-2 border-gray-300 mb-2 rounded-xl">
       <Collapsible
         close
