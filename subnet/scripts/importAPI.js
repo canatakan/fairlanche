@@ -11,34 +11,35 @@ const bintools = BinTools.getInstance()
 const skip = (num) => new Array(num);
 
 // <<<<<< Avalanche instance with 3rd party API endpoints
-// const avalanche = new Avalanche(...skip(3), networkID, ...skip(2), hrt)
+const avalanche = new Avalanche(...skip(3), networkID, ...skip(2), hrt)
 
-// const platform = avalanche.PChain()
-// platform.setBaseURL(pAnkrBase)
-// const xchain = avalanche.XChain()
-// xchain.setBaseURL(xAnkrBase)
-// const cchain = avalanche.CChain()
-// cchain.setBaseURL(cAnkrBase)
+const platform = avalanche.PChain()
+platform.setBaseURL(pAnkrBase)
+const xchain = avalanche.XChain()
+xchain.setBaseURL(xAnkrBase)
+const cchain = avalanche.CChain()
+cchain.setBaseURL(cAnkrBase)
 
-//info.setBaseURL(cAnkrBase)
+const info = avalanche.Info()
+info.setBaseURL(cAnkrBase)
 // >>>>>>
 
 
 // <<<<<< Avalanche instance with independent node
-const avalanche = new Avalanche(
-  nodeIP,
-  nodePort,
-  protocol,
-  networkID,
-  ...skip(2), // skip xchainID, cchainID
-  hrt
-)
+// const avalanche = new Avalanche(
+//   nodeIP,
+//   nodePort,
+//   protocol,
+//   networkID,
+//   ...skip(2), // skip xchainID, cchainID
+//   hrt
+// )
 
-const platform = avalanche.PChain()
-const xchain = avalanche.XChain()
-const cchain = avalanche.CChain()
+// const platform = avalanche.PChain()
+// const xchain = avalanche.XChain()
+// const cchain = avalanche.CChain()
 
-const info = avalanche.Info()
+// const info = avalanche.Info()
 // >>>>>>
 
 
