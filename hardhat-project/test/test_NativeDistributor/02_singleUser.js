@@ -7,7 +7,7 @@ const {
     DEFAULT_ETHER_MULTIPLIER,
 } = require("../test_utils/config");
 
-describe("Single user Demand & Claim", function () {
+describe("NativeDistributor single user Demand & Claim", function () {
 
     let nativeDistributor;
 
@@ -135,7 +135,7 @@ describe("Single user Demand & Claim", function () {
 
 });
 
-describe("Single user Demand & Claim Bulk", function () {
+describe("NativeDistributor single user Demand & Claim Bulk", function () {
 
     it("Should allow the user to make multiple demands then claim all", async function () {
         let { nativeDistributor } = await deployNativeDistributor();

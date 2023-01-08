@@ -153,6 +153,7 @@ task("test", "Runs the test script", async (taskArgs, hre) => {
       newFileList.push('./test/test_NativeDistributor/01_basics.js');
       newFileList.push('./test/test_NativeDistributor/02_singleUser.js');
       newFileList.push('./test/test_NativeDistributor/03_multipleUsers.js');
+      newFileList.push('./test/test_NativeDistributor/04_gasRefund.js');
     } else if (taskArgs.testFiles[i].toLowerCase() == 'public') {
       newFileList.push('./test/test_PublicDistributor/01_basics.js');
       newFileList.push('./test/test_PublicDistributor/02_singleUser.js');

@@ -31,6 +31,10 @@ const allocations = fs.readFileSync(
 }, {}
 );
 
+const lowFeeConfig = require("./fee_configs/low.json");
+const mediumFeeConfig = require("./fee_configs/medium.json");
+const highFeeConfig = require("./fee_configs/high.json");
+
 const genesis = {
     "config": {
         "chainId": 314159,
@@ -45,16 +49,7 @@ const genesis = {
         "istanbulBlock": 0,
         "muirGlacierBlock": 0,
         "subnetEVMTimestamp": 0,
-        "feeConfig": {
-            "gasLimit": 8000000,
-            "minBaseFee": 25000000000,
-            "targetGas": 15000000,
-            "baseFeeChangeDenominator": 36,
-            "minBlockGasCost": 0,
-            "maxBlockGasCost": 1000000,
-            "targetBlockRate": 2,
-            "blockGasCostStep": 200000
-        },
+        "feeConfig": highFeeConfig,
         "contractDeployerAllowListConfig": {
             "blockTimestamp": 0,
             "adminAddresses": deployerAdmins,
