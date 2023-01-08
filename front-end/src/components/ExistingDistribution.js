@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
-import ContractPermissionContainer from "./ContractPermissionContainer";
+import ContractPermissionContainer from "./ContractManagementContainer";
 
 const ExistingDistribution = () => {
   const [contractAddresses, setContractAddresses] = useState([]);

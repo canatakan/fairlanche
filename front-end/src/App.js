@@ -4,11 +4,11 @@ import { Route, Routes } from 'react-router-dom';
 
 import NavBar from './components/NavBar';
 import Home from './components/pages/Home';
-import Transaction from './components/pages/Transaction';
-import Deployment from './components/pages/Deployment';
-import Management from './components/pages/Management';
-import ManageSubnet from './components/pages/ManageSubnet';
-import ContractPage from './components/pages/ContractPage';
+import Transaction from './components/pages/TransactionPage';
+import Deployment from './components/pages/DeploymentPage';
+import Management from './components/pages/ManagementPage';
+import ManageSubnet from './components/pages/SubnetManagementPage';
+import ContractPage from './components/pages/ContractTransactionPage';
 
 function App() {
 

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
-import ContractPermissionContainer from "../ContractPermissionContainer";
+import ContractPermissionContainer from "../ContractManagementContainer";
 import { Tab } from "@headlessui/react";
 import NewResourceDistribution from "../NewResourceDistribution";
 import ExistingDistribution from "../ExistingDistribution";
-import Permissions from "../Permissions";
+import Permissions from "../ContractPermissions";
 
 
 function classNames(...classes) {
