@@ -5,6 +5,7 @@ import ContractPermissionContainer from "../ContractPermissionContainer";
 import { Tab } from "@headlessui/react";
 import NewResourceDistribution from "../NewResourceDistribution";
 import ExistingDistribution from "../ExistingDistribution";
+import Permissions from "../Permissions";
 
 
 function classNames(...classes) {
@@ -144,7 +145,7 @@ export default function ManagePageTransactions() {
                 "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
               )}
             >
-              TODO - Blockchain Permission buraya
+              <Permissions />
             </Tab.Panel>
             <Tab.Panel
               className={classNames(

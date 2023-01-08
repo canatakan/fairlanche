@@ -6,59 +6,55 @@ import Collapsible from "./Collapsible";
 import { useContractFunction } from "@usedapp/core";
 import { Contract } from "ethers";
 
-// TODO : According the contract type ERC20/ERC1155/Native the abi that Instance Generator uses will change.
 import PQMFERC20Distributor from "../constants/PQMFERC20Distributor";
+// TODO : According the contract type ERC20/ERC1155/Native the abi that Instance Generator uses will change.
 
 export default function ContractContainer({
   contractAddress,
   onDeleteRefresh,
-  
+
 }) {
-  const [permissionedAddress, setPermissionedAddress] = useState("");
-  const [unpermissionedAddress, setUnpermissionedAddress] = useState("");
-  const [depositAmount, setDepositAmount] = useState(0);
+  const [adminAddress, setAdminAddress] = useState("");
+  const [enabledAddress, setEnabledAddress] = useState("");
+  const [noneAddress, setNoneAddress] = useState("");
+  const [addressStatus, readAddressStatus] = useState("");
   const [contractInstance, setContractInstance] = useState(null);
 
 
-  const { state: givePermissionState, send: addPermissionedUser } = useContractFunction(
+  const { state: a, send: setAdmin } = useContractFunction(
     contractInstance,
-    "addPermissionedUser",
+    "setAdmin",
     {
-      transactionName: "Add Permissioned User",
+      transactionName: "Set Admin Address",
     }
   );
 
-  const { state: removePermissionState, send: removePermissionedUser } = useContractFunction(
+  const { state: b, send: setEnabled } = useContractFunction(
     contractInstance,
-    "removePermissionedUser",
+    "setEnabled",
     {
-      transactionName: "Remove Permissioned User",
+      transactionName: "Set Enabled Address",
     }
   );
 
-  const { state: burnState, send: burnExpired } = useContractFunction(
+  const { state: c, send: setNone } = useContractFunction(
     contractInstance,
-    "burnExpired",
+    "setNone",
     {
-      transactionName: "Burn Expired",
+      transactionName: "Set None Address",
     }
   );
 
-  const { state: depositState, send: deposit } = useContractFunction(
+  const { state: d, send: readAllowList } = useContractFunction(
     contractInstance,
-    "deposit",
+    "readAllowList",
     {
-      transactionName: "Deposit",
+      transactionName: "Read Allow List",
     }
   );
 
-  const { state: withdrawState, send: withdrawExpired } = useContractFunction(
-    contractInstance,
-    "withdrawExpired",
-    {
-      transactionName: "Withdraw Expired",
-    }
-  );
+
+
 
   useEffect(() => {
     if (contractAddress) {
@@ -68,6 +64,7 @@ export default function ContractContainer({
   }, [contractAddress]);
 
   const generateContractInstance = (address) => {
+    // TODO : get the ABIs
     const instance = new Contract(address, PQMFERC20Distributor, ethers.getDefaultProvider());
     return instance;
   };
@@ -85,41 +82,40 @@ export default function ContractContainer({
     onDeleteRefresh((prev) => !prev);
   };
 
-  const handlePermissionedAddressChange = (event) => {
-    setPermissionedAddress(event.target.value);
+  const handleAdminAddressChange = (e) => {
+    setAdminAddress(e.target.value);
   };
 
-  const handleUnpermissionedAddressChange = (event) => {
-    setUnpermissionedAddress(event.target.value);
+  const handleEnabledAddressChange = (e) => {
+    setEnabledAddress(e.target.value);
   };
 
-  const handleGivePermission = (event) => {
-    event.preventDefault();
-    addPermissionedUser(contractAddress);
+  const handleNoneAddressChange = (e) => {
+    setNoneAddress(e.target.value);
   };
 
-  const handleRemovePermission = (event) => {
-    event.preventDefault();
-    removePermissionedUser(contractAddress);
+  const handleReadAddressChange = (e) => {
+    readAddressStatus(e.target.value);
   };
 
-  const handleBurn = (event) => {
-    event.preventDefault();
-    burnExpired();
+  const handleSetAdmin = (e) => {
+    e.preventDefault();
+    setAdmin(adminAddress);
   };
 
-  const handleDepositAmountChange = (event) => {
-    setDepositAmount(event.target.value);
+  const handleSetEnabled = (e) => {
+    e.preventDefault();
+    setEnabled(enabledAddress);
   };
 
-  const handleDeposit = (event) => {
-    event.preventDefault();
-    deposit(depositAmount);
+  const handleSetNone = (e) => {
+    e.preventDefault();
+    setNone(noneAddress);
   };
 
-  const handleWithdrawAll = (event) => {
-    event.preventDefault();
-    withdrawExpired();
+  const handleReadAllowList = (e) => {
+    e.preventDefault();
+    readAllowList(readAddressStatus);
   };
 
   return (
@@ -158,65 +154,65 @@ export default function ContractContainer({
             <input
               className="border-2 px-2 py-1 rounded-md w-56"
               type="string"
-              name="permissionedAddress"
-              value={permissionedAddress}
-              onChange={handlePermissionedAddressChange}
+              name="adminAddress"
+              value={adminAddress}
+              onChange={handleAdminAddressChange}
               placeholder="Address"
 
             />
             <button
               className="w-48"
-              onClick={(event) => handleGivePermission(event)}
+              onClick={(event) => handleSetAdmin(event)}
             >
-              Give Permission
+              Set Admin
             </button>
           </div>
           <div className="flex flex-row items-center justify-center mb-1">
             <input
               className="border-2 px-2 py-1 rounded-md w-56"
               type="string"
-              name="unpermissionedAddress"
+              name="setEnableAddress"
               placeholder="Address"
-              value={unpermissionedAddress}
-              onChange={handleUnpermissionedAddressChange}
+              value={enabledAddress}
+              onChange={handleEnabledAddressChange}
             />
             <button
               className="w-48"
-              onClick={(event) => handleRemovePermission(event)}
+              onClick={(event) => handleSetEnabled(event)}
             >
-              Remove Permission
+              Set Enabled
             </button>
           </div>
           <div className="flex flex-row items-center justify-center mb-1">
             <input
               className="border-2 px-2 py-1 rounded-md w-56"
-              type="number"
-              name="depositAmount"
-              placeholder="Amount"
-              value={depositAmount}
-              onChange={handleDepositAmountChange}
+              type="string"
+              name="setNoneAddress"
+              placeholder="Address"
+              value={noneAddress}
+              onChange={handleNoneAddressChange}
             />
             <button
               className="w-48"
-              onClick={(event) => handleDeposit(event)}
+              onClick={(event) => handleSetNone(event)}
             >
-              Deposit
+              Set None
             </button>
           </div>
           <div className="flex flex-row items-center justify-center mb-1">
+            <input
+              className="border-2 px-2 py-1 rounded-md w-56"
+              type="string"
+              name="addressStatus"
+              placeholder="Address"
+              value={addressStatus}
+              onChange={handleReadAddressChange}
+            />
             <button
               className="w-48"
-              onClick={(event) => handleWithdrawAll(event)}
+              onClick={(event) => handleReadAllowList(event)}
             >
-              Withdraw All
-            </button>
-          </div>
-          <div className="flex flex-row items-center justify-center mb-1">
-            <button
-              className="w-48"
-              onClick={(event) => handleBurn(event)}
-            >
-              Burn
+              Address Status
             </button>
           </div>
         </div>
