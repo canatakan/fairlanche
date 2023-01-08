@@ -61,7 +61,7 @@ const contractDeployer = async (abi, byteCode, args) => {
 };
 
 const tokenCreateDeployer = async (tokenType, args) => {
-  if (tokenType === "erc20") {
+  if (tokenType === "ERC20") {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
@@ -71,7 +71,7 @@ const tokenCreateDeployer = async (tokenType, args) => {
 
     const status = await contract.deployTransaction.wait();
 
-    alert(`erc20 token created, contract address is ${status.contractAddress}`);
+    alert(`ERC20 token created, contract address is ${status.contractAddress}`);
     return status.contractAddress;
   }
 
@@ -85,7 +85,7 @@ const tokenCreateDeployer = async (tokenType, args) => {
 
   const status = await contract.deployTransaction.wait();
 
-  alert(`erc1155 token created, contract address is ${status.contractAddress}`);
+  alert(`ERC1155 token created, contract address is ${status.contractAddress}`);
   return status.contractAddress;
 };
 
@@ -94,7 +94,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
   //Permissioned contracts
   if (JSON.parse(isPermissioned)) {
     switch (resourceType) {
-      case "erc20":
+      case "ERC20":
         switch (algorithm) {
           case "qmf":
             const argsqmferc20 = [
@@ -148,7 +148,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
             break;
         }
         break;
-      case "erc1155":
+      case "ERC1155":
         switch (algorithm) {
           case "qmf":
             const argsqmferc1155 = [
@@ -271,7 +271,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
 
   //Public contracts
   switch (resourceType) {
-    case "erc20":
+    case "ERC20":
       switch (algorithm) {
         case "qmf":
           const argsqmferc20p = [
@@ -325,7 +325,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
           break;
       }
       break;
-    case "erc1155":
+    case "ERC1155":
       switch (algorithm) {
         case "qmf":
           const argsqmferc1155p = [
@@ -447,7 +447,7 @@ const deployer = async (isPermissioned, resourceType, algorithm, state) => {
 
 const NewResourceDistribution = () => {
   const [config, setConfig] = useState({
-    RESOURCE_TYPE: "erc20",
+    RESOURCE_TYPE: "ERC20",
     IS_PERMISSIONED: "true",
     ALGORITHM: "qmf",
   });
@@ -482,9 +482,9 @@ const NewResourceDistribution = () => {
   const [createToken, setCreateToken] = useState(false);
 
   const handleTokenCreation = async (tokenType) => {
-    if (tokenType === "erc20") {
+    if (tokenType === "ERC20") {
 
-      const address = await tokenCreateDeployer("erc20", [
+      const address = await tokenCreateDeployer("ERC20", [
         erc20token._name,
         erc20token._symbol,
         erc20token._premintSupply,
@@ -495,7 +495,7 @@ const NewResourceDistribution = () => {
       return;
     }
 
-    const address = await tokenCreateDeployer("erc1155", [
+    const address = await tokenCreateDeployer("ERC1155", [
       erc1155._name,
       erc1155._symbol,
       erc1155._uri,
@@ -544,9 +544,9 @@ const NewResourceDistribution = () => {
       <Radio
         name={"resource-type"}
         options={[
-          { title: "erc20", value: "erc20", id: "resource-type-erc20" },
-          { title: "erc1155", value: "erc1155", id: "resource-type-erc1155" },
-          { title: "native", value: "native", id: "resource-type-native" },
+          { title: "ERC20", value: "ERC20", id: "resource-type-erc20" },
+          { title: "ERC1155", value: "ERC1155", id: "resource-type-erc1155" },
+          { title: "Native", value: "Native", id: "resource-type-native" },
         ]}
         onChange={(val) =>
           setConfig((prev) => ({ ...prev, RESOURCE_TYPE: val }))
@@ -556,8 +556,8 @@ const NewResourceDistribution = () => {
         value={config.RESOURCE_TYPE}
       />
 
-      {(config.RESOURCE_TYPE === "erc20" ||
-        config.RESOURCE_TYPE === "erc1155") && (
+      {(config.RESOURCE_TYPE === "ERC20" ||
+        config.RESOURCE_TYPE === "ERC1155") && (
           <>
             {!createToken && (
               <Input
@@ -571,16 +571,16 @@ const NewResourceDistribution = () => {
               />
             )}
             {createToken ? (
-              <button className="w-56" onClick={() => setCreateToken(false)}>
+              <button className="w-60 hover:bg-red-500" onClick={() => setCreateToken(false)}>
                 Cancel {config.RESOURCE_TYPE} Creation
               </button>
             ) : (
-              <button className="w-56" onClick={() => setCreateToken(true)}>
+              <button className="w-60 hover:bg-green-500" onClick={() => setCreateToken(true)}>
                 Create {config.RESOURCE_TYPE} Token
               </button>
             )}
 
-            {config.RESOURCE_TYPE === "erc20" && createToken && (
+            {config.RESOURCE_TYPE === "ERC20" && createToken && (
               <div className="border p-4 rounded-lg ">
                 <Input
                   id="_name"
@@ -620,7 +620,7 @@ const NewResourceDistribution = () => {
                 />
                 <div className="flex w-full justify-start">
                   <button
-                    className="mt-4"
+                    className="mt-4 w-60 hover:bg-green-500"
                     onClick={() => handleTokenCreation("erc20")}
                   >
                     Create ERC20 Token
@@ -629,7 +629,7 @@ const NewResourceDistribution = () => {
               </div>
             )}
 
-            {config.RESOURCE_TYPE === "erc1155" && createToken && (
+            {config.RESOURCE_TYPE === "ERC1155" && createToken && (
               <div className="border p-4 rounded-lg ">
                 <Input
                   id="_name"
@@ -690,8 +690,8 @@ const NewResourceDistribution = () => {
                 />
                 <div className="flex w-full justify-start">
                   <button
-                    className="mt-4"
-                    onClick={() => handleTokenCreation("erc1155")}
+                    className="mt-4 w-60 hover:bg-green-500"
+                    onClick={() => handleTokenCreation("ERC1155")}
                   >
                     Create ERC1155 Token
                   </button>
@@ -711,7 +711,7 @@ const NewResourceDistribution = () => {
           }
           value={state._maxDemandVolume}
         />
-        {config.RESOURCE_TYPE === "erc1155" && (
+        {config.RESOURCE_TYPE === "ERC1155" && (
           <Input
             id="_tokenId"
             title={"Token Id"}
@@ -789,7 +789,7 @@ const NewResourceDistribution = () => {
       <div className="flex flex-row items-center justify-center">
         <div className="flex justify-center mb-2">
           <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="bg-blue-500 hover:bg-green-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="button"
             onClick={() =>
               deployer(

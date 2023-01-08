@@ -94,6 +94,7 @@ class ManagementPage extends React.Component {
         </div>
         <ul>
           {this.state.subnets.map((subnet) => (
+            <div key={subnet.subnetId}>
             <div className="p-6 mt-6 text-left border w-wrap rounded-xl">
               <div className="flex flex-col items-center justify-center">
                 <a href={'/manage/' + subnet.subnetId}>
@@ -109,6 +110,7 @@ class ManagementPage extends React.Component {
                   >Remove</button>
                 </div>
               </div>
+            </div>
             </div>
           ))}
         </ul>

@@ -80,6 +80,7 @@ const ExistingDistribution = () => {
         <ul>
           {contractAddresses.map((contractAddress) => (
             <ContractPermissionContainer
+              key={contractAddress}
               contractAddress={contractAddress}
               onDeleteRefresh={onDeleteRefresh}
             />

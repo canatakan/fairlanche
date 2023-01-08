@@ -9,6 +9,7 @@ import { Contract } from "ethers";
 import { abi } from "../constants";
 
 export default function ContractContainer({
+  
   contractAddress,
   onDeleteRefresh,
 }) {

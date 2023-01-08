@@ -90,6 +90,7 @@ export default function ContractPageTransactions() {
       <ul>
         {contractAddresses.map((contractAddress) => (
           <ContractContainer
+            key={contractAddress}
             contractAddress={contractAddress}
             onDeleteRefresh={onDeleteRefresh}
           />

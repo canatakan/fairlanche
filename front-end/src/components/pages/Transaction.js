@@ -94,19 +94,21 @@ class TransactionPage extends React.Component {
         </div>
         <ul>
           {this.state.subnets.map((subnet) => (
-            <div className="p-6 mt-6 text-left border w-wrap rounded-xl">
-              <div className="flex flex-col items-center justify-center">
-                <a href={'/transact/' + subnet.subnetId}>
-                  <div className='text-xl font-bold text-center mb-2 hover:text-blue-600 focus:text-blue-600'>{subnet.subnetName}</div>
-                </a>
-                <div className='flex flex-col items-center justify-center'>
-                  <div className='text-lg mb-2'>Subnet ID: {subnet.subnetId}</div>
-                  <div className='text-lg'>Blockchain ID: {subnet.blockchainId}</div>
-                  <button className='mt-1' onClick={() =>
-                    window.confirm('Are you sure you wish to remove this subnet?') 
-                    && this.removeSubnet(subnet.subnetId)
-                  }
-                  >Remove</button>
+            <div key={subnet.subnetId}>
+              <div className="p-6 mt-6 text-left border w-wrap rounded-xl">
+                <div className="flex flex-col items-center justify-center">
+                  <a href={'/transact/' + subnet.subnetId}>
+                    <div className='text-xl font-bold text-center mb-2 hover:text-blue-600 focus:text-blue-600'>{subnet.subnetName}</div>
+                  </a>
+                  <div className='flex flex-col items-center justify-center'>
+                    <div className='text-lg mb-2'>Subnet ID: {subnet.subnetId}</div>
+                    <div className='text-lg'>Blockchain ID: {subnet.blockchainId}</div>
+                    <button className='mt-1' onClick={() =>
+                      window.confirm('Are you sure you wish to remove this subnet?')
+                      && this.removeSubnet(subnet.subnetId)
+                    }
+                    >Remove</button>
+                  </div>
                 </div>
               </div>
             </div>
