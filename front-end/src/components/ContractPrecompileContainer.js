@@ -17,11 +17,12 @@ export default function ContractContainer({
   const [enabledAddress, setEnabledAddress] = useState("");
   const [noneAddress, setNoneAddress] = useState("");
   const [addressStatus, readAddressStatus] = useState("");
-  const [contractInstance, setContractInstance] = useState(null);
+  const [contractInstanceDeployer, setContractInstanceDeployer] = useState(null);
+  const [contractInstanceTransactor, setContractInstanceTransactor] = useState(null);
 
 
   const { state: a, send: setAdmin } = useContractFunction(
-    contractInstance,
+    contractInstanceTransactor,
     "setAdmin",
     {
       transactionName: "Set Admin Address",
@@ -29,7 +30,7 @@ export default function ContractContainer({
   );
 
   const { state: b, send: setEnabled } = useContractFunction(
-    contractInstance,
+    contractInstanceTransactor,
     "setEnabled",
     {
       transactionName: "Set Enabled Address",
@@ -37,7 +38,7 @@ export default function ContractContainer({
   );
 
   const { state: c, send: setNone } = useContractFunction(
-    contractInstance,
+    contractInstanceTransactor,
     "setNone",
     {
       transactionName: "Set None Address",
@@ -45,7 +46,7 @@ export default function ContractContainer({
   );
 
   const { state: d, send: readAllowList } = useContractFunction(
-    contractInstance,
+    contractInstanceDeployer,
     "readAllowList",
     {
       transactionName: "Read Allow List",
@@ -54,25 +55,28 @@ export default function ContractContainer({
 
   useEffect(() => {
     if (blockchainId) {
-      const instance = generateContractInstance(blockchainId);
-      setContractInstance(instance);
+      const instanceDeployer = generateContractInstance("0x0200000000000000000000000000000000000000");
+      const instanceTransactor = generateContractInstance("0x0200000000000000000000000000000000000002");
+      setContractInstanceDeployer(instanceDeployer);
+      setContractInstanceTransactor(instanceTransactor);
     }
   }, [blockchainId]);
 
   const generateContractInstance = (address) => {
     const instance = new Contract(address, IAllowList, ethers.getDefaultProvider());
+    console.log(address);
     return instance;
   };
 
   const deleteblockchainId = (blockchainId) => {
-    const blockchainIdes =
-      JSON.parse(localStorage.getItem("blockchainIdes")) || [];
-    const newblockchainIdes = blockchainIdes.filter(
+    const blockchainIds =
+      JSON.parse(localStorage.getItem("blockchainIds")) || [];
+    const newblockchainIds = blockchainIds.filter(
       (address) => address !== blockchainId
     );
     localStorage.setItem(
-      "blockchainIdes",
-      JSON.stringify(newblockchainIdes)
+      "blockchainIds",
+      JSON.stringify(newblockchainIds)
     );
     onDeleteRefresh((prev) => !prev);
   };
