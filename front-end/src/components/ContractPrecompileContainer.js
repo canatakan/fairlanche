@@ -7,7 +7,6 @@ import { useContractFunction } from "@usedapp/core";
 import { Contract } from "ethers";
 
 import IAllowList from "../constants/IAllowList";
-// TODO : According the contract type ERC20/ERC1155/Native the abi that Instance Generator uses will change.
 
 export default function ContractContainer({
   blockchainId,

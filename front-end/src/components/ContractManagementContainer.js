@@ -85,12 +85,12 @@ export default function ContractContainer({
 
   const handleGivePermission = (event) => {
     event.preventDefault();
-    addPermissionedUser(contractAddress);
+    addPermissionedUser(permissionedAddress);
   };
 
   const handleRemovePermission = (event) => {
     event.preventDefault();
-    removePermissionedUser(contractAddress);
+    removePermissionedUser(unpermissionedAddress);
   };
 
   const handleBurn = (event) => {
