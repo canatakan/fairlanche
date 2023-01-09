@@ -44,7 +44,7 @@ export default function ContractContainer({
       transactionName: "Set None Address",
     }
   );
-  
+
   // const { state: d, send: readAllowList } = useCall(
   //   contractInstanceDeployer,
   //   "readAllowList",
@@ -131,17 +131,9 @@ export default function ContractContainer({
       <Collapsible
         close
         title=<div className="flex flex-row items-center justify-center">
-          <a
-            href={`https://testnet.snowtrace.io/address/${blockchainId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {
-              <div className="text-l font-bold text-center hover:text-blue-600 focus:text-blue-600">
-                {blockchainId}
-              </div>
-            }
-          </a>
+          <div className="flex flex-row items-center justify-center">
+            {blockchainId.slice(0, 21) + '...' + blockchainId.slice(-21)}
+          </div>
         </div>
         item=<div
           className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center"
