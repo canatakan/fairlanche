@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/fontawesome-free-solid";
 import { ethers } from "ethers";
 import Collapsible from "./Collapsible";
-import { useContractFunction } from "@usedapp/core";
+import { useCall, useContractFunction } from "@usedapp/core";
 import { Contract } from "ethers";
 
 import IAllowList from "../constants/IAllowList";
@@ -44,14 +44,21 @@ export default function ContractContainer({
       transactionName: "Set None Address",
     }
   );
+  
+  // const { state: d, send: readAllowList } = useCall(
+  //   contractInstanceDeployer,
+  //   "readAllowList",
+  //   {
+  //     transactionName: "Read Allow List",
+  //   }
+  // );
 
-  const { state: d, send: readAllowList } = useContractFunction(
-    contractInstanceDeployer,
-    "readAllowList",
-    {
-      transactionName: "Read Allow List",
-    }
-  );
+
+  const giveAddressStatus = async (address) => {
+    const status = await contractInstanceDeployer.readAllowList(address);
+    readAddressStatus(status);
+    console.log(status);
+  };
 
   useEffect(() => {
     if (blockchainId) {
@@ -63,8 +70,9 @@ export default function ContractContainer({
   }, [blockchainId]);
 
   const generateContractInstance = (address) => {
-    const instance = new Contract(address, IAllowList, ethers.getDefaultProvider());
-    console.log(address);
+    //const provider = new ethers.providers.JsonRpcProvider("http://18.188.152.131:9650/ext/bc/2ACndrNifpdJzvBJz1jtkfWxQ759ZQ3hLCT5n72mpPybZmAsVy/rpc")
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const instance = new Contract(address, IAllowList, provider);
     return instance;
   };
 
@@ -112,10 +120,11 @@ export default function ContractContainer({
     setNone(noneAddress);
   };
 
-  const handleReadAllowList = (e) => {
+  const handleReadAddressStatus = (e) => {
     e.preventDefault();
-    readAllowList(readAddressStatus);
+    giveAddressStatus(addressStatus);
   };
+
 
   return (
     <div className="mb-6 border-2 border-gray-300 mb-2 rounded-xl">
@@ -209,7 +218,7 @@ export default function ContractContainer({
             />
             <button
               className="w-48"
-              onClick={(event) => handleReadAllowList(event)}
+              onClick={(event) => handleReadAddressStatus(event)}
             >
               Address Status
             </button>
