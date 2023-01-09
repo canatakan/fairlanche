@@ -64,7 +64,7 @@ const ExistingDistribution = () => {
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center">
         <div className="flex justify-center">
-          <h1 className="text-xl font-bold mb-2 mt-4 text-gray-700">
+          <h1 className="text-xl font-bold mb-2 text-gray-700">
             Distribution Contract Address
           </h1>
         </div>

@@ -34,7 +34,7 @@ const SubnetContainer = ({ refresher, tx,bootstrappedNodeId }) => {
             className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center"
             onClick={() => {
               if (
-                window.confirm("Are you sure you wish to remove this contract?")
+                window.confirm("Are you sure you wish to remove this subnet?")
               )
                 handleDelete(tx);
             }}
