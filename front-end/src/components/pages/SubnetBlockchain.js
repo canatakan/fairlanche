@@ -15,6 +15,9 @@ const SubnetBlockchain = () => {
     chainName: "",
     chainID: 0,
     feesRate: "low",
+    // tokenSymbol: "",
+    // RPCURL
+    // decimal
   });
 
   const { tx } = useParams();
@@ -45,14 +48,43 @@ const SubnetBlockchain = () => {
     setTxList((prev) => [...prev, blockchainTX]);
   };
 
+  const addCustomNetwork = async (chainId, chainName, rpcUrls, symbol, decimals) => {
+    console.log(chainId)
+
+    const newChain = {
+      chainId,
+      chainName,
+      rpcUrls,
+      nativeCurrency: {
+        name: symbol,
+        symbol,
+        decimals
+      }
+    };
+    try {
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [newChain]
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  } 
+
+  const handleAddCustomNetwork = () => {
+    // convert input to decimal chainId
+    const chainId = `0x${parseInt(blockChainState.chainID, 10).toString(16)}`;
+    addCustomNetwork(chainId, blockChainState.chainName, ["https://subnets.avax.network/defi-kingdoms/dfk-chain-testnet/rpc"], "AVAX", 18);
+  }
+
   return (
     <div>
       <div className="w-5/12 mx-auto mt-10 ">
         <div>
-          <h1 className="text-2xl mb-6">Blockchain of subnet {tx}</h1>
+          <h1 className="text font-bold mb-6"> Subnet ID {tx}</h1>
           <div className="w-full">
             <div className="w-full flex gap-5 items-center mb-2">
-              <h1 className="w-3/12 text-left text-lg">Chain Name:</h1>
+              <h1 className="w-3/12 text-left text-lg">Chain Name</h1>
               <div className="w-full">
                 <Input
                   placeholder={"Chain Name"}
@@ -64,7 +96,7 @@ const SubnetBlockchain = () => {
               </div>
             </div>
             <div className="w-full flex gap-5 items-center mb-2">
-              <h1 className="w-3/12 text-lg text-left">Chain ID:</h1>
+              <h1 className="w-3/12 text-lg text-left">Chain ID</h1>
               <div className="w-full">
                 <Input
                   placeholder={"Chain ID"}
@@ -76,8 +108,9 @@ const SubnetBlockchain = () => {
                 />
               </div>
             </div>
+            
             <div className="w-full flex gap-5 items-center mb-2">
-              <h1 className="w-3/12 text-lg text-left">Fees:</h1>
+              <h1 className="w-3/12 text-lg text-left">Fees</h1>
               <div className="w-full">
                 <Radio
                   name={"fees-rate"}
@@ -108,8 +141,8 @@ const SubnetBlockchain = () => {
             </div>
 
             <div className="flex flex-col gap-4 mt-10">
-              <div className="w-full flex gap-5 items-center ">
-                <h1 className="w-4/12 text-lg text-left">Fund Distribution:</h1>
+              <div className="w-full flex gap-5 items-center">
+                <h1 className="w-4/12 text-lg text-left">Fund Distribution</h1>
 
                 <div className="w-full flex gap-4 items-center">
                   <div className="w-1/2">
@@ -123,7 +156,7 @@ const SubnetBlockchain = () => {
                 </div>
               </div>
               <div className="w-full flex gap-5 items-center">
-                <h1 className="w-4/12 text-lg text-left">Deployer Admin:</h1>
+                <h1 className="w-4/12 text-lg text-left">Deployer Admin</h1>
 
                 <div className="w-full flex gap-4 items-center">
                   <div className="w-1/2">
@@ -151,7 +184,7 @@ const SubnetBlockchain = () => {
                 </div>
               </div>
               <div className="w-full flex gap-5 items-center">
-                <h1 className="w-4/12 text-lg text-left">tx Admin:</h1>
+                <h1 className="w-4/12 text-lg text-left">tx Admin</h1>
                 <div className="w-full flex gap-4 items-center">
                   <div className="w-1/2">
                     <FileInput
@@ -164,7 +197,7 @@ const SubnetBlockchain = () => {
                 </div>
               </div>
               <div className="w-full flex gap-5 items-center">
-                <h1 className="w-4/12 text-lg text-left">tx Enabled:</h1>
+                <h1 className="w-4/12 text-lg text-left">tx Enabled</h1>
                 <div className="w-full flex gap-4 items-center">
                   <div className="w-1/2">
                     <FileInput
@@ -179,16 +212,45 @@ const SubnetBlockchain = () => {
             </div>
           </div>
         </div>
-        <button className="mt-4 self-start  " onClick={handleCreateBlockChain}>Create Blockchain</button>
+        <button className="bg-blue-500 text-white px-4 py-2 rounded mt-10" onClick={handleCreateBlockChain} >Create Blockchain</button>
       </div>
 
       <div className="w-5/12 mx-auto mt-10">
 
         {txList.map(tx=><BlockchainTxContainer tx={tx}  key={tx}/>)}
-        
+        <button className="bg-blue-500 text-white px-4 py-2 rounded mt-4" onClick={handleAddCustomNetwork} >Add Custom Network</button>
       </div>
+
     </div>
   );
 };
 
 export default SubnetBlockchain;
+
+/* 
+
+            <div className="w-full flex gap-5 items-center mb-2">
+              <h1 className="w-3/12 text-left text-lg">Token Symbol</h1>
+              <div className="w-full">
+                <Input
+                  placeholder={"Token Symbol"}
+                  onChange={(val) =>
+                    setBlockChainState((prev) => ({ ...prev, tokenSymbol: val }))
+                  }
+                  value={blockChainState.tokenSymbol}
+                />
+              </div>
+            </div>
+                        <div className="w-full flex gap-5 items-center mb-2">
+              <h1 className="w-3/12 text-left text-lg">RPCURL</h1>
+              <div className="w-full">
+                <Input
+                  placeholder={"RPC URL"}
+                  onChange={(val) =>
+                    setBlockChainState((prev) => ({ ...prev, rpcurl: val }))
+                  }
+                  value={blockChainState.rpcurl}
+                />
+              </div>
+            </div>
+*/

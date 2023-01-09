@@ -1,6 +1,5 @@
 import { ChainId } from '@usedapp/core';
 import React from 'react';
-import addCustomNetwork from '../AddNetwork';
 const { getBlockchainName } = require('subnet/scripts/getBlockchainName.js');
 
 
