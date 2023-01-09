@@ -10,7 +10,7 @@ import IAllowList from "../constants/IAllowList";
 // TODO : According the contract type ERC20/ERC1155/Native the abi that Instance Generator uses will change.
 
 export default function ContractContainer({
-  contractAddress,
+  blockchainId,
   onDeleteRefresh,
 
 }) {
@@ -53,30 +53,27 @@ export default function ContractContainer({
     }
   );
 
-
-
-
   useEffect(() => {
-    if (contractAddress) {
-      const instance = generateContractInstance(contractAddress);
+    if (blockchainId) {
+      const instance = generateContractInstance(blockchainId);
       setContractInstance(instance);
     }
-  }, [contractAddress]);
+  }, [blockchainId]);
 
   const generateContractInstance = (address) => {
     const instance = new Contract(address, IAllowList, ethers.getDefaultProvider());
     return instance;
   };
 
-  const deleteContractAddress = (contractAddress) => {
-    const contractAddresses =
-      JSON.parse(localStorage.getItem("contractAddresses")) || [];
-    const newContractAddresses = contractAddresses.filter(
-      (address) => address !== contractAddress
+  const deleteblockchainId = (blockchainId) => {
+    const blockchainIdes =
+      JSON.parse(localStorage.getItem("blockchainIdes")) || [];
+    const newblockchainIdes = blockchainIdes.filter(
+      (address) => address !== blockchainId
     );
     localStorage.setItem(
-      "contractAddresses",
-      JSON.stringify(newContractAddresses)
+      "blockchainIdes",
+      JSON.stringify(newblockchainIdes)
     );
     onDeleteRefresh((prev) => !prev);
   };
@@ -123,13 +120,13 @@ export default function ContractContainer({
         close
         title=<div className="flex flex-row items-center justify-center">
           <a
-            href={`https://testnet.snowtrace.io/address/${contractAddress}`}
+            href={`https://testnet.snowtrace.io/address/${blockchainId}`}
             target="_blank"
             rel="noopener noreferrer"
           >
             {
               <div className="text-l font-bold text-center hover:text-blue-600 focus:text-blue-600">
-                {contractAddress}
+                {blockchainId}
               </div>
             }
           </a>
@@ -140,7 +137,7 @@ export default function ContractContainer({
             if (
               window.confirm("Are you sure you wish to remove this contract?")
             )
-              deleteContractAddress(contractAddress);
+              deleteblockchainId(blockchainId);
           }}
         >
           <FontAwesomeIcon icon={faTrash} />
