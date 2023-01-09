@@ -9,13 +9,16 @@ import { Contract } from "ethers";
 import { abi } from "../constants";
 
 export default function ContractContainer({
-  
+
   contractAddress,
   onDeleteRefresh,
 }) {
   const [demandVolume, setDemandVolume] = useState(0);
   const [epochNumber, setEpochNumber] = useState(0);
   const [contractInstance, setContractInstance] = useState(null);
+  const [selectedValues, setSelectedValues] = useState([]);
+  // values will be pulled from listener
+  const values = [1, 2, 4, 3, 7, 8, 10, 344, 2434];
 
   const { state: demandState, send: demand } = useContractFunction(
     contractInstance,
@@ -69,6 +72,34 @@ export default function ContractContainer({
   const handleClaim = (event) => {
     event.preventDefault();
     claim(epochNumber);
+  };
+
+  const Card = ({ value, isSelected, onClick }) => {
+    //it should be similar size with the contract Transaction container
+    const style = {
+      width: '50px',
+      height: '50px',
+      backgroundColor: isSelected ? 'lightgreen' : 'lightgrey',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      margin: '2px',
+      cursor: 'pointer'
+    };
+
+    return (
+      <div style={style} onClick={onClick}>
+        {value}
+      </div>
+    );
+  };
+
+  const handleCardClick = value => {
+    if (selectedValues.includes(value)) {
+      setSelectedValues(selectedValues.filter(v => v !== value));
+    } else {
+      setSelectedValues([...selectedValues, value]);
+    }
   };
 
   return (
@@ -128,9 +159,36 @@ export default function ContractContainer({
               claim
             </button>
           </div>
+
           <div className="flex flex-row items-center justify-center mb-1">
-            <button className="w-24">claimAll</button>
+            <div>
+              <h3>Previously Demanded Epochs</h3>
+              <div
+                style={
+                  {
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }
+                }
+              >
+                {values.map(value => (
+                  <Card
+                    key={value}
+                    value={value}
+                    isSelected={selectedValues.includes(value)}
+                    onClick={() => handleCardClick(value)}
+                  />
+                ))}
+              </div>
+              <br />
+              <button onClick={() => alert(selectedValues)}>
+                Claim Bulk
+              </button>
+            </div>
           </div>
+
         </div>
       </Collapsible>
     </div>
