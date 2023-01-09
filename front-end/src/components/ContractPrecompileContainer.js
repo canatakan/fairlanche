@@ -6,7 +6,7 @@ import Collapsible from "./Collapsible";
 import { useContractFunction } from "@usedapp/core";
 import { Contract } from "ethers";
 
-import PQMFERC20Distributor from "../constants/PQMFERC20Distributor";
+import IAllowList from "../constants/IAllowList";
 // TODO : According the contract type ERC20/ERC1155/Native the abi that Instance Generator uses will change.
 
 export default function ContractContainer({
@@ -64,8 +64,7 @@ export default function ContractContainer({
   }, [contractAddress]);
 
   const generateContractInstance = (address) => {
-    // TODO : get the ABIs
-    const instance = new Contract(address, PQMFERC20Distributor, ethers.getDefaultProvider());
+    const instance = new Contract(address, IAllowList, ethers.getDefaultProvider());
     return instance;
   };
 

@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import ContractPrecompilerContainer from "./ContractPrecompileContainer";
 
 const BlockchainPermission = () => {
-  const [contractAddresses, setContractAddresses] = useState([]);
+  const [blockchainIds, setBlockchainIds] = useState([]);
   const [onDeleteRefreshState, onDeleteRefresh] = useState(true);
   const [blockchainExists, setBlockchainExists] = useState(true);
   const { id } = useParams();
@@ -17,20 +17,16 @@ const BlockchainPermission = () => {
   }, [id]);
 
   useEffect(() => {
-    const contractAddresses =
-      JSON.parse(localStorage.getItem("contractAddresses")) || [];
-    setContractAddresses(contractAddresses);
+    const blockchainIds =
+      JSON.parse(localStorage.getItem("blockchainIds")) || [];
+    setBlockchainIds(blockchainIds);
   }, [onDeleteRefreshState]);
 
-  const validateContractAddress = (contractAddress) => {
-    if (!ethers.utils.isAddress(contractAddress)) {
-      alert("Invalid contract address");
-      return false;
-    }
+  const validateblockchainId = (blockchainId) => {
 
-    for (let i = 0; i < contractAddresses.length; i++) {
-      if (contractAddresses[i] === contractAddress) {
-        alert("Contract with this address already exists");
+    for (let i = 0; i < blockchainIds.length; i++) {
+      if (blockchainIds[i] === blockchainId) {
+        alert("Blockchain ID with this ID already exists");
         return false;
       }
     }
@@ -38,18 +34,18 @@ const BlockchainPermission = () => {
     return true;
   };
 
-  const saveContractAddress = (contractAddress) => {
-    if (!validateContractAddress(contractAddress)) {
+  const saveBlockchainId = (blockchainId) => {
+    if (!validateblockchainId(blockchainId)) {
       return;
     }
-    const contractAddresses =
-      JSON.parse(localStorage.getItem("contractAddresses")) || [];
-    contractAddresses.push(contractAddress);
+    const blockchainIds =
+      JSON.parse(localStorage.getItem("blockchainIds")) || [];
+    blockchainIds.push(blockchainId);
     localStorage.setItem(
-      "contractAddresses",
-      JSON.stringify(contractAddresses)
+      "blockchainIds",
+      JSON.stringify(blockchainIds)
     );
-    setContractAddresses(contractAddresses);
+    setBlockchainIds((prev) => [...prev, blockchainId]);
   };
 
   return (
@@ -63,25 +59,25 @@ const BlockchainPermission = () => {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            const contractAddress = event.target.elements.contractAddress.value;
-            saveContractAddress(contractAddress);
+            const blockchainId = event.target.elements.blockchainId.value;
+            saveBlockchainId(blockchainId);
           }}
         >
 
           <input
             type="string"
-            name="contractAddress"
-            placeholder="Contract Address"
+            name="blockchainId"
+            placeholder="Blockchain ID"
             className="border-2 px-2 py-1 rounded-md w-80"
           />
-          <button className="mt-2 mb-5">Add Distribution</button>
+          <button className="mt-2 mb-5">Add Blockchain</button>
         </form>
 
         <ul>
-          {contractAddresses.map((contractAddress) => (
+          {blockchainIds.map((blockchainId) => (
             <ContractPrecompilerContainer
-              key={contractAddress}
-              contractAddress={contractAddress}
+              key={blockchainId}
+              blockchainId={blockchainId}
               onDeleteRefresh={onDeleteRefresh}
             />
           ))}

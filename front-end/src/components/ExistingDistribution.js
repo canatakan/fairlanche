@@ -84,7 +84,6 @@ const ExistingDistribution = () => {
           />
           <button className="mt-2 mb-5">Add Distribution</button>
         </form>
-
         <ul>
           {contractAddresses.map((contractAddress) => (
             <ContractManagementContainer
