@@ -6,35 +6,27 @@ import Collapsible from "./Collapsible";
 import { useContractFunction } from "@usedapp/core";
 import { Contract } from "ethers";
 
-// TODO : According the contract type ERC20/ERC1155/Native the abi that Instance Generator uses will change.
 import PQMFERC20Distributor from "../constants/PQMFERC20Distributor";
 
 export default function ContractContainer({
   contractAddress,
   onDeleteRefresh,
-  
+  id,
 }) {
   const [permissionedAddress, setPermissionedAddress] = useState("");
   const [unpermissionedAddress, setUnpermissionedAddress] = useState("");
   const [depositAmount, setDepositAmount] = useState(0);
   const [contractInstance, setContractInstance] = useState(null);
 
-
-  const { state: givePermissionState, send: addPermissionedUser } = useContractFunction(
-    contractInstance,
-    "addPermissionedUser",
-    {
+  const { state: givePermissionState, send: addPermissionedUser } =
+    useContractFunction(contractInstance, "addPermissionedUser", {
       transactionName: "Add Permissioned User",
-    }
-  );
+    });
 
-  const { state: removePermissionState, send: removePermissionedUser } = useContractFunction(
-    contractInstance,
-    "removePermissionedUser",
-    {
+  const { state: removePermissionState, send: removePermissionedUser } =
+    useContractFunction(contractInstance, "removePermissionedUser", {
       transactionName: "Remove Permissioned User",
-    }
-  );
+    });
 
   const { state: burnState, send: burnExpired } = useContractFunction(
     contractInstance,
@@ -68,20 +60,18 @@ export default function ContractContainer({
   }, [contractAddress]);
 
   const generateContractInstance = (address) => {
-    const instance = new Contract(address, PQMFERC20Distributor, ethers.getDefaultProvider());
+    const instance = new Contract(
+      address,
+      PQMFERC20Distributor,
+      ethers.getDefaultProvider()
+    );
     return instance;
   };
 
   const deleteContractAddress = (contractAddress) => {
-    const contractAddresses =
-      JSON.parse(localStorage.getItem("contractAddresses")) || [];
-    const newContractAddresses = contractAddresses.filter(
-      (address) => address !== contractAddress
-    );
-    localStorage.setItem(
-      "contractAddresses",
-      JSON.stringify(newContractAddresses)
-    );
+    const all = JSON.parse(window.localStorage.getItem("CONTRACT_ADDRESSES"));
+    all[id] = all[id].filter((el) => el != contractAddress);
+    window.localStorage.setItem("CONTRACT_ADDRESSES", JSON.stringify(all));
     onDeleteRefresh((prev) => !prev);
   };
 
@@ -153,7 +143,6 @@ export default function ContractContainer({
       >
         <div className="flex flex-row items-center justify-center mb-1"></div>
         <div className="flex flex-col items-end justify-end">
-
           <div className="flex flex-row items-center justify-center mb-1">
             <input
               className="border-2 px-2 py-1 rounded-md w-56"
@@ -162,7 +151,6 @@ export default function ContractContainer({
               value={permissionedAddress}
               onChange={handlePermissionedAddressChange}
               placeholder="Address"
-
             />
             <button
               className="w-48"
@@ -196,10 +184,7 @@ export default function ContractContainer({
               value={depositAmount}
               onChange={handleDepositAmountChange}
             />
-            <button
-              className="w-48"
-              onClick={(event) => handleDeposit(event)}
-            >
+            <button className="w-48" onClick={(event) => handleDeposit(event)}>
               Deposit
             </button>
           </div>
@@ -212,10 +197,7 @@ export default function ContractContainer({
             </button>
           </div>
           <div className="flex flex-row items-center justify-center mb-1">
-            <button
-              className="w-48"
-              onClick={(event) => handleBurn(event)}
-            >
+            <button className="w-48" onClick={(event) => handleBurn(event)}>
               Burn
             </button>
           </div>

@@ -9,6 +9,7 @@ import Deployment from './components/pages/DeploymentPage';
 import Management from './components/pages/ManagementPage';
 import ManageSubnet from './components/pages/SubnetManagementPage';
 import ContractPage from './components/pages/ContractTransactionPage';
+import SubnetBlockchain from './components/pages/SubnetBlockchain';
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/transact" element={<Transaction />} />
         <Route path="/transact/:id" element={<ContractPage/>}/>
         <Route path="/deploy" element={<Deployment />} />
+        <Route path="/deploy/:tx" element={<SubnetBlockchain />} />
         <Route path="/manage" element={<Management />} />
         <Route path="/manage/:id" element={<ManageSubnet />} />
       

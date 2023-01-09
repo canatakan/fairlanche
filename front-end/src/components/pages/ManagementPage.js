@@ -1,6 +1,6 @@
 import React from 'react';
-
 const { getBlockchainName } = require('subnet/scripts/getBlockchainName.js');
+
 
 class ManagementPage extends React.Component {
 
@@ -55,14 +55,6 @@ class ManagementPage extends React.Component {
       return false;
     }
 
-    // if subnet with these ids already exists, return false:
-    for (let i = 0; i < this.state.subnets.length; i++) {
-      if (this.state.subnets[i].subnetId === subnetId ||
-        this.state.subnets[i].blockchainId === blockchainId) {
-        alert('Subnet with these IDs already exists');
-        return false;
-      }
-    }
 
     // TODO: send an API request to check if the subnet exists
     // https://docs.avax.network/apis/avalanchego/apis/p-chain#platformgetblockchainstatus

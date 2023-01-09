@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
-import ContractPermissionContainer from "./ContractManagementContainer";
+import ContractContainer from "./ContractManagementContainer";
 
 const ExistingDistribution = () => {
   const [contractAddresses, setContractAddresses] = useState([]);
   const [onDeleteRefreshState, onDeleteRefresh] = useState(true);
   const [blockchainExists, setBlockchainExists] = useState(true);
+
   const { id } = useParams();
 
   useEffect(() => {
@@ -17,9 +18,12 @@ const ExistingDistribution = () => {
   }, [id]);
 
   useEffect(() => {
-    const contractAddresses =
-      JSON.parse(localStorage.getItem("contractAddresses")) || [];
-    setContractAddresses(contractAddresses);
+    const all = JSON.parse(window.localStorage.getItem("CONTRACT_ADDRESSES"));
+    if (all) {
+      setContractAddresses(all[id] ?? []);
+      return;
+    }
+    setContractAddresses([]);
   }, [onDeleteRefreshState]);
 
   const validateContractAddress = (contractAddress) => {
@@ -42,21 +46,25 @@ const ExistingDistribution = () => {
     if (!validateContractAddress(contractAddress)) {
       return;
     }
-    const contractAddresses =
-      JSON.parse(localStorage.getItem("contractAddresses")) || [];
-    contractAddresses.push(contractAddress);
-    localStorage.setItem(
-      "contractAddresses",
-      JSON.stringify(contractAddresses)
-    );
-    setContractAddresses(contractAddresses);
+
+    const all = JSON.parse(window.localStorage.getItem("CONTRACT_ADDRESSES"))??{};
+    if (all[id]) {
+      all[id] = [...all[id], contractAddress];
+
+      window.localStorage.setItem("CONTRACT_ADDRESSES", JSON.stringify(all));
+      setContractAddresses((prev) => [...prev, contractAddress]);
+      return;
+    }
+    all[id] = [contractAddress];
+    window.localStorage.setItem("CONTRACT_ADDRESSES", JSON.stringify(all));
+    setContractAddresses((prev) => [...prev, contractAddress]);
   };
 
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center">
         <div className="flex justify-center">
-          <h1 className="text-xl font-bold mb-2 text-gray-700">
+          <h1 className="text-xl font-bold mb-2 mt-4 text-gray-700">
             Distribution Contract Address
           </h1>
         </div>
@@ -64,10 +72,10 @@ const ExistingDistribution = () => {
           onSubmit={(event) => {
             event.preventDefault();
             const contractAddress = event.target.elements.contractAddress.value;
+
             saveContractAddress(contractAddress);
           }}
         >
-
           <input
             type="string"
             name="contractAddress"
@@ -79,10 +87,11 @@ const ExistingDistribution = () => {
 
         <ul>
           {contractAddresses.map((contractAddress) => (
-            <ContractPermissionContainer
-              key={contractAddress}
+            <ContractContainer
               contractAddress={contractAddress}
+              id={id}
               onDeleteRefresh={onDeleteRefresh}
+              key={contractAddress}
             />
           ))}
         </ul>

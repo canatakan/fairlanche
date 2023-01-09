@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
-import ContractPermissionContainer from "../ContractManagementContainer";
 import { Tab } from "@headlessui/react";
 import NewResourceDistribution from "../NewResourceDistribution";
 import ExistingDistribution from "../ExistingDistribution";
@@ -14,8 +13,6 @@ function classNames(...classes) {
 
 export default function ManagePageTransactions() {
   
-  const [tokenStandard, setTokenStandard] = useState(0);
-  const [distributionAlgorithm, setDistributionAlgorithm] = useState(0);
   const [blockchainExists, setBlockchainExists] = useState(true);
   const [contractAddresses, setContractAddresses] = useState([]);
   const [onDeleteRefreshState, onDeleteRefresh] = useState(true);
@@ -50,27 +47,6 @@ export default function ManagePageTransactions() {
     return true;
   };
 
-  const saveContractAddress = (contractAddress) => {
-    if (!validateContractAddress(contractAddress)) {
-      return;
-    }
-    const contractAddresses =
-      JSON.parse(localStorage.getItem("contractAddresses")) || [];
-    contractAddresses.push(contractAddress);
-    localStorage.setItem(
-      "contractAddresses",
-      JSON.stringify(contractAddresses)
-    );
-    setContractAddresses(contractAddresses);
-  };
-
-  const handleTokenStandardChange = (event) => {
-    setTokenStandard(event.target.value);
-  };
-
-  const handleDistributionAlgorithmChange = (event) => {
-    setDistributionAlgorithm(event.target.value);
-  };
 
   if (!blockchainExists) {
     return (

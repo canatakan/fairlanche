@@ -5,8 +5,8 @@ import { ethers } from "ethers";
 import Collapsible from "./Collapsible";
 import { useContractFunction } from "@usedapp/core";
 import { Contract } from "ethers";
-
 import { abi } from "../constants";
+
 
 export default function ContractContainer({
 
@@ -162,7 +162,6 @@ export default function ContractContainer({
 
           <div className="flex flex-row items-center justify-center mb-1">
             <div>
-              <h3>Previously Demanded Epochs</h3>
               <div
                 style={
                   {
@@ -181,16 +180,20 @@ export default function ContractContainer({
                     onClick={() => handleCardClick(value)}
                   />
                 ))}
+                <button onClick={() => alert(selectedValues)} className="w-24 h-16">
+                  Claim
+                  Bulk
+                </button>
               </div>
-              <br />
-              <button onClick={() => alert(selectedValues)}>
-                Claim Bulk
-              </button>
             </div>
           </div>
-
         </div>
+
+
+
+
       </Collapsible>
+
     </div>
   );
 }
