@@ -8,7 +8,7 @@ import { Contract } from "ethers";
 
 import PQMFERC20Distributor from "../constants/PQMFERC20Distributor";
 
-export default function ContractContainer({
+export default function ContractManagementContainer({
   contractAddress,
   onDeleteRefresh,
   id,

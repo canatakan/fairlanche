@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import Input from "../forms/Input";
 import Radio from "../forms/Radio";
 import SubnetContainer from "../SubnetContainer";
+
 
 
 const Deployment = () => {
@@ -42,19 +42,21 @@ const Deployment = () => {
     );
   }, [refreshState]);
 
+  const setSubnetID = (e) => {
+    setSubnetInput(e.target.value);
+  };
+ 
  
 
   return (
-    <>
-      
-
-      <div>
-        <h1 className="text-xl mt-4 ">Deploy Subnet</h1>
+    <div className="flex flex-col items-center">
+    <div className="w-full flex flex-col items-center">
+      <h1 className="text-3xl font-bold text-center mb-2 mt-4">Management Page</h1>
         <div className="w-5/12 mx-auto mb-24">
           <div className="mb-6 flex flex-col items-end gap-2">
             <div className="w-full flex items-center justify-center gap-4">
               <div className="w-full">
-                <Input value={subnetInput} onChange={setSubnetInput} />
+                <input value={subnetInput} onChange={setSubnetID} placeholder="Enter Subnet" className="w-full border border-gray-300 rounded-md p-2" />
               </div>
               <button className="w-[195px] m-0 " onClick={handleAddSubnet}>
                 Add Subnet
@@ -72,13 +74,13 @@ const Deployment = () => {
                 key={subnet}
                 refresher={() => setRefreshState((prev) => !prev)}
                 tx={subnet}
-                bootstrappedNodeId={22}
+                bootstrappedNodeId={223248238572389573}
               />
             ))}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

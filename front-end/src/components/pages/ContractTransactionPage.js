@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
-import ContractContainer from "../ContractTransactionContainer";
+import ContractTransactionContainer from "../ContractTransactionContainer";
 
 export default function ContractPageTransactions() {
   const [contractAddresses, setContractAddresses] = useState([]);
@@ -19,9 +19,12 @@ export default function ContractPageTransactions() {
   }, [id]);
 
   useEffect(() => {
-    const contractAddresses =
-      JSON.parse(localStorage.getItem("contractAddresses")) || [];
-    setContractAddresses(contractAddresses);
+    const all = JSON.parse(window.localStorage.getItem("CONTRACT_ADDRESSES"));
+    if (all) {
+      setContractAddresses(all[id] ?? []);
+      return;
+    }
+    setContractAddresses([]);
   }, [onDeleteRefreshState]);
 
   const validateContractAddress = (contractAddress) => {
@@ -44,14 +47,18 @@ export default function ContractPageTransactions() {
     if (!validateContractAddress(contractAddress)) {
       return;
     }
-    const contractAddresses =
-      JSON.parse(localStorage.getItem("contractAddresses")) || [];
-    contractAddresses.push(contractAddress);
-    localStorage.setItem(
-      "contractAddresses",
-      JSON.stringify(contractAddresses)
-    );
-    setContractAddresses(contractAddresses);
+
+    const all = JSON.parse(window.localStorage.getItem("CONTRACT_ADDRESSES"))??{};
+    if (all[id]) {
+      all[id] = [...all[id], contractAddress];
+
+      window.localStorage.setItem("CONTRACT_ADDRESSES", JSON.stringify(all));
+      setContractAddresses((prev) => [...prev, contractAddress]);
+      return;
+    }
+    all[id] = [contractAddress];
+    window.localStorage.setItem("CONTRACT_ADDRESSES", JSON.stringify(all));
+    setContractAddresses((prev) => [...prev, contractAddress]);
   };
 
   if (!blockchainExists) {
@@ -89,7 +96,7 @@ export default function ContractPageTransactions() {
       </form>
       <ul>
         {contractAddresses.map((contractAddress) => (
-          <ContractContainer
+          <ContractTransactionContainer
             key={contractAddress}
             contractAddress={contractAddress}
             onDeleteRefresh={onDeleteRefresh}

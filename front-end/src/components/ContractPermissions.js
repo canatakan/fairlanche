@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
 import ContractPrecompilerContainer from "./ContractPrecompileContainer";
 
-const ContractPermissions = () => {
+const BlockchainPermission = () => {
   const [contractAddresses, setContractAddresses] = useState([]);
   const [onDeleteRefreshState, onDeleteRefresh] = useState(true);
   const [blockchainExists, setBlockchainExists] = useState(true);
@@ -91,4 +91,4 @@ const ContractPermissions = () => {
   );
 };
 
-export default ContractPermissions;
+export default BlockchainPermission;

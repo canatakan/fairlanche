@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
-import ContractContainer from "./ContractManagementContainer";
+import ContractManagementContainer from "./ContractManagementContainer";
 
 const ExistingDistribution = () => {
   const [contractAddresses, setContractAddresses] = useState([]);
@@ -87,7 +87,7 @@ const ExistingDistribution = () => {
 
         <ul>
           {contractAddresses.map((contractAddress) => (
-            <ContractContainer
+            <ContractManagementContainer
               contractAddress={contractAddress}
               id={id}
               onDeleteRefresh={onDeleteRefresh}

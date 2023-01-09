@@ -2,7 +2,6 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/fontawesome-free-solid";
 import Collapsible from "./Collapsible";
-import Input from "./forms/Input";
 import { Link } from "react-router-dom";
 
 const SubnetContainer = ({ refresher, tx,bootstrappedNodeId }) => {
@@ -16,11 +15,11 @@ const SubnetContainer = ({ refresher, tx,bootstrappedNodeId }) => {
     if (refresher) refresher();
   };
   return (
-    <div className="border rounded-md mb-4">
+    <div className="flex flex-col items-center justify-center border-2 border-gray-300 rounded-md p-2 m-2">
       <Collapsible
         title={
           <div className="flex flex-row items-center justify-center">
-            <span className="text-lg mr-2">Subnet: </span>
+            
             <Link to={`./${tx}?bootstrappedNodeId=${bootstrappedNodeId}`} >
                 {
                   <div className="text-l font-bold text-center hover:text-blue-600 focus:text-blue-600">
@@ -44,13 +43,13 @@ const SubnetContainer = ({ refresher, tx,bootstrappedNodeId }) => {
           </div>
         }
       >
-        <div className="w-full flex items-center justify-center gap-4 mb-4">
-          <div className="w-8/12">
-            <Input />
+        <div className=" flex flex-row items-center justify-center mb-1">
+          <div className="flex flex-col items-center justify-center">
+            <input className="border-2 px-2 py-1 rounded-md w-56" type="string" name="bootstrappedNodeId" value={bootstrappedNodeId} placeholder="Bootstrapped Node ID" />
           </div>
-          <p className=" ">Bootstraped node id</p>
+          <p className="flex flex-col items-center justify-center m-2">Bootstrapped Node ID</p>
         </div>
-        <button className="w-[150px] m-0">Add Validator</button>
+        <button className="w-48"> Add Validator </button>
       </Collapsible>
     </div>
   );

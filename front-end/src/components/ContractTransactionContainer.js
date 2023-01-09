@@ -8,10 +8,10 @@ import { Contract } from "ethers";
 import { abi } from "../constants";
 
 
-export default function ContractContainer({
-
+export default function ContractTransactionContainer({
   contractAddress,
   onDeleteRefresh,
+  id,
 }) {
   const [demandVolume, setDemandVolume] = useState(0);
   const [epochNumber, setEpochNumber] = useState(0);
@@ -44,15 +44,9 @@ export default function ContractContainer({
   };
 
   const deleteContractAddress = (contractAddress) => {
-    const contractAddresses =
-      JSON.parse(localStorage.getItem("contractAddresses")) || [];
-    const newContractAddresses = contractAddresses.filter(
-      (address) => address !== contractAddress
-    );
-    localStorage.setItem(
-      "contractAddresses",
-      JSON.stringify(newContractAddresses)
-    );
+    const all = JSON.parse(window.localStorage.getItem("CONTRACT_ADDRESSES"));
+    all[id] = all[id].filter((el) => el != contractAddress);
+    window.localStorage.setItem("CONTRACT_ADDRESSES", JSON.stringify(all));
     onDeleteRefresh((prev) => !prev);
   };
 
