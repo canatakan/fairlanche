@@ -45,40 +45,51 @@ const Deployment = () => {
   const setSubnetID = (e) => {
     setSubnetInput(e.target.value);
   };
- 
- 
 
   return (
     <div className="flex flex-col items-center">
-    <div className="w-full flex flex-col items-center">
-      <h1 className="text-3xl font-bold text-center mb-2 mt-4">Management Page</h1>
-        <div className="w-5/12 mx-auto mb-24">
-          <div className="mb-6 flex flex-col items-end gap-2">
-            <div className="w-full flex items-center justify-center gap-4">
-              <div className="w-full">
-                <input value={subnetInput} onChange={setSubnetID} placeholder="Enter Subnet" className="w-full border border-gray-300 rounded-md p-2" />
-              </div>
-              <button className="w-[195px] m-0 " onClick={handleAddSubnet}>
-                Add Subnet
-              </button>
-            </div>
-            <button className="w-[150px] m-0" onClick={handleCreateSubnet}>
-              Create Subnet
+      <div className="w-full flex flex-col items-center">
+        <h1 className="text-3xl font-bold text-center mb-2 mt-4">Subnet Deployment Page</h1>
+        <div className="form-group">
+          <form onSubmit={handleAddSubnet}>
+            <input type="text" name="subnetID" onChange={setSubnetID} placeholder="Enter Subnet ID" />
+            <button className="mb-1"
+            >
+              Add Subnet
             </button>
-          </div>
-          <div>
-            <h1 className="text-xl mb-4">Subnets</h1>
-
-            {subnets.map((subnet) => (
-              <SubnetContainer
-                key={subnet}
-                refresher={() => setRefreshState((prev) => !prev)}
-                tx={subnet}
-                bootstrappedNodeId={223248238572389573}
-              />
-            ))}
-          </div>
+          </form>
         </div>
+        <br />
+        <div className="flex flex-col items-center">
+          <h2>Informative Text Field</h2>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        </div>
+        <div className="flex flex-col items-center">
+          <h2>Informative Text Field</h2>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          <ul>
+            <li>Bullet point 1</li>
+            <li>Bullet point 2</li>
+            <li>Bullet point 3</li>
+          </ul>
+        </div>
+        <br />
+        <button className="mb-10" onClick={handleCreateSubnet}>
+          Create Subnet
+        </button>
+      </div>
+      <div>
+        <h1 className="text-xl font-medium text-center mb-2 mt-4">Imported & Created Subnets</h1>
+
+        {subnets.map((subnet) => (
+          <SubnetContainer
+            key={subnet}
+            refresher={() => setRefreshState((prev) => !prev)}
+            tx={subnet}
+            bootstrappedNodeId={223248238572389573}
+          />
+        ))}
       </div>
     </div>
   );
