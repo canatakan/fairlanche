@@ -2,6 +2,16 @@ import React, { useEffect, useState } from "react";
 import Radio from "../forms/Radio";
 import SubnetContainer from "../SubnetContainer";
 
+import { ethers } from "ethers";
+
+import {
+  userExists,
+  listUserAddresses,
+  createAndImport
+} from "subnet/scripts/create&ImportUser";
+
+import { platform } from "subnet/scripts/importAPI";
+import { createSubnet } from "subnet/scripts/createSubnetWithUsername";
 
 
 const Deployment = () => {
@@ -9,7 +19,28 @@ const Deployment = () => {
 
   const [subnetInput, setSubnetInput] = useState("");
 
-  const handleCreateSubnet = () => {
+  const handleCreateSubnet = async () => {
+    const {
+      pchainAddress,
+      username,
+      password,
+    } = await accessPChainWallet();
+
+    // check user balance:
+    const balance = await platform.getBalance(pchainAddress);
+    console.log(balance.unlocked, pchainAddress)
+
+    if (balance.unlocked < 1000000000) {
+      alert("Insufficient balance. Please fund your P-Chain address.")
+      return;
+    }
+
+    console.log(pchainAddress, username, password)
+    const subnetId = await createSubnet(
+      username, password, [pchainAddress]
+    )
+    console.log(subnetId)
+
     const fake = Date.now().toString();
     setSubnets((prev) => [...prev, fake]);
     const subnets = JSON.parse(window.localStorage.getItem("subnetsXYZ")) ?? [];
@@ -18,6 +49,26 @@ const Deployment = () => {
       JSON.stringify([...subnets, fake])
     );
     setRefreshState((prev) => !prev);
+  };
+
+  const accessPChainWallet = async () => {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const currentAccount = accounts[0];
+    const checksumAddr = ethers.utils.getAddress(currentAccount);
+
+    const message = "Sign this message to access your P-Chain account in the node."
+    const signature = await window.ethereum.request({
+      method: 'personal_sign',
+      params: [message, currentAccount],
+    });
+    if (!await userExists(checksumAddr)) {
+      const newAddress = await createAndImport(checksumAddr, signature);
+      return { pchainAddress: newAddress, username: checksumAddr, password: signature };
+    } else {
+      const addresses = await listUserAddresses(checksumAddr, signature);
+      const mainAddress = addresses[0];
+      return { pchainAddress: mainAddress, username: checksumAddr, password: signature };
+    }
   };
 
   const [refreshState, setRefreshState] = useState(false);
