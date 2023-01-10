@@ -1,5 +1,5 @@
 import React from 'react';
-const { getBlockchainName } = require('subnet/scripts/getBlockchainName.js');
+const { getBlockchainName } = require('subnet/scripts/exports/getBlockchainName.js');
 
 
 class ManagementPage extends React.Component {
