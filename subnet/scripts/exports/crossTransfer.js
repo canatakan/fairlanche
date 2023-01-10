@@ -33,17 +33,19 @@ async function exportAvaxC(username, password, xAddress, amount) {
     do {
         txReceipt = await xchain.getTxStatus(xTxID)
     } while (txReceipt != 'Accepted') {
+        await new Promise(r => setTimeout(r, 1500));
         txReceipt = await xchain.getTxStatus(xTxID)
     }
     console.log("successfully imported to X chain")
 }
 
 async function importAvaxP(username, password, pAddress, amount) {
+    
     const xTxID = await xchain.export(
         username,
         password,
         pAddress,
-        amount,
+        amount - 100000,
         "AVAX",
     )
 
@@ -51,6 +53,7 @@ async function importAvaxP(username, password, pAddress, amount) {
     do {
         txReceipt = await xchain.getTxStatus(xTxID)
     } while (txReceipt != 'Accepted') {
+        await new Promise(r => setTimeout(r, 1500));
         txReceipt = await xchain.getTxStatus(xTxID)
     }
 

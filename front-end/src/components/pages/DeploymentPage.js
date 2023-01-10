@@ -29,7 +29,7 @@ const Deployment = () => {
 
     // check user balance:
     const balance = await platform.getBalance(pAddress);
-    if (balance.unlocked < 1000000000) {
+    if (balance.unlocked < 110_000_000) {
       alert("Insufficient balance. Please fund your P-Chain address.")
       return;
     }
@@ -37,14 +37,11 @@ const Deployment = () => {
     const subnetId = await createSubnet(
       username, password, [pAddress]
     )
-    console.log(subnetId)
-
-    const fake = Date.now().toString();
-    setSubnets((prev) => [...prev, fake]);
-    const subnets = JSON.parse(window.localStorage.getItem("subnetsXYZ")) ?? [];
+    setSubnets((prev) => [...prev, subnetId]);
+    const managedSubnets = JSON.parse(window.localStorage.getItem("managedSubnets")) ?? [];
     window.localStorage.setItem(
-      "subnetsXYZ",
-      JSON.stringify([...subnets, fake])
+      "managedSubnets",
+      JSON.stringify([...managedSubnets, subnetId])
     );
     setRefreshState((prev) => !prev);
   };
@@ -112,13 +109,14 @@ const Deployment = () => {
         params: [tx],
       });
     } while (receipt == null) {
+      await new Promise(r => setTimeout(r, 1500));
       receipt = await window.ethereum.request({
         method: 'eth_getTransactionReceipt',
         params: [tx],
       });
     }
 
-    const amount = 2_000_000_000;
+    const amount = 200_000_000;
     await sendCToP(username, password, xAddress, pAddress, amount);
   };
 
@@ -130,9 +128,9 @@ const Deployment = () => {
       return;
     }
     setSubnets((prev) => [...prev, subnetInput]);
-    const subnets = JSON.parse(window.localStorage.getItem("subnetsXYZ")) ?? [];
+    const subnets = JSON.parse(window.localStorage.getItem("managedSubnets")) ?? [];
     window.localStorage.setItem(
-      "subnetsXYZ",
+      "managedSubnets",
       JSON.stringify([...subnets, subnetInput])
     );
     setRefreshState((prev) => !prev);
@@ -140,7 +138,7 @@ const Deployment = () => {
 
   useEffect(() => {
     setSubnets(
-      () => JSON.parse(window.localStorage.getItem("subnetsXYZ")) ?? []
+      () => JSON.parse(window.localStorage.getItem("managedSubnets")) ?? []
     );
   }, [refreshState]);
 
