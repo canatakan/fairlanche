@@ -2,6 +2,17 @@ import React, { useEffect, useState } from "react";
 import Radio from "../forms/Radio";
 import SubnetContainer from "../SubnetContainer";
 
+import { ethers } from "ethers";
+
+import {
+  userExists,
+  listUserAddresses,
+  createAndImport
+} from "subnet/scripts/exports/create&ImportUser";
+
+import { platform } from "subnet/scripts/exports/importAPI";
+import { createSubnet } from "subnet/scripts/exports/createSubnetWithUsername";
+import { sendCToP } from "subnet/scripts/exports/crossTransfer";
 
 
 const Deployment = () => {
@@ -9,7 +20,31 @@ const Deployment = () => {
 
   const [subnetInput, setSubnetInput] = useState("");
 
-  const handleCreateSubnet = () => {
+  const handleCreateSubnet = async () => {
+    const {
+      pAddress,
+      xAddress,
+      cAddress,
+      username,
+      password,
+    } = await accessPChainWallet();
+
+    // check user balance:
+    const balance = await platform.getBalance(pAddress);
+    console.log(balance.unlocked, pAddress, xAddress, cAddress)
+
+    console.log(pAddress, username, password)
+
+    if (balance.unlocked < 1000000000) {
+      alert("Insufficient balance. Please fund your P-Chain address.")
+      return;
+    }
+
+    const subnetId = await createSubnet(
+      username, password, [pAddress]
+    )
+    console.log(subnetId)
+
     const fake = Date.now().toString();
     setSubnets((prev) => [...prev, fake]);
     const subnets = JSON.parse(window.localStorage.getItem("subnetsXYZ")) ?? [];
@@ -18,6 +53,85 @@ const Deployment = () => {
       JSON.stringify([...subnets, fake])
     );
     setRefreshState((prev) => !prev);
+  };
+
+  const accessPChainWallet = async () => {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const currentAccount = accounts[0];
+    const checksumAddr = ethers.utils.getAddress(currentAccount);
+
+    const message = "Sign this message to access your P-Chain account in the node."
+    const signature = await window.ethereum.request({
+      method: 'personal_sign',
+      params: [message, currentAccount],
+    });
+    if (!await userExists(checksumAddr)) {
+      const {
+        pAddress, xAddress, cAddress
+      } = await createAndImport(checksumAddr, signature);
+      localStorage.setItem(currentAccount, cAddress);
+      console.log(pAddress, xAddress, cAddress)
+      return {
+        pAddress,
+        xAddress,
+        cAddress,
+        username: checksumAddr,
+        password: signature
+      };
+    } else {
+      const { pAddresses, xAddresses } = await listUserAddresses(checksumAddr, signature);
+      console.log(pAddresses, xAddresses)
+      return {
+        pAddress: pAddresses[0],
+        xAddress: xAddresses[0],
+        cAddress: localStorage.getItem(currentAccount),
+        username: checksumAddr,
+        password: signature
+      };
+    }
+  };
+
+  const handleFundPChain = async () => {
+
+    const {
+      pAddress,
+      xAddress,
+      cAddress,
+      username,
+      password,
+    } = await accessPChainWallet();
+
+    const balance = await platform.getBalance(pAddress);
+    console.log(balance.unlocked, pAddress, xAddress, cAddress)
+
+    const val = ethers.utils.parseUnits("2", "ether").toHexString()
+    const tx = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: window.ethereum.selectedAddress,
+          to: cAddress,
+          value: val
+        },
+      ],
+    });
+
+    let receipt;
+    do {
+      receipt = await window.ethereum.request({
+        method: 'eth_getTransactionReceipt',
+        params: [tx],
+      });
+    } while (receipt == null) {
+      receipt = await window.ethereum.request({
+        method: 'eth_getTransactionReceipt',
+        params: [tx],
+      });
+    }
+
+    const amount = 2_000_000_000;
+    const txId = await sendCToP(username, password, xAddress, pAddress, amount);
+    console.log(txId)
   };
 
   const [refreshState, setRefreshState] = useState(false);
@@ -75,6 +189,9 @@ const Deployment = () => {
           </ul>
         </div>
         <br />
+        <button className="mb-10" onClick={handleFundPChain}>
+          Fund P-Chain Address
+        </button>
         <button className="mb-10" onClick={handleCreateSubnet}>
           Create Subnet
         </button>

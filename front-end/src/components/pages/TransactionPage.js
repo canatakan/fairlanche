@@ -1,6 +1,6 @@
 import { ChainId } from '@usedapp/core';
 import React from 'react';
-const { getBlockchainName } = require('subnet/scripts/getBlockchainName.js');
+const { getBlockchainName } = require('subnet/scripts/exports/getBlockchainName.js');
 
 
 class TransactionPage extends React.Component {
