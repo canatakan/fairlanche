@@ -182,12 +182,7 @@ export default function ContractTransactionContainer({
             </div>
           </div>
         </div>
-
-
-
-
       </Collapsible>
-
     </div>
   );
 }

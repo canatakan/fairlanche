@@ -11,7 +11,7 @@ import IAllowList from "../constants/IAllowList";
 export default function ContractContainer({
   blockchainId,
   onDeleteRefresh,
-
+  id
 }) {
   const [adminAddress, setAdminAddress] = useState("");
   const [enabledAddress, setEnabledAddress] = useState("");
@@ -77,17 +77,15 @@ export default function ContractContainer({
   };
 
   const deleteblockchainId = (blockchainId) => {
-    const blockchainIds =
-      JSON.parse(localStorage.getItem("blockchainIds")) || [];
-    const newblockchainIds = blockchainIds.filter(
-      (address) => address !== blockchainId
-    );
-    localStorage.setItem(
-      "blockchainIds",
-      JSON.stringify(newblockchainIds)
-    );
+    const all = JSON.parse(window.localStorage.getItem("blockchainIds"));
+    delete all[blockchainId];
+    window.localStorage.setItem("blockchainIds", JSON.stringify(all));
+    const newBlockchainIds = all.filter((el) => el != blockchainId);
+    window.localStorage.setItem("blockchainIds", JSON.stringify(newBlockchainIds));
     onDeleteRefresh((prev) => !prev);
   };
+
+
 
   const handleAdminAddressChange = (e) => {
     setAdminAddress(e.target.value);
