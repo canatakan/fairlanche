@@ -24,10 +24,10 @@ async function userExists(username) {
 }
 
 function createKeyPairs(){
-  const pair = platform.keyChain().makeKey()
-  const pchainPair = platform.keyChain().importKey(pair.getPrivateKey())
-  const xchainPair = xchain.keyChain().importKey(pair.getPrivateKey())
-  const cchainPair = cchain.keyChain().importKey(pair.getPrivateKey())
+  const pair = platform.newKeyChain().makeKey()
+  const pchainPair = platform.newKeyChain().importKey(pair.getPrivateKey())
+  const xchainPair = xchain.newKeyChain().importKey(pair.getPrivateKey())
+  const cchainPair = cchain.newKeyChain().importKey(pair.getPrivateKey())
 
   return { 
     pchain: pchainPair,
