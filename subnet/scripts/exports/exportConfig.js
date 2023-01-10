@@ -4,8 +4,4 @@ module.exports = {
     protocol: "http",
     networkID: 5, // avax: 1, fuji: 5, custom: 1337, local: 12345
     hrt: "fuji",
-    evmAnkrBase: "https://rpc.ankr.com/avalanche_fuji",
-    pAnkrBase: "https://rpc.ankr.com/avalanche_fuji-p",
-    xAnkrBase: "https://rpc.ankr.com/avalanche_fuji-x",
-    cAnkrBase: "https://rpc.ankr.com/avalanche_fuji-c",
 }
