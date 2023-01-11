@@ -11,9 +11,9 @@ import {
 
 async function getBalances(pchainAddress, xchainAddress, cchainAddress) {
     const pchainBalances = await platform.getBalance(pchainAddress);
-    const pchainBalance = pchainBalances.balance;
+    const pchainBalance = pchainBalances.balance / 100_000_000;
     const xchainBalances = await xchain.getBalance(xchainAddress, "AVAX");
-    const xchainBalance = xchainBalances.balance;
+    const xchainBalance = xchainBalances.balance / 100_000_000;
     
     // the callMethod of cchain does not work properly, fetch manually:
     const RPC_LINK = protocol + '://' + nodeIP + ':' + nodePort + '/ext/bc/C/rpc';
@@ -30,10 +30,16 @@ async function getBalances(pchainAddress, xchainAddress, cchainAddress) {
         })
     }).then(res => res.json()).then(res => res.result);
 
+    const cchainBalanceInGwei = parseInt(cchainBalance.replace("0x", ""), 16);
+    const cchainBalanceInAVAX = (cchainBalanceInGwei / 1_000_000_000) / 1_000_000_000;
+
+    // drop two digits after comma:
+    const  cchainBalanceRounded = Math.floor(cchainBalanceInAVAX * 100) / 100;
+
     return {
         pchainBalance,
         xchainBalance,
-        cchainBalance,
+        cchainBalance: cchainBalanceRounded,
     };
 } 
 
