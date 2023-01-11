@@ -1,9 +1,15 @@
-const { platform } = require("./importAPI.js")
+const { platform, BN } = require("./importAPI.js")
 
 async function addSubnetValidator(username, password, nodeID, subnetID) {
     
-    const startTime = Date.now() + 5 * 60 * 1000
-    const endTime = Date.now() + 14 * 24 * 60 * 60 * 1000
+    const startTime = new Date(Date.now() + 5 * 60 * 1000)
+    const endTime = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+
+    // then drop miliseconds in startTime and endTime:
+    startTime.setMilliseconds(0)
+    endTime.setMilliseconds(0)
+
+    const weight = new BN(20)
 
     const txID = platform.addSubnetValidator(
         username,
@@ -12,7 +18,7 @@ async function addSubnetValidator(username, password, nodeID, subnetID) {
         subnetID,
         startTime,
         endTime,
-        20
+        weight
     )
 
     return txID
