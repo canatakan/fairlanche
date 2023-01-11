@@ -45,7 +45,7 @@ async function importAvaxP(username, password, pAddress, amount) {
         username,
         password,
         pAddress,
-        amount - 100000,
+        amount - 2_000_000,
         "AVAX",
     )
 

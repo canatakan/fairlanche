@@ -12,7 +12,6 @@ import {
 
 import { platform } from "subnet/scripts/exports/importAPI";
 import { createSubnet } from "subnet/scripts/exports/createSubnet";
-import { sendCToP } from "subnet/scripts/exports/crossTransfer";
 import WalletCard from "../WalletCard";
 
 
@@ -83,46 +82,6 @@ const Deployment = () => {
         password: signature
       };
     }
-  };
-
-  const handleFundPChain = async () => {
-
-    const {
-      pAddress,
-      xAddress,
-      cAddress,
-      username,
-      password,
-    } = await accessPChainWallet();
-
-    const val = ethers.utils.parseUnits("2", "ether").toHexString()
-    const tx = await window.ethereum.request({
-      method: 'eth_sendTransaction',
-      params: [
-        {
-          from: window.ethereum.selectedAddress,
-          to: cAddress,
-          value: val
-        },
-      ],
-    });
-
-    let receipt;
-    do {
-      receipt = await window.ethereum.request({
-        method: 'eth_getTransactionReceipt',
-        params: [tx],
-      });
-    } while (receipt == null) {
-      await new Promise(r => setTimeout(r, 1500));
-      receipt = await window.ethereum.request({
-        method: 'eth_getTransactionReceipt',
-        params: [tx],
-      });
-    }
-
-    const amount = 200_000_000;
-    await sendCToP(username, password, xAddress, pAddress, amount);
   };
 
   const [refreshState, setRefreshState] = useState(false);
