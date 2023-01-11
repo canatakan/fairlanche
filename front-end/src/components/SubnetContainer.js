@@ -32,7 +32,7 @@ const SubnetContainer = ({ refresher, tx }) => {
         title={
           <div className="flex flex-row items-center justify-center">
             
-            <Link to={`./${tx}?bootstrappedNodeId=${bootstrappedNodeId}`} >
+            <Link to={`./${tx}`} >
                 {
                   <div className="text-l font-bold text-center hover:text-blue-600 focus:text-blue-600">
                     {tx}
