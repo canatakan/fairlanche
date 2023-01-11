@@ -205,7 +205,7 @@ const WalletCard = () => {
                 <h2 className="text-lg p-2 font-medium">Wallet Balances</h2>
                 {pChainWallet && xChainWallet && cChainWallet && (
                     <div
-                        className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center"
+                        className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center cursor-pointer"
                         onClick={() => {
                             handleRefreshBalances();
                         }}
@@ -216,22 +216,31 @@ const WalletCard = () => {
             </div>
             <div className="text-left color-gray-500">
                 {pChainWallet && (
-                    <p>
+                    <div className="mb-1 border border-1 border-gray-300 rounded-md p-2">
                         P-Chain ({pBalance} AVAX):<br></br>
-                        {pChainWallet}
-                    </p>
+                        <div className="text-blue-500 hover:underline cursor-pointer"
+                            onClick={() => window.open("https://explorer-xp.avax-test.network/address/" + pChainWallet, "_blank")}>
+                            {pChainWallet}
+                        </div>
+                    </div>
                 )}
                 {xChainWallet && (
-                    <p>
+                    <div className="mb-1 border border-1 border-gray-300 rounded-md p-2">
                         X-Chain ({xBalance} AVAX):<br></br>
-                        {xChainWallet}
-                    </p>
+                        <div className="text-blue-500 hover:underline cursor-pointer"
+                            onClick={() => window.open("https://explorer-xp.avax-test.network/address/" + xChainWallet, "_blank")}>
+                            {xChainWallet}
+                        </div>
+                    </div>
                 )}
                 {cChainWallet && (
-                    <p>
+                    <div className="mb-1 border border-1 border-gray-300 rounded-md p-2">
                         C-Chain ({cBalance} AVAX):<br></br>
-                        {cChainWallet}
-                    </p>
+                        <div className="text-blue-500 hover:underline cursor-pointer"
+                            onClick={() => window.open("https://testnet.snowtrace.io/address/" + cChainWallet, "_blank")}>
+                            {cChainWallet}
+                        </div>
+                    </div>
                 )}
             </div>
             <div className="mt-4">

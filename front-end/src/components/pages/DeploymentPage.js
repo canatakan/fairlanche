@@ -144,7 +144,7 @@ const Deployment = () => {
             </div>
           </div>;
         </div>
-        <div className="mr-10 flex flex-col w-1/3 ml-auto">
+        <div className="mr-10 flex flex-col w-2/5 ml-auto">
           <WalletCard
             pChainWallet={pChainWallet}
             xChainWallet={xChainWallet}
