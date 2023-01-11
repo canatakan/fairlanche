@@ -190,7 +190,6 @@ const Deployment = () => {
             key={subnet}
             refresher={() => setRefreshState((prev) => !prev)}
             tx={subnet}
-            bootstrappedNodeId={223248238572389573}
           />
         ))}
       </div>
