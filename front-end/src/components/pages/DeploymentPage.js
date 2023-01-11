@@ -4,16 +4,11 @@ import SubnetContainer from "../SubnetContainer";
 
 import { ethers } from "ethers";
 
-import {
-  userExists,
-  listUserAddresses,
-  createAndImport
-} from "subnet/scripts/exports/create&ImportUser";
 
 import { platform } from "subnet/scripts/exports/importAPI";
 import { createSubnet } from "subnet/scripts/exports/createSubnet";
 import WalletCard from "../WalletCard";
-
+import { WalletUtils } from "../WalletUtils";
 
 const Deployment = () => {
   const [subnets, setSubnets] = useState([]);
@@ -29,11 +24,11 @@ const Deployment = () => {
       pAddress,
       username,
       password,
-    } = await accessPChainWallet();
+    } = await accessWallets();
 
     // check user balance:
     const balance = await platform.getBalance(pAddress);
-    if (balance.unlocked < 110_000_000) {
+    if (balance.unlocked < 1_500_000_000) {
       alert("Insufficient balance. Please fund your P-Chain address.")
       return;
     }
@@ -50,39 +45,7 @@ const Deployment = () => {
     setRefreshState((prev) => !prev);
   };
 
-  const accessPChainWallet = async () => {
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const currentAccount = accounts[0];
-    const checksumAddr = ethers.utils.getAddress(currentAccount);
-
-    const message = "Sign this message to access your P-Chain account in the node."
-    const signature = await window.ethereum.request({
-      method: 'personal_sign',
-      params: [message, currentAccount],
-    });
-    if (!await userExists(checksumAddr)) {
-      const {
-        pAddress, xAddress, cAddress
-      } = await createAndImport(checksumAddr, signature);
-      localStorage.setItem(currentAccount, cAddress);
-      return {
-        pAddress,
-        xAddress,
-        cAddress,
-        username: checksumAddr,
-        password: signature
-      };
-    } else {
-      const { pAddresses, xAddresses } = await listUserAddresses(checksumAddr, signature);
-      return {
-        pAddress: pAddresses[0],
-        xAddress: xAddresses[0],
-        cAddress: localStorage.getItem(currentAccount),
-        username: checksumAddr,
-        password: signature
-      };
-    }
-  };
+  const { accessWallets } = WalletUtils();
 
   const [refreshState, setRefreshState] = useState(false);
 
