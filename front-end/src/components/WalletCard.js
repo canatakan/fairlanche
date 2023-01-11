@@ -52,7 +52,7 @@ const WalletCard = () => {
             signature: password,
         } = await getSignature();
 
-        const val = ethers.utils.parseUnits("2", "ether").toHexString()
+        const val = ethers.utils.parseUnits("2.1", "ether").toHexString()
         const tx = await window.ethereum.request({
             method: 'eth_sendTransaction',
             params: [
@@ -189,11 +189,15 @@ const WalletCard = () => {
             };
         } else {
             console.log(localStorage)
-            const { pAddresses, xAddresses } = await listUserAddresses(checksumAddr, signature);
+            const { 
+                pAddresses, 
+                xAddresses, 
+                cAddresses 
+            } = await listUserAddresses(checksumAddr, signature);
             return {
                 pAddress: pAddresses[0],
                 xAddress: xAddresses[0],
-                cAddress: JSON.parse(localStorage.getItem("N-" + checksumAddr.toLowerCase())).cAddress,
+                cAddress: cAddresses[0],
                 username: checksumAddr,
                 password: signature
             };

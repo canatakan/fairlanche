@@ -13,7 +13,15 @@ async function listUserAddresses(username, password) {
   const pAddresses = await platform.listAddresses(username, password)
   const xAddresses = await xchain.listAddresses(username, password)
 
+  // it is not possible to get hexadecimal representation of C-Chain address
+  // so, get the address by importing the private key again
   const cAddresses = []; 
+  for (let i = 0; i < xAddresses.length; i++) {
+    const address = xAddresses[i]
+    const privateKey = await xchain.exportKey(username, password, address)
+    const cchainAddress = await cchain.importKey(username, password, privateKey)
+    cAddresses.push(cchainAddress)
+  }
 
   return { pAddresses, xAddresses, cAddresses }
 }
