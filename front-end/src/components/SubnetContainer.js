@@ -9,11 +9,11 @@ const SubnetContainer = ({ refresher, tx }) => {
   const [bootstrappedNodeId, setBootstrappedNodeId] = useState("");
 
   const handleDelete = (subnetTX) => {
-    const subnets = JSON.parse(window.localStorage.getItem("subnetsXYZ")) ?? [];
+    const subnets = JSON.parse(window.localStorage.getItem("managedSubnets")) ?? [];
     const newSubnets = subnets.filter(
       (_, index) => subnets.indexOf(subnetTX) != index
     );
-    window.localStorage.setItem("subnetsXYZ", JSON.stringify(newSubnets));
+    window.localStorage.setItem("managedSubnets", JSON.stringify(newSubnets));
 
     if (refresher) refresher();
   };

@@ -142,7 +142,7 @@ const Deployment = () => {
                   tx={subnet} />
               ))}
             </div>
-          </div>;
+          </div>
         </div>
         <div className="mr-10 flex flex-col w-2/5 ml-auto">
           <WalletCard
