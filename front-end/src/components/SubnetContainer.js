@@ -4,16 +4,19 @@ import Collapsible from "./Collapsible";
 import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 
+import { addSubnetValidator } from "subnet/scripts/exports/addSubnetValidator"
+import { WalletUtils } from "./WalletUtils";
+
 const SubnetContainer = ({ refresher, tx }) => {
   
   const [bootstrappedNodeId, setBootstrappedNodeId] = useState("");
 
   const handleDelete = (subnetTX) => {
-    const subnets = JSON.parse(window.localStorage.getItem("subnetsXYZ")) ?? [];
+    const subnets = JSON.parse(window.localStorage.getItem("managedSubnets")) ?? [];
     const newSubnets = subnets.filter(
       (_, index) => subnets.indexOf(subnetTX) != index
     );
-    window.localStorage.setItem("subnetsXYZ", JSON.stringify(newSubnets));
+    window.localStorage.setItem("managedSubnets", JSON.stringify(newSubnets));
 
     if (refresher) refresher();
   };
@@ -22,9 +25,12 @@ const SubnetContainer = ({ refresher, tx }) => {
     setBootstrappedNodeId(event.target.value);
   };
 
-  const handleAddValidator = (bootstrappedNodeId) => {
-    // pass
+  const handleAddValidator = async (bootstrappedNodeId) => {
+    const { checksumAddr: username, signature: password } = await getSignature();
+    addSubnetValidator(username, password, bootstrappedNodeId, tx)
   };
+
+  const { getSignature } = WalletUtils();
 
   return (
     <div className="flex flex-col items-center justify-center border-2 border-gray-300 rounded-md p-2 m-2">

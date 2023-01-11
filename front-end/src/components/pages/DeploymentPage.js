@@ -4,38 +4,31 @@ import SubnetContainer from "../SubnetContainer";
 
 import { ethers } from "ethers";
 
-import {
-  userExists,
-  listUserAddresses,
-  createAndImport
-} from "subnet/scripts/exports/create&ImportUser";
 
 import { platform } from "subnet/scripts/exports/importAPI";
-import { createSubnet } from "subnet/scripts/exports/createSubnetWithUsername";
-import { sendCToP } from "subnet/scripts/exports/crossTransfer";
-
+import { createSubnet } from "subnet/scripts/exports/createSubnet";
+import WalletCard from "../WalletCard";
+import { WalletUtils } from "../WalletUtils";
 
 const Deployment = () => {
   const [subnets, setSubnets] = useState([]);
 
   const [subnetInput, setSubnetInput] = useState("");
 
+  const [pChainWallet, setPChainWallet] = useState(null);
+  const [xChainWallet, setXChainWallet] = useState(null);
+  const [cChainWallet, setCChainWallet] = useState(null);
+
   const handleCreateSubnet = async () => {
     const {
       pAddress,
-      xAddress,
-      cAddress,
       username,
       password,
-    } = await accessPChainWallet();
+    } = await accessWallets();
 
     // check user balance:
     const balance = await platform.getBalance(pAddress);
-    console.log(balance.unlocked, pAddress, xAddress, cAddress)
-
-    console.log(pAddress, username, password)
-
-    if (balance.unlocked < 1000000000) {
+    if (balance.unlocked < 1_500_000_000) {
       alert("Insufficient balance. Please fund your P-Chain address.")
       return;
     }
@@ -43,96 +36,16 @@ const Deployment = () => {
     const subnetId = await createSubnet(
       username, password, [pAddress]
     )
-    console.log(subnetId)
-
-    const fake = Date.now().toString();
-    setSubnets((prev) => [...prev, fake]);
-    const subnets = JSON.parse(window.localStorage.getItem("subnetsXYZ")) ?? [];
+    setSubnets((prev) => [...prev, subnetId]);
+    const managedSubnets = JSON.parse(window.localStorage.getItem("managedSubnets")) ?? [];
     window.localStorage.setItem(
-      "subnetsXYZ",
-      JSON.stringify([...subnets, fake])
+      "managedSubnets",
+      JSON.stringify([...managedSubnets, subnetId])
     );
     setRefreshState((prev) => !prev);
   };
 
-  const accessPChainWallet = async () => {
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const currentAccount = accounts[0];
-    const checksumAddr = ethers.utils.getAddress(currentAccount);
-
-    const message = "Sign this message to access your P-Chain account in the node."
-    const signature = await window.ethereum.request({
-      method: 'personal_sign',
-      params: [message, currentAccount],
-    });
-    if (!await userExists(checksumAddr)) {
-      const {
-        pAddress, xAddress, cAddress
-      } = await createAndImport(checksumAddr, signature);
-      localStorage.setItem(currentAccount, cAddress);
-      console.log(pAddress, xAddress, cAddress)
-      return {
-        pAddress,
-        xAddress,
-        cAddress,
-        username: checksumAddr,
-        password: signature
-      };
-    } else {
-      const { pAddresses, xAddresses } = await listUserAddresses(checksumAddr, signature);
-      console.log(pAddresses, xAddresses)
-      return {
-        pAddress: pAddresses[0],
-        xAddress: xAddresses[0],
-        cAddress: localStorage.getItem(currentAccount),
-        username: checksumAddr,
-        password: signature
-      };
-    }
-  };
-
-  const handleFundPChain = async () => {
-
-    const {
-      pAddress,
-      xAddress,
-      cAddress,
-      username,
-      password,
-    } = await accessPChainWallet();
-
-    const balance = await platform.getBalance(pAddress);
-    console.log(balance.unlocked, pAddress, xAddress, cAddress)
-
-    const val = ethers.utils.parseUnits("2", "ether").toHexString()
-    const tx = await window.ethereum.request({
-      method: 'eth_sendTransaction',
-      params: [
-        {
-          from: window.ethereum.selectedAddress,
-          to: cAddress,
-          value: val
-        },
-      ],
-    });
-
-    let receipt;
-    do {
-      receipt = await window.ethereum.request({
-        method: 'eth_getTransactionReceipt',
-        params: [tx],
-      });
-    } while (receipt == null) {
-      receipt = await window.ethereum.request({
-        method: 'eth_getTransactionReceipt',
-        params: [tx],
-      });
-    }
-
-    const amount = 2_000_000_000;
-    const txId = await sendCToP(username, password, xAddress, pAddress, amount);
-    console.log(txId)
-  };
+  const { accessWallets } = WalletUtils();
 
   const [refreshState, setRefreshState] = useState(false);
 
@@ -142,9 +55,9 @@ const Deployment = () => {
       return;
     }
     setSubnets((prev) => [...prev, subnetInput]);
-    const subnets = JSON.parse(window.localStorage.getItem("subnetsXYZ")) ?? [];
+    const subnets = JSON.parse(window.localStorage.getItem("managedSubnets")) ?? [];
     window.localStorage.setItem(
-      "subnetsXYZ",
+      "managedSubnets",
       JSON.stringify([...subnets, subnetInput])
     );
     setRefreshState((prev) => !prev);
@@ -152,7 +65,7 @@ const Deployment = () => {
 
   useEffect(() => {
     setSubnets(
-      () => JSON.parse(window.localStorage.getItem("subnetsXYZ")) ?? []
+      () => JSON.parse(window.localStorage.getItem("managedSubnets")) ?? []
     );
   }, [refreshState]);
 
@@ -162,50 +75,65 @@ const Deployment = () => {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="w-full flex flex-col items-center">
-        <h1 className="text-3xl font-bold text-center mb-2 mt-4">Subnet Deployment Page</h1>
-        <div className="form-group">
-          <form onSubmit={handleAddSubnet}>
-            <input type="text" name="subnetID" onChange={setSubnetID} placeholder="Enter Subnet ID" />
-            <button className="mb-1"
-            >
-              Add Subnet
-            </button>
-          </form>
-        </div>
-        <br />
-        <div className="flex flex-col items-center">
-          <h2>Informative Text Field</h2>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-          <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-        </div>
-        <div className="flex flex-col items-center">
-          <h2>Informative Text Field</h2>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-          <ul>
-            <li>Bullet point 1</li>
-            <li>Bullet point 2</li>
-            <li>Bullet point 3</li>
-          </ul>
-        </div>
-        <br />
-        <button className="mb-10" onClick={handleFundPChain}>
-          Fund P-Chain Address
-        </button>
-        <button className="mb-10" onClick={handleCreateSubnet}>
-          Create Subnet
-        </button>
-      </div>
       <div>
-        <h1 className="text-xl font-medium text-center mb-2 mt-4">Imported & Created Subnets</h1>
+        <h1 className="text-3xl font-bold text-center mb-2 mt-4">Subnet Deployment Page</h1>
+      </div>
+      <div className="flex flex-row justify-center mt-2">
+        <div className="flex flex-col w-1/2 ml-auto">
+          <div className="flex flex-col items-center">
+            <div className="w-full flex flex-col items-center">
+              <div className="form-group">
+                <form onSubmit={handleAddSubnet}>
+                  <input type="text" name="subnetID" onChange={setSubnetID} placeholder="Enter Subnet ID" />
+                  <button className="mb-1"
+                  >
+                    Add Subnet
+                  </button>
+                </form>
+              </div>
+              <button className="mb-10" onClick={handleCreateSubnet}>
+                Create Subnet
+              </button>
+            </div>
+            <div>
+              <h1 className="text-xl font-medium text-center mb-2 mt-2">Imported & Created Subnets</h1>
 
-        {subnets.map((subnet) => (
-          <SubnetContainer
-            key={subnet}
-            refresher={() => setRefreshState((prev) => !prev)}
-            tx={subnet}
+              {subnets.map((subnet) => (
+                <SubnetContainer
+                  key={subnet}
+                  refresher={() => setRefreshState((prev) => !prev)}
+                  tx={subnet} />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="mr-10 flex flex-col w-2/5 ml-auto">
+          <WalletCard
+            pChainWallet={pChainWallet}
+            xChainWallet={xChainWallet}
+            cChainWallet={cChainWallet}
+            setPChainWallet={setPChainWallet}
+            setXChainWallet={setXChainWallet}
+            setCChainWallet={setCChainWallet}
           />
-        ))}
+          <br></br>
+          <div className="border-2 border-gray-300 rounded-md p-4">
+            <div className="flex flex-col items-center">
+              <h2>Informative Text Field</h2>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+              <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <h2>Informative Text Field</h2>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+              <ul>
+                <li>Bullet point 1</li>
+                <li>Bullet point 2</li>
+                <li>Bullet point 3</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
