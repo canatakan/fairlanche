@@ -12,6 +12,7 @@ import {
 } from "subnet/scripts/exports/create&ImportUser";
 import { getBalances } from 'subnet/scripts/exports/getBalances';
 import { sendCToP } from "subnet/scripts/exports/crossTransfer";
+import { exportPrivateKeys } from "subnet/scripts/exports/exportPrivateKeys";
 
 const WalletCard = () => {
     const [pChainWallet, setPChainWallet] = useState(
@@ -199,6 +200,19 @@ const WalletCard = () => {
         }
     };
 
+    const handleExportPrivateKeys = async () => {
+        const {
+            checksumAddr: username,
+            signature: password,
+        } = await getSignature();
+        const keys = await exportPrivateKeys(username, password, cChainWallet);
+        const message = 
+            keys.privateKey + " " +
+            keys.privateKeyHex
+    
+        alert(message);
+    };
+
     return (
         <div className="bg-white pl-6 pr-6 pb-6 pt-2 rounded-lg border border-2 border-gray-300 rounded-md">
             <div className="flex flex-row items-center justify-center">
@@ -257,7 +271,9 @@ const WalletCard = () => {
                         >
                             Fund P-Chain Wallet
                         </button>
-                        <button>
+                        <button
+                            onClick={handleExportPrivateKeys}
+                        >
                             Export Private Keys
                         </button>
                     </>
