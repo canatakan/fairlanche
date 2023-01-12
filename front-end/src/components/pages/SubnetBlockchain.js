@@ -20,6 +20,14 @@ const SubnetBlockchain = () => {
     // decimal
   });
 
+  const [inputFiles, setInputFiles] = useState({
+    fundDistribution: null,
+    deployerAdmin: null,
+    deployerEnabled: null,
+    txAdmin: null,
+    txEnabled: null,
+  });
+
   const { tx } = useParams();
   const bootstrappedNodeId = useQuery().get("bootstrappedNodeId");
 
@@ -31,6 +39,8 @@ const SubnetBlockchain = () => {
   }, []);
 
   const handleCreateBlockChain = () => {
+    console.log("create blockchain");
+    console.log(inputFiles)
     //do required validation on datas and call backend, suppose it returns a tx
     const blockchainTX = Date.now().toString();
     const all = JSON.parse(window.localStorage.getItem("BLOCKCHAIN_TXS")) ?? {};
@@ -147,8 +157,8 @@ const SubnetBlockchain = () => {
                 <div className="w-full flex gap-4 items-center">
                   <div className="w-1/2">
                     <FileInput
-                      onChange={(e) => console.log(e)}
-                      id={"fund-distribution"}
+                      setFiles={setInputFiles}
+                      id={"fundDistribution"}
                       label={"Select CSV file"}
                     />
                   </div>
@@ -161,9 +171,9 @@ const SubnetBlockchain = () => {
                 <div className="w-full flex gap-4 items-center">
                   <div className="w-1/2">
                     <FileInput
-                      onChange={(e) => console.log(e)}
+                      setFiles={setInputFiles}
                       label={"Select TXT file"}
-                      id={"deployer-admin"}
+                      id={"deployerAdmin"}
                     />
                   </div>
                   <Input placeholder={"address"} />
@@ -175,9 +185,9 @@ const SubnetBlockchain = () => {
                 <div className="w-full flex gap-4 items-center">
                   <div className="w-1/2">
                     <FileInput
-                      onChange={(e) => console.log(e)}
+                      setFiles={setInputFiles}
                       label={"Select TXT file"}
-                      id={"deployer-enabled"}
+                      id={"deployerEnabled"}
                     />
                   </div>
                   <Input placeholder={"address"} />
@@ -188,9 +198,9 @@ const SubnetBlockchain = () => {
                 <div className="w-full flex gap-4 items-center">
                   <div className="w-1/2">
                     <FileInput
-                      onChange={(e) => console.log(e)}
+                      setFiles={setInputFiles}
                       label={"Select TXT file"}
-                      id={"tx-admin"}
+                      id={"txAdmin"}
                     />
                   </div>
                   <Input placeholder={"address"} />
@@ -201,9 +211,9 @@ const SubnetBlockchain = () => {
                 <div className="w-full flex gap-4 items-center">
                   <div className="w-1/2">
                     <FileInput
-                      onChange={(e) => console.log(e)}
+                      setFiles={setInputFiles}
                       label={"Select TXT file"}
-                      id={"tx-enabled"}
+                      id={"txEnabled"}
                     />
                   </div>
                   <Input placeholder={"address"} />

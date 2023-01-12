@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const FileInput = ({ onChange,id,label }) => {
+const FileInput = ({ setFiles, id, label }) => {
   const [file, setFile] = useState(null);
   return (
     <div className="flex justify-center">
@@ -29,10 +29,11 @@ const FileInput = ({ onChange,id,label }) => {
           className="hidden"
           type="file"
           id={id}
-          onChange={(e) => {
-            onChange(e.target.files[0]);
-            setFile(()=>e.target.files[0]);
-            console.log(e.target.files[0].name)
+          onChange={(val) => {
+            setFile(val.target.files[0]);
+            setFiles(
+              (prev) => ({ ...prev, [id]: val.target.files[0] })
+            )
           }}
         />
       </div>
