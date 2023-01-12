@@ -9,7 +9,7 @@ async function addSubnetValidator(username, password, nodeID, subnetID) {
     startTime.setMilliseconds(0)
     endTime.setMilliseconds(0)
 
-    const weight = new BN(20)
+    const weight = new BN(32) // 20 in hex
 
     const txID = platform.addSubnetValidator(
         username,
