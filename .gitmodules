@@ -1,0 +1,3 @@
+[submodule "subnet/avalanchejs"]
+	path = subnet/avalanchejs
+	url = https://github.com/ava-labs/avalanchejs
