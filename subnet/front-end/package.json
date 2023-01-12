@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.0.3",
-    "yargs": "^17.6.2"
+    "yargs": "^17.6.2",
+    "avalanche": "file:../avalanchejs"
   }
 }
