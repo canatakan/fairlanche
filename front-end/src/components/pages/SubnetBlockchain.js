@@ -146,7 +146,7 @@ const SubnetBlockchain = () => {
 
   const genesis = {
     "config": {
-      "chainId": blockChainState.chainID,
+      "chainId": parseInt(blockChainState.chainID),
       "homesteadBlock": 0,
       "eip150Block": 0,
       "eip150Hash": "0x2086799aeebeae135c246c65021c82b4e15a2c451340993aacfd2751886514f0",
