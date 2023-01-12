@@ -3,7 +3,7 @@ import {
     userExists,
     listUserAddresses,
     createAndImport
-} from "subnet/scripts/exports/create&ImportUser";
+} from "subnet/scripts/create&ImportUser";
 
 export function WalletUtils() {
     const getSignature = async () => {
