@@ -17,7 +17,7 @@
     npm run build
     ```
 
-3. Use a node version lower than `v17.0.0` because of the `error:03000086:digital envelope routines::initialization error` error. For example, you can use use the following command with `nvm`:
+3. Use a node version lower than `v17.0.0` because of the `error:03000086:digital envelope routines::initialization error` error. For example, you can use the following command with `nvm`:
     
     ```bash
     nvm use v15.14.0
@@ -29,9 +29,9 @@
 
     ```json
     {
-        pBase: "https://rpc.ankr.com/avalanche_fuji-p",
-        xBase: "https://rpc.ankr.com/avalanche_fuji-x",
-        cBase: "https://rpc.ankr.com/avalanche_fuji-c"
+        "pBase": "https://rpc.ankr.com/avalanche_fuji-p",
+        "xBase": "https://rpc.ankr.com/avalanche_fuji-x",
+        "cBase": "https://rpc.ankr.com/avalanche_fuji-c"
     }
     ```
 
