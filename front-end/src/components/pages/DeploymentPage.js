@@ -5,8 +5,8 @@ import SubnetContainer from "../SubnetContainer";
 import { ethers } from "ethers";
 
 
-import { platform } from "subnet/scripts/exports/importAPI";
-import { createSubnet } from "subnet/scripts/exports/createSubnet";
+import { platform } from "subnet/scripts/importAPI";
+import { createSubnet } from "subnet/scripts/createSubnet";
 import WalletCard from "../WalletCard";
 import { WalletUtils } from "../WalletUtils";
 

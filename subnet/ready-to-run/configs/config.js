@@ -1,3 +1,6 @@
+const dotenv = require("dotenv")
+dotenv.config()
+
 module.exports = {
     nodeIP: "18.188.152.131",
     nodePort: 9650,
@@ -8,5 +11,5 @@ module.exports = {
     pAnkrBase: "https://rpc.ankr.com/avalanche_fuji-p",
     xAnkrBase: "https://rpc.ankr.com/avalanche_fuji-x",
     cAnkrBase: "https://rpc.ankr.com/avalanche_fuji-c",
-    privKey: "PrivateKey-ewoqjP7PxY4yr3iLTpLisriqt94hdyDFNgchSxGGztUrTXtNN",
+    privKey: process.env.PRIVATE_KEY,
 }

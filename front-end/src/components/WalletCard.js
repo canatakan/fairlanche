@@ -5,9 +5,9 @@ import { faSync } from "@fortawesome/fontawesome-free-solid";
 
 import { ethers } from "ethers";
 
-import { getBalances } from 'subnet/scripts/exports/getBalances';
-import { sendCToP } from "subnet/scripts/exports/crossTransfer";
-import { exportPrivateKeys } from "subnet/scripts/exports/exportPrivateKeys";
+import { getBalances } from 'subnet/scripts/getBalances';
+import { sendCToP } from "subnet/scripts/crossTransfer";
+import { exportPrivateKeys } from "subnet/scripts/exportPrivateKeys";
 import { WalletUtils } from './WalletUtils';
 
 const WalletCard = () => {

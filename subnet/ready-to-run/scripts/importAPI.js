@@ -3,7 +3,7 @@ const { Avalanche, BinTools, BN, evm } = require("avalanche")
 // Importing node details and Private key from the config file.
 const { nodeIP, nodePort, protocol, networkID, hrt,
   evmAnkrBase, pAnkrBase, xAnkrBase, cAnkrBase,
-  privKey } = require("../../configs/config")
+  privKey } = require("../configs/config")
 
 // For encoding and decoding to CB58 and buffers.
 const bintools = BinTools.getInstance()

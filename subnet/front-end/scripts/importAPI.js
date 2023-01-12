@@ -1,7 +1,7 @@
 const { Avalanche, BinTools, BN, evm } = require("avalanche")
 
 const { nodeIP, nodePort, protocol, networkID, hrt,
-} = require("./exportConfig.js")
+} = require("./config.js")
 
 const bintools = BinTools.getInstance()
 
