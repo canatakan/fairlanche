@@ -7,7 +7,7 @@ import {
     nodeIP,
     nodePort,
     protocol,
-} from "./exportConfig"
+} from "./config"
 
 async function getBalances(pchainAddress, xchainAddress, cchainAddress) {
     const pchainBalances = await platform.getBalance(pchainAddress);
