@@ -1,6 +1,7 @@
 const {
     platform,
 } = require("./importAPI.js")
+const { listUserAddresses } = require("./create&ImportUser.js")
 
 async function createBlockchain(
     username,
@@ -10,29 +11,29 @@ async function createBlockchain(
     chainName
 ) {
 
-    // Getting keys with the credentials
-    const pKey = await platform.exportKey(username, password)
-    const pKeyChain = platform.newKeyChain()
-    pKeyChain.importKey(pKey)
+    const userAddresses = await listUserAddresses(username, password)
+    const pAddress = userAddresses.pAddresses[0]
 
-    // Getting addresses
-    const pAddresses = pKeyChain.getAddresses()
-    const pAddressStrings = pKeyChain.getAddressStrings()
+    // Getting keys with the credentials
+    const pKey = await platform.exportKey(username, password, pAddress)
+    const pKeyChain = platform.newKeyChain()
+    const keyPair = pKeyChain.importKey(pKey)
 
     // Getting UTXOs
-    const utxos = await platform.getUTXOs(pAddressStrings)
+    const utxoResponse = await platform.getUTXOs([pAddress])
+    const utxos = utxoResponse.utxos
 
     // Getting CB58 encoded bytes of genesis
     genesisBytes = JSON.stringify(genesis)
 
     // Creating Subnet auth
-    const subnetAuth = [[0, pAddresses[0]]]
+    const subnetAuth = [[0, platform.parseAddress(pAddress)]]
 
     // Creating unsgined tx
     const unsignedTx = await platform.buildCreateChainTx(
         utxos, // set of utxos this tx is consuming
-        pAddressStrings, // from
-        pAddressStrings, // change
+        [pAddress], // from
+        [pAddress], // change
         subnetID, // id of Subnet on which chain is being created
         chainName, // Name of blockchain
         "subnetevm", // Name of the VM this chain is referencing
@@ -48,9 +49,8 @@ async function createBlockchain(
 
     // issuing tx
     const txId = await platform.issueTx(tx)
-    console.log("Create chain transaction ID: ", txId)
-
-    pKeyChain.removeKey(pKey)
+    pKeyChain.removeKey(keyPair)
+    return txId
 }
 
 module.exports = { createBlockchain }

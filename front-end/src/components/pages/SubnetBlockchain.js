@@ -53,24 +53,23 @@ const SubnetBlockchain = () => {
     console.log("create blockchain");
     console.log(inputFiles)
 
-    // const {
-    //   checksumAddr: username,
-    //   signature: password
-    // } = await getSignature();
+    const {
+      checksumAddr: username,
+      signature: password
+    } = await getSignature();
 
     const genesis = await buildGenesis()
     console.log(genesis)
 
-    // const blockchainTX = await createBlockchain(
-    //   username,
-    //   password,
-    //   tx,
-    //   genesis,
-    //   blockChainState.chainName,
-    // );
+    const blockchainTX = await createBlockchain(
+      username,
+      password,
+      tx,
+      genesis,
+      blockChainState.chainName,
+    );
 
     //do required validation on datas and call backend, suppose it returns a tx
-    const blockchainTX = Date.now().toString();
     const all = JSON.parse(window.localStorage.getItem("BLOCKCHAIN_TXS")) ?? {};
     if (all[tx]) {
 
