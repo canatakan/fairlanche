@@ -7,8 +7,8 @@ const readline = require('readline');
 const dotenv = require("dotenv")
 dotenv.config()
 
-const { nodeIP, nodePort } = require("../subnet/configs/config.js");
-const data = require('../subnet/configs/precompiledGenesis.json');
+const { nodeIP, nodePort } = require("../subnet/ready-to-run/configs/config.js");
+const data = require('../subnet/ready-to-run/configs/precompiledGenesis.json');
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
