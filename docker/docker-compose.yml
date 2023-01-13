@@ -1,0 +1,12 @@
+version: '3.9'
+name: fairlanche
+services:
+  frontend:
+    container_name: fairlanche-frontend
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../:/app
