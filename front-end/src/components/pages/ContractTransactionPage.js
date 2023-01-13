@@ -149,6 +149,7 @@ export default function ContractPageTransactions() {
         {contractAddresses.map((contract) => (
           <ContractTransactionContainer
           //added null checks here, will be tested later again
+            id={id}
             selectedAccessType={contract?.selectedAccessType}
             selectedContractType={contract?.selectedContractType}
             key={contract?.contractAddress}

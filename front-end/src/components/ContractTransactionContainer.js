@@ -88,9 +88,12 @@ export default function ContractTransactionContainer({
   };
 
   const deleteContractAddress = (contractAddress) => {
-    const all = JSON.parse(window.localStorage.getItem("CONTRACT_ADDRESSES"));
-    all[id] = all[id].filter((el) => el != contractAddress);
-    window.localStorage.setItem("CONTRACT_ADDRESSES", JSON.stringify(all));
+    const all = JSON.parse(window.localStorage.getItem('CONTRACT_ADDRESSES'));
+    console.log(all);
+    console.log(id);
+    all[id] = all[id].filter((el) => el.contractAddress != contractAddress);
+
+    window.localStorage.setItem('CONTRACT_ADDRESSES', JSON.stringify(all));
     onDeleteRefresh((prev) => !prev);
   };
 

@@ -117,6 +117,7 @@ const ExistingDistribution = () => {
           <div className="mt-2 w-100 flex justify-center">
             {CONTRACT_TYPES.map((contractType) => (
               <Chip
+                key={contractType}
                 value={contractType}
                 selectedValue={selectedContractType}
                 handleSelectedValue={setSelectedContractType}
@@ -126,6 +127,7 @@ const ExistingDistribution = () => {
           <div className="mt-2 w-100 flex justify-center">
             {ACCESS_TYPES.map((accessType) => (
               <Chip
+                key={accessType}
                 value={accessType}
                 selectedValue={selectedAccessType}
                 handleSelectedValue={setSelectedAccessType}
