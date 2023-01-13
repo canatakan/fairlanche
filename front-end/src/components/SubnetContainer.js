@@ -8,7 +8,7 @@ import { addSubnetValidator } from "subnet/scripts/addSubnetValidator"
 import { WalletUtils } from "./WalletUtils";
 
 const SubnetContainer = ({ refresher, tx }) => {
-  
+
   const [bootstrappedNodeId, setBootstrappedNodeId] = useState("");
 
   const handleDelete = (subnetTX) => {
@@ -33,17 +33,17 @@ const SubnetContainer = ({ refresher, tx }) => {
   const { getSignature } = WalletUtils();
 
   return (
-    <div className="flex flex-col items-center justify-center border-2 border-gray-300 rounded-md p-2 m-2">
+    <div className="flex-none w-full flex-col items-center justify-center border-2 border-gray-300 rounded-md p-2 m-2">
       <Collapsible
         title={
           <div className="flex flex-row items-center justify-center">
-            
+
             <Link to={`./${tx}`} >
-                {
-                  <div className="text-l font-bold text-center hover:text-blue-600 focus:text-blue-600">
-                    {tx}
-                  </div>
-                }
+              {
+                <div className="text-l font-bold text-center hover:text-blue-600 focus:text-blue-600">
+                  {tx}
+                </div>
+              }
             </Link>
           </div>
         }
@@ -61,21 +61,19 @@ const SubnetContainer = ({ refresher, tx }) => {
           </div>
         }
       >
-        <div className=" flex flex-row items-center justify-center mb-1">
-          <div className="flex flex-col items-center justify-center">
-            <input
-              className="w-52"
-              type="string"
-              name="bootstrappedNodeId"
-              placeholder="Node ID"
-              value={bootstrappedNodeId}
-              onChange={handleBootstrappedNodeIdChange}
-            />
-          </div>
-          <p className="flex flex-col items-center justify-center m-2">Bootstrapped Node ID</p>
+        <div className="p-4 flex flex-col ">
+          <div className="text-m text-left mb-1">Bootstrapped Node ID</div>
+          <input
+            className="w-full mb-0"
+            type="string"
+            name="bootstrappedNodeId"
+            placeholder="NodeID-3S3Wiybrabk8X71YDKk1451tNqUV7q2pn"
+            value={bootstrappedNodeId}
+            onChange={handleBootstrappedNodeIdChange}
+          />
         </div>
-        <button onClick={() => handleAddValidator(bootstrappedNodeId)} className="mt-2">Add Validator</button>
-
+        <button onClick={() => handleAddValidator(bootstrappedNodeId)} className="w-64 mt-0 mb-2">
+          Add Subnet Validator</button>
 
       </Collapsible>
     </div>

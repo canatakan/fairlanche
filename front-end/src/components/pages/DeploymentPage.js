@@ -80,24 +80,27 @@ const Deployment = () => {
       </div>
       <div className="flex flex-row justify-center mt-2">
         <div className="flex flex-col w-1/2 ml-auto">
-          <div className="flex flex-col items-center">
-            <div className="w-full flex flex-col items-center">
-              <div className="form-group">
-                <form onSubmit={handleAddSubnet}>
+          <div className="flex flex-col items-end">
+            <div className="form-group w-full ">
+              <form onSubmit={handleAddSubnet}>
+                <div className="flex flex-row items-center">
                   <input type="text" name="subnetID" onChange={setSubnetID} placeholder="Enter Subnet ID" />
-                  <button className="mb-1"
+                  <button className="mb-1 w-1/4"
                   >
-                    Add Subnet
+                    Import
                   </button>
-                </form>
-              </div>
-              <button className="mb-10" onClick={handleCreateSubnet}>
-                Create Subnet
-              </button>
+                </div>
+              </form>
             </div>
-            <div>
-              <h1 className="text-xl font-medium text-center mb-2 mt-2">Imported & Created Subnets</h1>
-
+          </div>
+          <div>
+            <div className="flex flex-col items-center mt-8 border-2 border-gray-300 rounded-md p-4">
+              <div className="flex justify-between w-full">
+                <h1 className="text-xl font-medium text-center mb-2 mt-2">Imported & Created Subnets</h1>
+                <button className="mb-1 ml-5" onClick={handleCreateSubnet}>
+                  +
+                </button>
+              </div>
               {subnets.map((subnet) => (
                 <SubnetContainer
                   key={subnet}

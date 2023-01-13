@@ -15,11 +15,10 @@ const Collapsible = ({ open, children, title, item }) => {
   return (
     <>
       <div className="card">
-        <div className="p-6 flex flex-row justify-between text-left w-wrap rounded-xl">
+        <div className="p-2 flex flex-row justify-between text-left w-wrap rounded-xl">
           <h6 className="font-weight-bold p-2">{title}</h6>
           <div className="flex">
-
-
+          {item}
           <div className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center"
             onClick={handleFilterOpening}>
             {!isOpen ? (
@@ -28,12 +27,11 @@ const Collapsible = ({ open, children, title, item }) => {
               <FontAwesomeIcon icon={faChevronUp} />
             )}
           </div>
-          {item}
           </div>
         </div>
       </div>
       <div className="border-bottom">
-        <div>{isOpen && <div className="p-3">{children}</div>}</div>
+        <div>{isOpen && <div className="">{children}</div>}</div>
       </div>
     </>
   );
