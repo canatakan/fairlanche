@@ -6,8 +6,8 @@ export default function Chip({ value, selectedValue,handleSelectedValue }) {
       onClick={() => handleSelectedValue(value)}
       className={
         selectedValue === value
-          ? `bg-black text-white p-2 rounded-full mx-1 text-sm`
-          : `bg-white text-black border-2  cursor-pointer border-black p-2 rounded-full mx-1 text-sm`
+          ? "text-white p-2 rounded-full mx-1 text-sm bg-yellow-500 border-2 border-gray-500 cursor-pointer"
+          : "text-black border-2  cursor-pointer border-gray-500 p-2 rounded-full mx-1 text-sm bg-white"
       }
     >
       {value}
