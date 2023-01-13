@@ -120,21 +120,29 @@ const Deployment = () => {
             setCChainWallet={setCChainWallet}
           />
           <br></br>
-          <div className="border-2 border-gray-300 rounded-md p-4">
+          <div className="border-2 border-gray-300 rounded-md p-4 bg-gray-100 mb-10">
             <div className="flex flex-col items-center">
-              <h2>Informative Text Field</h2>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-              <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+              <h2 className="font-bold">How to Deploy a Subnet?</h2>
+              <p className="text-left">Avalanche has a structure based on three chains, namely X, P and C. In order to
+              deploy a subnet, you need to use the P-Chain. Our tool allows you to handle the X and P chain transactions
+              without leaving Metamask.
+              </p>
             </div>
-            <div className="flex flex-col items-center">
-              <h2>Informative Text Field</h2>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-              <ul>
-                <li>Bullet point 1</li>
-                <li>Bullet point 2</li>
-                <li>Bullet point 3</li>
-              </ul>
-            </div>
+            <div className="flex flex-col items-center mt-2">
+              <h2 className="font-bold mr-auto">🔑 Step 1: Prepare Your Wallets in Node</h2>
+              <p className="text-left"> In order to deploy a subnet, you need to access your P-Chain wallet in the Node.
+              You can do this by clicking on the "Access Wallets" button. Then, fund your P-Chain address by clicking 
+              on the "Fund P-Chain" button.
+              </p>
+              <h2 className="font-bold mr-auto mt-2">🔗 Step 2: Deploy Your Subnet</h2>
+              <p className="text-left"> Click on the "+" button to deploy a subnet. You will be prompted to sign a transaction
+              in Metamask. Once the transaction is confirmed, you will be able to see your subnet in the "Imported & Created Subnets" section.
+              </p>
+              <h2 className="font-bold mr-auto mt-2">✅ Step 3: Add a Validator</h2>
+              <p className="text-left"> Click on the "Add Validator" button to add a validator to your subnet. You can use our default node.
+              If you use your own node, follow the Avalanche's documents and restart your node accordingly.
+              </p>
+              </div>
           </div>
         </div>
       </div>
