@@ -1,4 +1,4 @@
-export const abi =
+export const equalERC1155ABI =
     [
         {
             "inputs": [
@@ -602,4 +602,4 @@ export const abi =
             "type": "function"
         }
     ]
-    export default abi;
+    export default equalERC1155ABI;

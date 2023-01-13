@@ -1,4 +1,4 @@
-export const abi =
+export const equalERC20ABI =
 [
     {
       "inputs": [
@@ -487,4 +487,4 @@ export const abi =
       "type": "function"
     }
   ]
-  export default abi;
+  export default equalERC20ABI;

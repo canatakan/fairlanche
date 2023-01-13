@@ -1,4 +1,4 @@
-export const abi = 
+export const equalNativeABI = 
 [
     {
       "inputs": [
@@ -443,4 +443,4 @@ export const abi =
       "type": "function"
     }
   ]
-  export default abi;
+  export default equalNativeABI;

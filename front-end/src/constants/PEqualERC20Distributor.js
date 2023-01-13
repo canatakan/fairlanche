@@ -1,4 +1,4 @@
-export const abi = 
+export const pEqualERC20ABI = 
 [
     {
       "inputs": [
@@ -571,4 +571,4 @@ export const abi =
       "type": "function"
     }
   ]
-  export default abi;
+  export default pEqualERC20ABI;

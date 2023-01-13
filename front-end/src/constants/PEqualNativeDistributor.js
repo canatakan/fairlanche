@@ -1,4 +1,4 @@
-export const abi = 
+export const pEqualNativeABI = 
 [
     {
       "inputs": [
@@ -527,4 +527,4 @@ export const abi =
       "type": "function"
     }
   ]
-  export default abi;
+  export default pEqualNativeABI;
