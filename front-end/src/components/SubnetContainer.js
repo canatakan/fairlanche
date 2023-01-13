@@ -9,7 +9,7 @@ import { WalletUtils } from "./WalletUtils";
 
 const SubnetContainer = ({ refresher, tx }) => {
 
-  const [bootstrappedNodeId, setBootstrappedNodeId] = useState("");
+  const [bootstrappedNodeId, setBootstrappedNodeId] = useState("NodeID-3S3Wiybrabk8X71YDKk1451tNqUV7q2pn");
 
   const handleDelete = (subnetTX) => {
     const subnets = JSON.parse(window.localStorage.getItem("managedSubnets")) ?? [];
@@ -62,12 +62,12 @@ const SubnetContainer = ({ refresher, tx }) => {
         }
       >
         <div className="p-4 flex flex-col ">
-          <div className="text-m text-left mb-1">Bootstrapped Node ID</div>
+          <div className="text-m text-left mb-1">Node ID</div>
           <input
             className="w-full mb-0"
             type="string"
             name="bootstrappedNodeId"
-            placeholder="NodeID-3S3Wiybrabk8X71YDKk1451tNqUV7q2pn"
+            placeholder="Fully Bootstrapped Node ID"
             value={bootstrappedNodeId}
             onChange={handleBootstrappedNodeIdChange}
           />
