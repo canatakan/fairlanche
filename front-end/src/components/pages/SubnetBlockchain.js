@@ -261,23 +261,25 @@ return (
           <div className="w-full flex gap-5 items-center mb-2">
             <h1 className="w-3/12 text-lg text-left">Fees</h1>
             <div className="w-full">
+              <div className="flex flex-row items-center">
               <Radio
                 name={"fees-rate"}
                 options={[
                   {
-                    title: "high",
-                    value: "high",
-                    id: "fees-high",
+                    title: "low",
+                    value: "low",
+                    id: "fees-low",
                   },
+
                   {
                     title: "medium",
                     value: "medium",
                     id: "fees-medium",
                   },
                   {
-                    title: "low",
-                    value: "low",
-                    id: "fees-low",
+                    title: "high",
+                    value: "high",
+                    id: "fees-high",
                   },
                 ]}
                 onChange={(val) => {
@@ -286,12 +288,13 @@ return (
                 isInline={true}
                 value={blockChainState.feesRate}
               />
+              </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-4 mt-10">
             <div className="w-full flex gap-5 items-center">
-              <h1 className="w-4/12 text-lg text-left">Fund Distribution</h1>
+              <h1 className="w-4/12 text-lg text-left">Fund Allocations</h1>
 
               <div className="w-full flex gap-4 items-center">
                 <div className="w-1/2">
@@ -301,11 +304,11 @@ return (
                     label={"Select CSV file"}
                   />
                 </div>
-                <Input placeholder={"address"} />
+                <div className="text-sm text-gray-500">(Initial airdrop)</div>
               </div>
             </div>
             <div className="w-full flex gap-5 items-center">
-              <h1 className="w-4/12 text-lg text-left">Deployer Admin</h1>
+              <h1 className="w-4/12 text-lg text-left">Deployer Admins</h1>
 
               <div className="w-full flex gap-4 items-center">
                 <div className="w-1/2">
@@ -315,7 +318,7 @@ return (
                     id={"deployerAdmin"}
                   />
                 </div>
-                <Input placeholder={"address"} />
+                <div className="text-sm text-gray-500">(Contract deployment admins)</div>
               </div>
             </div>
             <div className="w-full flex gap-5 items-center">
@@ -329,11 +332,11 @@ return (
                     id={"deployerEnabled"}
                   />
                 </div>
-                <Input placeholder={"address"} />
+                <div className="text-sm text-gray-500">(Contract deployers)</div>
               </div>
             </div>
             <div className="w-full flex gap-5 items-center">
-              <h1 className="w-4/12 text-lg text-left">tx Admin</h1>
+              <h1 className="w-4/12 text-lg text-left">TX Admins</h1>
               <div className="w-full flex gap-4 items-center">
                 <div className="w-1/2">
                   <FileInput
@@ -342,11 +345,11 @@ return (
                     id={"txAdmin"}
                   />
                 </div>
-                <Input placeholder={"address"} />
+                <div className="text-sm text-gray-500">(Transaction admins)</div>
               </div>
             </div>
             <div className="w-full flex gap-5 items-center">
-              <h1 className="w-4/12 text-lg text-left">tx Enabled</h1>
+              <h1 className="w-4/12 text-lg text-left">TX Enabled</h1>
               <div className="w-full flex gap-4 items-center">
                 <div className="w-1/2">
                   <FileInput
@@ -355,7 +358,7 @@ return (
                     id={"txEnabled"}
                   />
                 </div>
-                <Input placeholder={"address"} />
+                <div className="text-sm text-gray-500">(Users that can transact)</div>
               </div>
             </div>
           </div>
