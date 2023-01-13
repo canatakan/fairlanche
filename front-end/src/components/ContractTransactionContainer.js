@@ -46,7 +46,7 @@ export default function ContractTransactionContainer({
     const selectedABI = SELECTED_ABI[selectedContractType][selectedAccessType];
     let contract = new web3.eth.Contract(
       selectedABI,
-      "0x1D064148cf16b41f9A2837342828Ff2A825d7518"
+      contractAddress
     );
     const blockNumber = await web3.eth.getBlockNumber();
     contract
