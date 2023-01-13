@@ -221,10 +221,9 @@ const addCustomNetwork = async (chainId, chainName, rpcUrls, symbol, decimals) =
   }
 }
 
-const handleAddCustomNetwork = () => {
-  // convert input to decimal chainId
-  const chainId = `0x${parseInt(blockChainState.chainID, 10).toString(16)}`;
-  addCustomNetwork(chainId, blockChainState.chainName, ["https://subnets.avax.network/defi-kingdoms/dfk-chain-testnet/rpc"], "AVAX", 18);
+  const handleAddCustomNetwork = (blockchain) => {
+    const chainId = `0x${parseInt(blockchain?.chainID, 10).toString(16)}`;
+    addCustomNetwork(chainId, blockchain?.chainName, ["https://subnets.avax.network/defi-kingdoms/dfk-chain-testnet/rpc"], "AVAX", 18);
 }
 
 return (
@@ -367,8 +366,7 @@ return (
 
     <div className="w-5/12 mx-auto mt-10">
 
-      {txList.map(tx => <BlockchainTxContainer tx={tx} key={tx} />)}
-      <button className="bg-blue-500 text-white px-4 py-2 rounded mt-4" onClick={handleAddCustomNetwork} >Add Custom Network</button>
+        {txList.map(tx=><BlockchainTxContainer tx={tx} handleAddCustomNetwork={()=>handleAddCustomNetwork(tx?.blockChainState)} key={tx?.blockChainState}/>)}
     </div>
 
   </div>

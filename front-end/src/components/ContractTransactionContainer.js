@@ -5,20 +5,22 @@ import { ethers } from "ethers";
 import Collapsible from "./Collapsible";
 import { useContractFunction } from "@usedapp/core";
 import { Contract } from "ethers";
-import { abi } from "../constants";
+import { SELECTED_ABI } from '../constants/AppConstants';
+import Web3 from 'web3';
 
 
 export default function ContractTransactionContainer({
   contractAddress,
   onDeleteRefresh,
   id,
+  selectedAccessType,
+  selectedContractType
 }) {
   const [demandVolume, setDemandVolume] = useState(0);
   const [epochNumber, setEpochNumber] = useState(0);
   const [contractInstance, setContractInstance] = useState(null);
-  const [selectedValues, setSelectedValues] = useState([]);
-  // values will be pulled from listener
-  const values = [1, 2, 4, 3, 7, 8, 10, 344, 2434];
+  const [selectedEventValues, setSelectedEventsValues] = useState([]);
+  const [contractEvents, setContractEvents] = useState([]);
 
   const { state: demandState, send: demand } = useContractFunction(
     contractInstance,
@@ -31,15 +33,57 @@ export default function ContractTransactionContainer({
     { transactionName: "Claim" }
   );
 
+  const { state: bulkClaimState, send: claimBulK } = useContractFunction(
+    contractInstance,
+    "claimBulk",
+    { transactionName: "ClaimBulk" }
+  );
+
+  const getContractEvents = async () => {
+    const web3 = new Web3(window.ethereum);
+    const accts = await web3.eth.getAccounts();
+    const wallet_address = accts[0];
+    const selectedABI = SELECTED_ABI[selectedContractType][selectedAccessType];
+    let contract = new web3.eth.Contract(
+      selectedABI,
+      "0x1D064148cf16b41f9A2837342828Ff2A825d7518"
+    );
+    const blockNumber = await web3.eth.getBlockNumber();
+    contract
+      .getPastEvents(
+        "Demand",
+        {
+          filter: { _from: wallet_address }, 
+          fromBlock: blockNumber - 2048,
+          toBlock: blockNumber
+        },
+        function (error, events) {
+
+          setContractEvents(events);
+        }
+      )
+      .then(function (events) {
+
+        setContractEvents(events);
+      });
+  };
+
   useEffect(() => {
-    if (contractAddress) {
+    if (contractAddress && selectedContractType && selectedAccessType) {
       const instance = generateContractInstance(contractAddress);
       setContractInstance(instance);
+      getContractEvents()
     }
-  }, [contractAddress]);
+  }, [contractAddress, selectedContractType, selectedAccessType]);
 
   const generateContractInstance = (address) => {
-    const instance = new Contract(address, abi, ethers.getDefaultProvider());
+    const selectedABI = SELECTED_ABI[selectedContractType][selectedAccessType];
+
+    const instance = new Contract(
+      address,
+      selectedABI,
+      ethers.getDefaultProvider()
+    );
     return instance;
   };
 
@@ -68,6 +112,11 @@ export default function ContractTransactionContainer({
     claim(epochNumber);
   };
 
+  const handleClaimBulk = (event) => {
+    event.preventDefault();
+    claimBulK(selectedEventValues);
+  };
+
   const Card = ({ value, isSelected, onClick }) => {
     //it should be similar size with the contract Transaction container
     const style = {
@@ -88,11 +137,11 @@ export default function ContractTransactionContainer({
     );
   };
 
-  const handleCardClick = value => {
-    if (selectedValues.includes(value)) {
-      setSelectedValues(selectedValues.filter(v => v !== value));
+  const handleCardClick = (value) => {
+    if (selectedEventValues.includes(value)) {
+      setSelectedEventsValues(selectedEventValues.filter((v) => v !== value));
     } else {
-      setSelectedValues([...selectedValues, value]);
+      setSelectedEventsValues([...selectedEventValues, value]);
     }
   };
 
@@ -159,24 +208,30 @@ export default function ContractTransactionContainer({
               <div
                 style={
                   {
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    alignItems: "center",
                   }
                 }
               >
-                {values.map(value => (
+                {contractEvents?.map((event) => (
                   <Card
-                    key={value}
-                    value={value}
-                    isSelected={selectedValues.includes(value)}
-                    onClick={() => handleCardClick(value)}
+                    key={event?.blockNumber}
+                    value={event?.returnValues?._volume}
+                    isSelected={selectedEventValues.includes(
+                      Number(event?.returnValues?._volume)
+                    )}
+                    onClick={() =>
+                      handleCardClick(Number(event?.returnValues?._volume))
+                    }
                   />
                 ))}
-                <button onClick={() => alert(selectedValues)} className="w-24 h-16">
-                  Claim
-                  Bulk
+                <button
+                  onClick={(event) => handleClaimBulk(event)}
+                  className="w-24 h-16"
+                >
+                  Claim Bulk
                 </button>
               </div>
             </div>

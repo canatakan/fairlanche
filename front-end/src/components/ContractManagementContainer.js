@@ -7,11 +7,14 @@ import { useContractFunction } from "@usedapp/core";
 import { Contract } from "ethers";
 
 import PQMFERC20Distributor from "../constants/PQMFERC20Distributor";
+import { SELECTED_ABI } from "../constants/AppConstants";
 
 export default function ContractContainer({
   contractAddress,
   onDeleteRefresh,
   id,
+  selectedContractType,
+  selectedAccessType
 }) {
   const [permissionedAddress, setPermissionedAddress] = useState("");
   const [unpermissionedAddress, setUnpermissionedAddress] = useState("");
@@ -53,16 +56,19 @@ export default function ContractContainer({
   );
 
   useEffect(() => {
-    if (contractAddress) {
+    if (contractAddress && selectedContractType && selectedAccessType) {
       const instance = generateContractInstance(contractAddress);
       setContractInstance(instance);
     }
-  }, [contractAddress]);
+  }, [contractAddress, selectedAccessType, selectedContractType]);
 
   const generateContractInstance = (address) => {
+    const selectedABI = SELECTED_ABI[selectedContractType][selectedAccessType];
+
     const instance = new Contract(
       address,
-      PQMFERC20Distributor,
+      // PQMFERC20Distributor,
+      selectedABI,
       ethers.getDefaultProvider()
     );
     return instance;
