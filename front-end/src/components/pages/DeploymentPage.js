@@ -15,6 +15,8 @@ const Deployment = () => {
   const [xChainWallet, setXChainWallet] = useState(null);
   const [cChainWallet, setCChainWallet] = useState(null);
 
+  const [refreshState, setRefreshState] = useState(false);
+
   const handleCreateSubnet = async () => {
     const {
       pAddress,
@@ -38,6 +40,7 @@ const Deployment = () => {
       "managedSubnets",
       JSON.stringify([...managedSubnets, subnetId])
     );
+    setRefreshState((prev) => !prev);
   };
 
   const { accessWallets } = WalletUtils();
@@ -81,7 +84,7 @@ const Deployment = () => {
     setSubnets(
       () => JSON.parse(window.localStorage.getItem("managedSubnets")) ?? []
     );
-  });
+  }, [refreshState]);
 
   const setSubnetID = (e) => {
     setSubnetInput(e.target.value);
@@ -118,6 +121,7 @@ const Deployment = () => {
               {subnets.map((subnet) => (
                 <SubnetContainer
                   key={subnet}
+                  refresher={() => setRefreshState((prev) => !prev)}
                   tx={subnet} />
               ))}
             </div>
