@@ -20,7 +20,8 @@ const skip = (num) => new Array(num);
 // const cchain = avalanche.CChain()
 // cchain.setBaseURL(cAnkrBase)
 
-//info.setBaseURL(cAnkrBase)
+// const info = avalanche.Info()
+// info.setBaseURL(cAnkrBase)
 // >>>>>>
 
 
@@ -39,6 +40,8 @@ const xchain = avalanche.XChain()
 const cchain = avalanche.CChain()
 
 const info = avalanche.Info()
+
+const keyStoreAPI = avalanche.NodeKeys()
 // >>>>>>
 
 
@@ -57,6 +60,7 @@ const utxoSet = async () => {
 module.exports = {
   platform,
   info,
+  keyStoreAPI,
   pKeyChain,
   pAddressStrings,
   bintools,
