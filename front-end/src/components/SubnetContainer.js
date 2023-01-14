@@ -40,7 +40,7 @@ const SubnetContainer = ({ refresher, tx }) => {
 
             <Link to={`./${tx}`} >
               {
-                <div className="text-l font-bold text-center hover:text-blue-600 focus:text-blue-600">
+                <div className="text-l font-bold text-center hover:text-red-600 focus:text-red-600">
                   {tx}
                 </div>
               }

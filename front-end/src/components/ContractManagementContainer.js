@@ -123,17 +123,11 @@ export default function ContractContainer({
       <Collapsible
         close
         title=<div className="flex flex-row items-center justify-center">
-          <a
-            href={`https://testnet.snowtrace.io/address/${contractAddress}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
             {
-              <div className="text-l font-bold text-center hover:text-blue-600 focus:text-blue-600">
+              <div className="text-l font-bold text-center">
                 {contractAddress}
               </div>
             }
-          </a>
         </div>
         item=<div
           className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center"

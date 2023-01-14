@@ -4,13 +4,13 @@
 
 @layer base {
   button {
-    @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded
+    @apply bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded
     mb-1 mr-1 ml-1 transition-all duration-150
   }
 
    input {
     @apply bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full 
-    py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500
+    py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-red-500
     mb-1
   } 
 

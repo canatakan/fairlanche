@@ -185,7 +185,7 @@ const WalletCard = () => {
                 {pChainWallet && (
                     <div className="mb-1 border border-1 border-gray-300 rounded-md p-2">
                         P-Chain ({pBalance} AVAX):<br></br>
-                        <div className="text-blue-500 hover:underline cursor-pointer"
+                        <div className="text-red-500 hover:underline cursor-pointer"
                             onClick={() => window.open("https://explorer-xp.avax-test.network/address/" + pChainWallet, "_blank")}>
                             {pChainWallet}
                         </div>
@@ -194,7 +194,7 @@ const WalletCard = () => {
                 {xChainWallet && (
                     <div className="mb-1 border border-1 border-gray-300 rounded-md p-2">
                         X-Chain ({xBalance} AVAX):<br></br>
-                        <div className="text-blue-500 hover:underline cursor-pointer"
+                        <div className="text-red-500 hover:underline cursor-pointer"
                             onClick={() => window.open("https://explorer-xp.avax-test.network/address/" + xChainWallet, "_blank")}>
                             {xChainWallet}
                         </div>
@@ -203,7 +203,7 @@ const WalletCard = () => {
                 {cChainWallet && (
                     <div className="mb-1 border border-1 border-gray-300 rounded-md p-2">
                         C-Chain ({cBalance} AVAX):<br></br>
-                        <div className="text-blue-500 hover:underline cursor-pointer"
+                        <div className="text-red-500 hover:underline cursor-pointer"
                             onClick={() => window.open("https://testnet.snowtrace.io/address/" + cChainWallet, "_blank")}>
                             {cChainWallet}
                         </div>

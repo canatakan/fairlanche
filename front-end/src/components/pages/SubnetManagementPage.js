@@ -75,11 +75,11 @@ export default function ManagePageTransactions() {
             <Tab
               className={({ selected }) =>
                 classNames(
-                  "w-full rounded-lg py-2.5 text-sm font-bold leading-5 text-blue-700",
+                  "w-full rounded-lg py-2.5 text-sm font-bold leading-5 text-red-700",
                   "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-400 focus:ring-white mt-1 mb-1",
                   selected
                     ? "bg-white shadow hover:bg-white mt-1 mb-1"
-                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                    : "text-red-100 hover:bg-white/[0.12] hover:text-white"
                 )
               }
             >
@@ -88,12 +88,12 @@ export default function ManagePageTransactions() {
             <Tab
               className={({ selected }) =>
                 classNames(
-                  "w-full rounded-lg py-2.5 text-sm font-bold leading-5 text-blue-700",
+                  "w-full rounded-lg py-2.5 text-sm font-bold leading-5 text-red-700",
                   "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-400 focus:ring-white mt-1 mb-1",
                   
                   selected
                     ? "bg-white shadow hover:bg-white mt-1 mb-1"
-                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                    : "text-red-100 hover:bg-white/[0.12] hover:text-white"
                 )
               }
             >
@@ -102,12 +102,12 @@ export default function ManagePageTransactions() {
             <Tab
               className={({ selected }) =>
                 classNames(
-                  "w-full rounded-lg py-2.5 text-sm font-bold leading-5 text-blue-700",
+                  "w-full rounded-lg py-2.5 text-sm font-bold leading-5 text-red-700",
                   "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-400 focus:ring-white mt-1 mb-1",
                   
                   selected
                     ? "bg-white shadow hover:bg-white mt-1 mb-1"
-                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                    : "text-red-100 hover:bg-white/[0.12] hover:text-white"
                 )
               }
             >

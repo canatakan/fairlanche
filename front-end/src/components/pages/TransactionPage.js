@@ -107,7 +107,7 @@ class TransactionPage extends React.Component {
               <div className="p-6 mt-6 text-left border w-wrap rounded-xl">
                 <div className="flex flex-col items-center justify-center">
                   <a href={'/transact/' + subnet.subnetId}>
-                    <div className='text-xl font-bold text-center mb-2 hover:text-blue-600 focus:text-blue-600'>{subnet.subnetName}</div>
+                    <div className='text-xl font-bold text-center mb-2 hover:text-red-600 focus:text-red-600'>{subnet.subnetName}</div>
                   </a>
                   <div className='flex flex-col items-center justify-center'>
                     <div className='text-lg mb-2'>Subnet ID: {subnet.subnetId}</div>

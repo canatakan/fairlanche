@@ -153,17 +153,11 @@ export default function ContractTransactionContainer({
       <Collapsible
         close
         title=<div className="flex flex-row items-center justify-center">
-          <a
-            href={`https://testnet.snowtrace.io/address/${contractAddress}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
             {
-              <div className="text-l font-bold text-center hover:text-blue-600 focus:text-blue-600">
+              <div className="text-l font-bold text-center">
                 {contractAddress}
               </div>
             }
-          </a>
         </div>
         item=<div
           className="btn p-2 hover:bg-gray-200 rounded font-weight-bold text-center"
@@ -232,9 +226,9 @@ export default function ContractTransactionContainer({
                 ))}
                 <button
                   onClick={(event) => handleClaimBulk(event)}
-                  className="w-24 h-16"
+                  className="w-32 h-12"
                 >
-                  Claim Bulk
+                  claim bulk
                 </button>
               </div>
             </div>
