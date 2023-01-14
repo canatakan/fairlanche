@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Radio from "../forms/Radio";
 import SubnetContainer from "../SubnetContainer";
-
-import { ethers } from "ethers";
-
 
 import { platform } from "subnet/scripts/importAPI";
 import { createSubnet } from "subnet/scripts/createSubnet";
@@ -42,32 +38,50 @@ const Deployment = () => {
       "managedSubnets",
       JSON.stringify([...managedSubnets, subnetId])
     );
-    setRefreshState((prev) => !prev);
   };
 
   const { accessWallets } = WalletUtils();
 
-  const [refreshState, setRefreshState] = useState(false);
-
   const handleAddSubnet = () => {
-    if (subnetInput.length < 4) {
-      alert("Enter valid subnets");
+    if (!validateSubnet(subnetInput)) {
       return;
     }
-    setSubnets((prev) => [...prev, subnetInput]);
     const subnets = JSON.parse(window.localStorage.getItem("managedSubnets")) ?? [];
     window.localStorage.setItem(
       "managedSubnets",
       JSON.stringify([...subnets, subnetInput])
     );
-    setRefreshState((prev) => !prev);
   };
+
+  const validateSubnet = (subnetInput) => {
+    if (subnetInput.length !== 49) {
+      alert('Invalid Subnet ID');
+      return false;
+    }
+
+    if (!subnetInput.match(/^[a-zA-Z0-9]+$/)) {
+      alert('Invalid Subnet ID');
+      return false;
+    }
+
+    const subnets = JSON.parse(window.localStorage.getItem("managedSubnets")) ?? [];
+
+    // if subnet with these ids already exists, return false:
+    for (let i = 0; i < subnets.length; i++) {
+      if (subnets[i] === subnetInput) {
+        alert('Subnet with this ID already exists');
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   useEffect(() => {
     setSubnets(
       () => JSON.parse(window.localStorage.getItem("managedSubnets")) ?? []
     );
-  }, [refreshState]);
+  });
 
   const setSubnetID = (e) => {
     setSubnetInput(e.target.value);
@@ -104,7 +118,6 @@ const Deployment = () => {
               {subnets.map((subnet) => (
                 <SubnetContainer
                   key={subnet}
-                  refresher={() => setRefreshState((prev) => !prev)}
                   tx={subnet} />
               ))}
             </div>
@@ -132,7 +145,7 @@ const Deployment = () => {
               <h2 className="font-bold mr-auto">🔑 Step 1: Prepare Your Wallets in Node</h2>
               <p className="text-left"> In order to deploy a subnet, you need to access your P-Chain wallet in the Node.
               You can do this by clicking on the "Access Wallets" button. Then, fund your P-Chain address by clicking 
-              on the "Fund P-Chain" button.
+              on the "Fund P-Chain Wallet" button.
               </p>
               <h2 className="font-bold mr-auto mt-2">🔗 Step 2: Deploy Your Subnet</h2>
               <p className="text-left"> Click on the "+" button to deploy a subnet. You will be prompted to sign a transaction

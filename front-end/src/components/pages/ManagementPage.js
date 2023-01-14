@@ -55,10 +55,6 @@ class ManagementPage extends React.Component {
       return false;
     }
 
-
-    // TODO: send an API request to check if the subnet exists
-    // https://docs.avax.network/apis/avalanchego/apis/p-chain#platformgetblockchainstatus
-
     return true;
   }
 
