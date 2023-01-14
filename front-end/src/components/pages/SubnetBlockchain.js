@@ -230,7 +230,7 @@ return (
   <div>
     <div className="w-5/12 mx-auto mt-10 ">
       <div>
-        <h1 className="text font-bold mb-6"> Subnet ID {tx}</h1>
+        <h1 className="text font-bold mb-6"> Create Blockchain on Subnet:<br></br>{tx}</h1>
         <div className="w-full">
           <div className="w-full flex gap-5 items-center mb-2">
             <h1 className="w-3/12 text-left text-lg">Chain Name</h1>
@@ -291,8 +291,7 @@ return (
               </div>
             </div>
           </div>
-
-          <div className="flex flex-col gap-4 mt-10">
+          <div className="flex flex-col gap-4 mt-6">
             <div className="w-full flex gap-5 items-center">
               <h1 className="w-4/12 text-lg text-left">Fund Allocations</h1>
 
