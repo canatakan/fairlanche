@@ -28,12 +28,23 @@ class ManagementPage extends React.Component {
     if (!this.validateSubnet(event)) {
       return;
     }
+    let blockchainName
+    try {
+      blockchainName = await getBlockchainName(
+      event.target.elements.blockchainId.value
+      )
+    } catch (e) {
+      blockchainName = 'Unknown'
+    }
+
+    if (typeof blockchainName !== 'string') {
+      blockchainName = 'Unknown';
+    }
+
     const subnet = {
       subnetId: event.target.elements.subnetId.value,
       blockchainId: event.target.elements.blockchainId.value,
-      subnetName: await getBlockchainName(
-        event.target.elements.blockchainId.value
-      ),
+      subnetName: blockchainName,
     };
     const subnets = [...this.state.subnets, subnet];
     this.setState({ subnets });

@@ -29,12 +29,23 @@ class TransactionPage extends React.Component {
     if (!this.validateSubnet(event)) {
       return;
     }
+    let blockchainName
+    try {
+      blockchainName = await getBlockchainName(
+      event.target.elements.blockchainId.value
+    )
+    } catch (e) {
+      blockchainName = 'Unknown'
+    }
+
+    if (typeof blockchainName !== 'string') {
+      blockchainName = 'Unknown';
+    }
+
     const subnet = {
       subnetId: event.target.elements.subnetId.value,
       blockchainId: event.target.elements.blockchainId.value,
-      subnetName: await getBlockchainName(
-        event.target.elements.blockchainId.value
-      )
+      subnetName:  blockchainName,
     };
     const subnets = [...this.state.subnets, subnet];
     this.setState({ subnets });
@@ -58,9 +69,9 @@ class TransactionPage extends React.Component {
 
     // if subnet with these ids already exists, return false:
     for (let i = 0; i < this.state.subnets.length; i++) {
-      if (this.state.subnets[i].subnetId === subnetId ||
+      if (this.state.subnets[i].subnetId === subnetId &&
         this.state.subnets[i].blockchainId === blockchainId) {
-        alert('Subnet with these IDs already exists');
+        alert('Blockchain with these IDs already exists');
         return false;
       }
     }
