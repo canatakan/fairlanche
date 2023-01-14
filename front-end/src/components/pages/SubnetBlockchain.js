@@ -13,20 +13,15 @@ import { createBlockchain } from "subnet/scripts/createBlockchain"
 import high from "../../constants/fee_configs/high.json"
 import medium from "../../constants/fee_configs/medium.json"
 import low from "../../constants/fee_configs/low.json"
+import { protocol, nodeIP, nodePort } from "subnet/scripts/config";
+import { getBlockchainName } from "subnet/scripts/getBlockchainName";
 
-function useQuery() {
-  const { search } = useLocation();
-  return React.useMemo(() => new URLSearchParams(search), [search]);
-}
 
 const SubnetBlockchain = () => {
   const [blockChainState, setBlockChainState] = useState({
     chainName: "",
     chainID: 0,
     feesRate: "low",
-    // tokenSymbol: "",
-    // RPCURL
-    // decimal
   });
 
   const [inputFiles, setInputFiles] = useState({
@@ -38,8 +33,6 @@ const SubnetBlockchain = () => {
   });
 
   const { tx } = useParams();
-  const bootstrappedNodeId = useQuery().get("bootstrappedNodeId");
-
   const [txList, setTxList] = useState([]);
 
   const { getSignature } = WalletUtils();
@@ -199,8 +192,6 @@ function readFile(file) {
 
 
 const addCustomNetwork = async (chainId, chainName, rpcUrls, symbol, decimals) => {
-  console.log(chainId)
-
   const newChain = {
     chainId,
     chainName,
@@ -221,9 +212,24 @@ const addCustomNetwork = async (chainId, chainName, rpcUrls, symbol, decimals) =
   }
 }
 
-  const handleAddCustomNetwork = (blockchain) => {
-    const chainId = `0x${parseInt(blockchain?.chainID, 10).toString(16)}`;
-    addCustomNetwork(chainId, blockchain?.chainName, ["https://subnets.avax.network/defi-kingdoms/dfk-chain-testnet/rpc"], "AVAX", 18);
+  const handleAddCustomNetwork = async (blockchain) => {
+    const RPC_LINK = protocol + '://' + nodeIP + ':' + nodePort + '/ext/bc/' + blockchain + '/rpc';
+    const networkId = await fetch(RPC_LINK, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "net_version",
+          "params": []
+      })
+    }).then(res => res.json()).then(res => res.result);
+    const chainName = await getBlockchainName(blockchain)
+
+    const chainId = `0x${parseInt(networkId, 10).toString(16)}`;
+    addCustomNetwork(chainId, chainName, [RPC_LINK], "AVAX", 18);
 }
 
 return (
@@ -363,12 +369,12 @@ return (
           </div>
         </div>
       </div>
-      <button className="bg-blue-500 text-white px-4 py-2 rounded mt-10" onClick={handleCreateBlockChain} >Create Blockchain</button>
+      <button className="bg-red-500 text-white px-4 py-2 rounded mt-10" onClick={handleCreateBlockChain} >Create Blockchain</button>
     </div>
 
     <div className="w-5/12 mx-auto mt-10">
 
-        {txList.map(tx=><BlockchainTxContainer tx={tx} handleAddCustomNetwork={()=>handleAddCustomNetwork(tx?.blockChainState)} key={tx?.blockChainState}/>)}
+        {txList.map(tx=><BlockchainTxContainer tx={tx} handleAddCustomNetwork={()=>handleAddCustomNetwork(tx)} key={tx}/>)}
     </div>
 
   </div>
@@ -376,31 +382,3 @@ return (
 };
 
 export default SubnetBlockchain;
-
-/* 
-
-            <div className="w-full flex gap-5 items-center mb-2">
-              <h1 className="w-3/12 text-left text-lg">Token Symbol</h1>
-              <div className="w-full">
-                <Input
-                  placeholder={"Token Symbol"}
-                  onChange={(val) =>
-                    setBlockChainState((prev) => ({ ...prev, tokenSymbol: val }))
-                  }
-                  value={blockChainState.tokenSymbol}
-                />
-              </div>
-            </div>
-                        <div className="w-full flex gap-5 items-center mb-2">
-              <h1 className="w-3/12 text-left text-lg">RPCURL</h1>
-              <div className="w-full">
-                <Input
-                  placeholder={"RPC URL"}
-                  onChange={(val) =>
-                    setBlockChainState((prev) => ({ ...prev, rpcurl: val }))
-                  }
-                  value={blockChainState.rpcurl}
-                />
-              </div>
-            </div>
-*/
