@@ -57,7 +57,8 @@ class TransactionPage extends React.Component {
     const subnetId = event.target.elements.subnetId.value;
     const blockchainId = event.target.elements.blockchainId.value;
 
-    if (subnetId.length !== 49 || blockchainId.length !== 49) {
+    if (subnetId.length < 49 || subnetId.length > 52 ||
+      blockchainId.length < 49 || blockchainId.length > 52) {
       alert('Invalid Subnet ID or Blockchain ID');
       return false;
     }
