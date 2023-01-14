@@ -7,7 +7,9 @@ import WalletCard from "../WalletCard";
 import { WalletUtils } from "../WalletUtils";
 
 const Deployment = () => {
-  const [subnets, setSubnets] = useState([]);
+  const [subnets, setSubnets] = useState(
+    JSON.parse(window.localStorage.getItem("managedSubnets")) ?? []
+  );
 
   const [subnetInput, setSubnetInput] = useState("");
 
@@ -57,7 +59,7 @@ const Deployment = () => {
   };
 
   const validateSubnet = (subnetInput) => {
-    if (subnetInput.length !== 49) {
+    if (subnetInput.length < 49 || subnetInput.length > 52) {
       alert('Invalid Subnet ID');
       return false;
     }
