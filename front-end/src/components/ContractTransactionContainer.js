@@ -6,7 +6,6 @@ import Collapsible from "./Collapsible";
 import { useContractFunction } from "@usedapp/core";
 import { Contract } from "ethers";
 import { SELECTED_ABI } from '../constants/AppConstants';
-import Web3 from 'web3';
 
 
 export default function ContractTransactionContainer({
@@ -39,33 +38,51 @@ export default function ContractTransactionContainer({
     { transactionName: "ClaimBulk" }
   );
 
-  const getContractEvents = async () => {
-    const web3 = new Web3(window.ethereum);
-    const accts = await web3.eth.getAccounts();
-    const wallet_address = accts[0];
+
+  async function getContractEvents() {
+    const accts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const walletAddress = accts[0];
     const selectedABI = SELECTED_ABI[selectedContractType][selectedAccessType];
-    let contract = new web3.eth.Contract(
+    let contract = new Contract(
+      contractAddress,
       selectedABI,
-      contractAddress
-    );
-    const blockNumber = await web3.eth.getBlockNumber();
-    contract
-      .getPastEvents(
-        "Demand",
+      ethers.getDefaultProvider()
+    )
+    const blockNumber = await window.ethereum.request({ method: 'eth_blockNumber' });
+    
+    const requestTopic = ethers.utils.id("Demand(address,uint256,uint16)")
+
+    // send request to json rpc endpoint to get logs 
+    const topics = await window.ethereum.request({
+      method: 'eth_getLogs',
+      params: [
         {
-          filter: { _from: wallet_address }, 
-          fromBlock: blockNumber - 2048,
-          toBlock: blockNumber
-        },
-        function (error, events) {
-
-          setContractEvents(events);
+          fromBlock: "0x" + (blockNumber - 1900).toString(16),
+          address: contractAddress,
+          topics: [requestTopic]
         }
-      )
-      .then(function (events) {
+      ]
+    });
 
-        setContractEvents(events);
-      });
+    console.log(topics.length)
+    let logs = topics.map((topic) => {
+      const event = contract.interface.parseLog(topic);
+      console.log(event.args[0])
+      if (event.args[0].toLowerCase() != walletAddress.toLowerCase())
+        return null;
+      return {
+        blockNumber: topic.blockNumber,
+        returnValues : {
+          epochNumber: parseInt(event.args[1]),
+          _volume: event.args[2],
+        }
+      }
+    });
+    console.log(logs)
+    logs = logs.filter((log) => log != null);
+
+    console.log(logs)
+    setContractEvents(logs);
   };
 
   useEffect(() => {
@@ -89,8 +106,6 @@ export default function ContractTransactionContainer({
 
   const deleteContractAddress = (contractAddress) => {
     const all = JSON.parse(window.localStorage.getItem('CONTRACT_ADDRESSES'));
-    console.log(all);
-    console.log(id);
     all[id] = all[id].filter((el) => el.contractAddress != contractAddress);
 
     window.localStorage.setItem('CONTRACT_ADDRESSES', JSON.stringify(all));
@@ -215,12 +230,12 @@ export default function ContractTransactionContainer({
                 {contractEvents?.map((event) => (
                   <Card
                     key={event?.blockNumber}
-                    value={event?.returnValues?._volume}
+                    value={event?.returnValues?.epochNumber}
                     isSelected={selectedEventValues.includes(
-                      Number(event?.returnValues?._volume)
+                      Number(event?.returnValues?.epochNumber)
                     )}
                     onClick={() =>
-                      handleCardClick(Number(event?.returnValues?._volume))
+                      handleCardClick(Number(event?.returnValues?.epochNumber))
                     }
                   />
                 ))}
