@@ -41,10 +41,10 @@ import QMFNativeDistributorBYTE from "../constants/PublicBytecodes/Native/QMFNat
 import SMFNativeDistributorBYTE from "../constants/PublicBytecodes/Native/SMFNativeDistributorBYTE";
 import EqualNativeDistributorBYTE from "../constants/PublicBytecodes/Native/EqualNativeDistributorBYTE";
 
-import erc20abi from "../constants/ERC20Resource";
-import erc20byte from "../constants/ERC20ResourceBYTE";
-import erc1155abi from "../constants/ERC1155Resource";
-import erc1155byte from "../constants/ERC1155ResourceBYTE";
+import erc20abi from "../constants/ResourceABIs/ERC20Resource";
+import erc20byte from "../constants/ResourceBytecodes/ERC20ResourceBYTE";
+import erc1155abi from "../constants/ResourceABIs/ERC1155Resource";
+import erc1155byte from "../constants/ResourceBytecodes/ERC1155ResourceBYTE";
 
 const contractDeployer = async (abi, byteCode, args) => {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
