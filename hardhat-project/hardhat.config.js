@@ -76,7 +76,7 @@ task("deploy", "Runs the deploy script")
   .setAction(async ({ resource, isPermissioned }) => {
 
     resource = resource.toLowerCase();
-    if (!["native", "erc20", "erc1155", "allowance", "lib", "tokens"].includes(resource)) {
+    if (!["native", "erc20", "erc1155", "allowance", "lib", "tokens", "all"].includes(resource)) {
       throw new Error("Invalid resource type");
     }
 
@@ -89,7 +89,41 @@ task("deploy", "Runs the deploy script")
     } else if (resource == 'tokens') {
       await hre.run("run", { script: "./scripts/deployTokens.js" });
       return;
+    } else if (resource == 'all') {
+
+      // --- Native ---
+      await deployResourceContract('native', false, "QMF");
+      await deployResourceContract('native', false, "SMF");
+      await deployResourceContract('native', false, "Equal");
+      // permissioned:
+      await deployResourceContract('native', true, "QMF");
+      await deployResourceContract('native', true, "SMF");
+      await deployResourceContract('native', true, "Equal");
+      // ----------------
+
+      // --- ERC20 ---
+      await deployResourceContract('erc20', false, "QMF");
+      await deployResourceContract('erc20', false, "SMF");
+      await deployResourceContract('erc20', false, "Equal");
+      // permissioned:
+      await deployResourceContract('erc20', true, "QMF");
+      await deployResourceContract('erc20', true, "SMF");
+      await deployResourceContract('erc20', true, "Equal");
+      // ----------------
+
+      // --- ERC1155 ---
+      await deployResourceContract('erc1155', false, "QMF");
+      await deployResourceContract('erc1155', false, "SMF");
+      await deployResourceContract('erc1155', false, "Equal");
+      // permissioned:
+      await deployResourceContract('erc1155', true, "QMF");
+      await deployResourceContract('erc1155', true, "SMF");
+      await deployResourceContract('erc1155', true, "Equal");
+      // ----------------
+
+      return;
     }
+
 
     if (isPermissioned.toLowerCase() == "public"
       || isPermissioned.toLowerCase() == "false") {
@@ -159,7 +193,7 @@ task("test", "Runs the test script", async (taskArgs, hre) => {
   await runSuper(taskArgs, hre);
 });
 
-async function deployResourceContract(resource, isPermissioned) {
+async function deployResourceContract(resource, isPermissioned, algorithm = "QMF") {
   // the following is a hack to replace the RESOURCE_TYPE variable in the config.js file
   // this is done because hardhat doesn't support running scripts with arguments
   let rl = readline.createInterface({
@@ -176,8 +210,10 @@ async function deployResourceContract(resource, isPermissioned) {
       let newLine = line.replace(/true|false/, isPermissioned);
       let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
       fs.writeFileSync('./scripts/config.js', newContent);
-      rl.close();
-      return;
+    } else if (line.includes("ALGORITHM")) {
+      let newLine = line.replace(/QMF|Equal|SMF/, algorithm);
+      let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
+      fs.writeFileSync('./scripts/config.js', newContent);
     }
   });
 
