@@ -103,7 +103,7 @@ addSubnetValidator.js \
 --endTime $(date -v +14d +%s)
 ```
 
-### Building the VM & Whitelisting Your Subnet
+### Building the VM & Tracking Your Subnet
 
 After adding the node as a validator to your subnet, **you need to restart your node after you follow these steps in your node**:
 
@@ -113,17 +113,28 @@ After adding the node as a validator to your subnet, **you need to restart your 
    
     * After the build, the file will be under `subnet-evm/build` directory.
 
-    * Copy this file to `/usr/local/lib/avalanchego/plugins` directory in AWS.
+    * Copy this file to `/usr/local/lib/avalanchego/plugins` directory in AWS. (With Avalanche 1.9.7, it is possible to provide `--plugin-dir` flag to point to the path of the directory that VMs exist.)
 
-2. Whitelist your subnet in your node.
+2. Track your subnet in your node.
     
-    * Include the `--whitelisted-subnets` flag in your node's startup command. 
-    This flag should include the subnet ID of the subnet you created. For example, the flag should look like this: `--whitelisted-subnets="<YOUR_SUBNET_ID>"`.
+    * Include the `--track-subnets` flag in your node's startup command. 
+    This flag should include the subnet ID of the subnet you created. For example, the flag should look like this: `--track-subnets="<YOUR_SUBNET_ID>"`.
+
+3. Do not forget to enable the Keystore API. 
+   * With Avalanche 1.9.7, the Keystore API is disabled by default. 
+   * You can set the relevant flag to true: `--api-keystore-enabled=true`
+
+4. Then, finally restart your node.
 
     * The final command to restart your node should look like this:
 
         ```bash
-        nohup avalanchego --network-id=fuji --http-host="0.0.0.0" --whitelisted-subnets=<YOUR_SUBNET_ID_1>, <YOUR_SUBNET_ID_2> 
+        nohup avalanchego 
+        --network-id=fuji 
+        --http-host="0.0.0.0" 
+        --track-subnets=<YOUR_SUBNET_ID_1>,<YOUR_SUBNET_ID_2> 
+        --plugin-dir=/usr/local/lib/avalanchego/plugins
+        --api-keystore-enabled=true
         ```
 
 ### Creating a Blockchain on Your Subnet

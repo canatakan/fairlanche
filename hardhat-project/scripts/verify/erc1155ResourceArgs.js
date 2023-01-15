@@ -1,5 +1,5 @@
 module.exports = [
-    "Test Token",
+    "Test Resource",
     "TST1155",
     "https://<EXAMPLE_WEBSITE>/api/item/{id}.json",
     [0, 1, 2],
