@@ -1,4 +1,4 @@
-FROM node:16-alpine as builder
+FROM --platform=linux/x86-64 node:16-alpine as builder
 # Set the working directory to /app inside the container
 WORKDIR /app
 
@@ -54,6 +54,8 @@ RUN npm run build
 
 # Install serve
 RUN npm install -g serve
+
+EXPOSE 3000
 
 # Run the app
 CMD ["serve", "-s", "build"]
