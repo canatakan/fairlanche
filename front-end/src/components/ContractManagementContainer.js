@@ -6,7 +6,6 @@ import Collapsible from "./Collapsible";
 import { useContractFunction } from "@usedapp/core";
 import { Contract } from "ethers";
 
-import PQMFERC20Distributor from "../constants/PQMFERC20Distributor";
 import { SELECTED_ABI } from "../constants/AppConstants";
 
 export default function ContractContainer({
