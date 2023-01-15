@@ -76,7 +76,7 @@ task("deploy", "Runs the deploy script")
   .setAction(async ({ resource, isPermissioned }) => {
 
     resource = resource.toLowerCase();
-    if (!["native", "erc20", "erc1155", "allowance", "lib"].includes(resource)) {
+    if (!["native", "erc20", "erc1155", "allowance", "lib", "tokens"].includes(resource)) {
       throw new Error("Invalid resource type");
     }
 
@@ -85,6 +85,9 @@ task("deploy", "Runs the deploy script")
       return;
     } else if (resource == 'lib') {
       await hre.run("run", { script: "./scripts/deployLib.js" });
+      return;
+    } else if (resource == 'tokens') {
+      await hre.run("run", { script: "./scripts/deployTokens.js" });
       return;
     }
 
@@ -95,28 +98,7 @@ task("deploy", "Runs the deploy script")
       isPermissioned = true;
     }
 
-    // the following is a hack to replace the RESOURCE_TYPE variable in the config.js file
-    // this is done because hardhat doesn't support running scripts with arguments
-    let rl = readline.createInterface({
-      input: fs.createReadStream('./scripts/config.js'),
-      console: false,
-    });
-
-    rl.on("line", (line) => {
-      if (line.includes("RESOURCE_TYPE")) {
-        let newLine = line.replace(/native|erc20|erc1155/, resource);
-        let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
-        fs.writeFileSync('./scripts/config.js', newContent);
-      } else if (line.includes("IS_PERMISSIONED")) {
-        let newLine = line.replace(/true|false/, isPermissioned);
-        let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
-        fs.writeFileSync('./scripts/config.js', newContent);
-        rl.close();
-        return;
-      }
-    });
-
-    await hre.run("run", { script: "./scripts/deploy.js" });
+    await deployResourceContract(resource, isPermissioned);
   });
 
 task("interact", "Runs the interact script")
@@ -176,3 +158,29 @@ task("test", "Runs the test script", async (taskArgs, hre) => {
   }
   await runSuper(taskArgs, hre);
 });
+
+async function deployResourceContract(resource, isPermissioned) {
+  // the following is a hack to replace the RESOURCE_TYPE variable in the config.js file
+  // this is done because hardhat doesn't support running scripts with arguments
+  let rl = readline.createInterface({
+    input: fs.createReadStream('./scripts/config.js'),
+    console: false,
+  });
+
+  rl.on("line", (line) => {
+    if (line.includes("RESOURCE_TYPE")) {
+      let newLine = line.replace(/native|erc20|erc1155/, resource);
+      let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
+      fs.writeFileSync('./scripts/config.js', newContent);
+    } else if (line.includes("IS_PERMISSIONED")) {
+      let newLine = line.replace(/true|false/, isPermissioned);
+      let newContent = fs.readFileSync('./scripts/config.js').toString().replace(line, newLine);
+      fs.writeFileSync('./scripts/config.js', newContent);
+      rl.close();
+      return;
+    }
+  });
+
+  await hre.run("run", { script: "./scripts/deploy.js" });
+}
+

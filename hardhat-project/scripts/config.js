@@ -38,14 +38,14 @@ const ERC1155_DEPLOYMENT_PARAMS = {
 };
 
 const ERC20_RESOURCE_PARAMS = {
-    _name: "Test Token",
+    _name: "Test Resource",
     _symbol: "TST20",
     _premintSupply: ethers.utils.parseEther("100000"),
     _maximumSupply: ethers.utils.parseEther("1000000"),
 };
 
 const ERC1155_RESOURCE_PARAMS = {
-    _name: "Test Token",
+    _name: "Test Resource",
     _symbol: "TST1155",
     _uri: "https://<EXAMPLE_WEBSITE>/api/item/{id}.json",
     _premintIds: [0, 1, 2],
