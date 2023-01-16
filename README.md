@@ -1,13 +1,14 @@
 # Fairlanche
+_Bogazici University, Department of Computer Engineering, Graduation Project, Spring 2022_
 
 ## Overview
 
 Fairlanche is a tool for deployment and management of Avalanche Blockchain Subnets with policy based faucets.
 
-It provides an easy interface to deploy your own Avalanche blockchain subnet with a policy based faucet. The policy based faucets allow you to specify a policy for the distribution of resources to the users of the subnet. The policy itself can be specified in the front-end directly. It is then compiled into a smart contract and deployed to the newly created subnet.
+It provides an easy interface to deploy your own blockchains on Avalanche subnets with policy based faucets. The policy based faucets allow you to specify a policy for the fair distribution of resources to the users of the blockchain. The policy itself can be specified in the front-end directly. It is then compiled into a smart contract and deployed to the newly created blockchain.
 
 
-## Installation
+## Installation & Launch
 
 - Clone the repository with its submodules, using the following command:
 ```
